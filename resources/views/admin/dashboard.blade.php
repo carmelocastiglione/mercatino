@@ -10,75 +10,43 @@
     <!-- Management Boxes Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Schools Management Box -->
-        <a href="/admin/schools" class="bg-blue-600 rounded-xl p-8 text-white hover:shadow-lg transition">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium mb-2">GESTIONE</p>
-                    <h2 class="text-3xl font-bold mb-4">Scuole</h2>
-                    <p class="text-blue-100 mb-6">Amministra le scuole della piattaforma</p>
-                    <div class="flex items-center font-medium hover:underline">
-                        Accedi alla gestione
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="text-5xl font-bold text-blue-200">{{ $totalSchools ?? 0 }}</div>
-            </div>
-        </a>
+        <x-dashboard-card 
+            href="/admin/schools"
+            title="Scuole"
+            description="Amministra le scuole della piattaforma"
+            count="{{ $totalSchools ?? 0 }}"
+            bgColor="blue"
+            label="GESTIONE"
+        />
 
         <!-- Users Management Box -->
-        <a href="/admin/users" class="bg-blue-600 rounded-xl p-8 text-white hover:shadow-lg transition">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium mb-2">GESTIONE</p>
-                    <h2 class="text-3xl font-bold mb-4">Utenti</h2>
-                    <p class="text-blue-100 mb-6">Amministra gli utenti della piattaforma</p>
-                    <div class="flex items-center font-medium hover:underline">
-                        Accedi alla gestione
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="text-5xl font-bold text-blue-200">{{ $totalUsers ?? 0 }}</div>
-            </div>
-        </a>
+        <x-dashboard-card 
+            href="/admin/users"
+            title="Utenti"
+            description="Amministra gli utenti della piattaforma"
+            count="{{ $totalUsers ?? 0 }}"
+            bgColor="blue"
+            label="GESTIONE"
+        />
 
         <!-- Books Catalog Box -->
-        <a href="/admin/books" class="bg-blue-600 rounded-xl p-8 text-white hover:shadow-lg transition">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium mb-2">CATALOGO</p>
-                    <h2 class="text-3xl font-bold mb-4">Libri</h2>
-                    <p class="text-blue-100 mb-6">Gestisci il catalogo generale dei libri</p>
-                    <div class="flex items-center font-medium hover:underline">
-                        Accedi alla gestione
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="text-5xl font-bold text-blue-200">{{ $totalBooks ?? 0 }}</div>
-            </div>
-        </a>
+        <x-dashboard-card 
+            href="/admin/books"
+            title="Libri"
+            description="Gestisci il catalogo generale dei libri"
+            count="{{ $totalBooks ?? 0 }}"
+            bgColor="blue"
+            label="CATALOGO"
+        />
 
         <!-- Book Listings Box -->
-        <a href="/admin/listings" class="bg-blue-600 rounded-xl p-8 text-white hover:shadow-lg transition">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-blue-100 text-sm font-medium mb-2">ANNUNCI</p>
-                    <h2 class="text-3xl font-bold mb-4">Copie</h2>
-                    <p class="text-blue-100 mb-6">Gestisci gli annunci e le copie in vendita</p>
-                    <div class="flex items-center font-medium hover:underline">
-                        Accedi alla gestione
-                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="text-5xl font-bold text-blue-200">—</div>
-            </div>
-        </a>
+        <x-dashboard-card 
+            href="/admin/listings"
+            title="Copie"
+            description="Gestisci gli annunci e le copie in vendita"
+            count="—"
+            bgColor="blue"
+            label="ANNUNCI"
+        />
     </div>
 @endsection

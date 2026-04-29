@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -23,6 +25,21 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+/**
+ * Student Routes
+ * Dashboard e gestione consegne per gli studenti
+ */
+Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
+    Route::get('/', [StudentDashboardController::class, 'index'])->name('student.dashboard');
+    
+    Route::get('/deliveries', [StudentDeliveryController::class, 'index'])->name('student.deliveries.index');
+    Route::get('/deliveries/create', [StudentDeliveryController::class, 'create'])->name('student.deliveries.create');
+    Route::post('/deliveries', [StudentDeliveryController::class, 'store'])->name('student.deliveries.store');
+    Route::get('/deliveries/{delivery}/edit', [StudentDeliveryController::class, 'edit'])->name('student.deliveries.edit');
+    Route::put('/deliveries/{delivery}', [StudentDeliveryController::class, 'update'])->name('student.deliveries.update');
+    Route::delete('/deliveries/{delivery}', [StudentDeliveryController::class, 'destroy'])->name('student.deliveries.delete');
+});
 
 /**
  * Admin Routes

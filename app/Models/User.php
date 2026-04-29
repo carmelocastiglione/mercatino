@@ -47,4 +47,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(BookListing::class, 'seller_id');
     }
+
+    public function bookDeliveries(): HasMany
+    {
+        return $this->hasMany(BookDelivery::class);
+    }
+
+    public function approvedDeliveries(): HasMany
+    {
+        return $this->hasMany(BookDelivery::class, 'approved_by');
+    }
 }

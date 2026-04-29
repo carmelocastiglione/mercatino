@@ -35,7 +35,10 @@ class Book extends Model
     {
         return $this->hasMany(BookListing::class);
     }
-
+    public function bookDeliveries(): HasMany
+    {
+        return $this->hasMany(BookDelivery::class);
+    }
     /**
      * Get available listings for this book.
      */
