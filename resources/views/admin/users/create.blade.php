@@ -83,6 +83,24 @@
                 @enderror
             </div>
 
+            <!-- School -->
+            <div>
+                <label for="school_id" class="block text-sm font-medium text-gray-900 mb-2">Scuola</label>
+                <select 
+                    name="school_id" 
+                    id="school_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition @error('school_id') border-red-500 @enderror"
+                >
+                    <option value="">Nessuna scuola (admin)</option>
+                    @foreach ($schools as $school)
+                        <option value="{{ $school->id }}" @selected(old('school_id') == $school->id)>{{ $school->name }}</option>
+                    @endforeach
+                </select>
+                @error('school_id')
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Password -->
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-900 mb-2">Password</label>

@@ -26,6 +26,14 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
+    // Schools Management
+    Route::get('/schools', [AdminController::class, 'schools'])->name('admin.schools');
+    Route::get('/schools/create', [AdminController::class, 'createSchool'])->name('admin.schools.create');
+    Route::post('/schools', [AdminController::class, 'storeSchool'])->name('admin.schools.store');
+    Route::get('/schools/{school}/edit', [AdminController::class, 'editSchool'])->name('admin.schools.edit');
+    Route::put('/schools/{school}', [AdminController::class, 'updateSchool'])->name('admin.schools.update');
+    Route::delete('/schools/{school}', [AdminController::class, 'deleteSchool'])->name('admin.schools.delete');
+    
     // Users Management
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/users/create', [AdminController::class, 'createUser'])->name('admin.users.create');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Book;
+use App\Models\School;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -16,26 +17,89 @@ class AdminController extends Controller
      */
     public function dashboard(): View
     {
-        // Get statistics
-        $totalUsers = User::count();
-        $studentCount = User::where('role', 'studente')->count();
-        $totalBooks = Book::count();
-        $totalTransactions = 0; // Will update when Transaction model is ready
-
-        // Get recent users (last 5)
-        $recentUsers = User::latest()->take(5)->get();
-
-        // Get recent books
-        $recentBooks = Book::with('seller')->latest()->take(5)->get();
-
         return view('admin.dashboard', [
-            'totalUsers' => $totalUsers,
-            'studentCount' => $studentCount,
-            'totalBooks' => $totalBooks,
-            'totalTransactions' => $totalTransactions,
-            'recentUsers' => $recentUsers,
-            'recentBooks' => $recentBooks,
+            'totalSchools' => School::count(),
+            'totalUsers' => User::count(),
+            'totalBooks' => Book::count(),
         ]);
+    }
+
+    /**
+     * Show list of all schools.
+     */
+    public function schools(): View
+    {
+        $schools = School::latest()->paginate(15);
+        
+        return view('admin.schools.index', [
+            'schools' => $schools,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new school.
+     */
+    public function createSchool(): View
+    {
+        return view('admin.schools.create');
+    }
+
+    /**
+     * Store a newly created school in storage.
+     */
+    public function storeSchool(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:schools',
+            'description' => 'nullable|string',
+            'city' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|string|email|max:255',
+        ]);
+
+        School::create($validated);
+
+        return redirect()->route('admin.schools')->with('success', 'Scuola creata con successo.');
+    }
+
+    /**
+     * Show the form for editing the specified school.
+     */
+    public function editSchool(School $school): View
+    {
+        return view('admin.schools.edit', [
+            'school' => $school,
+        ]);
+    }
+
+    /**
+     * Update the specified school in storage.
+     */
+    public function updateSchool(Request $request, School $school): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:schools,name,' . $school->id,
+            'description' => 'nullable|string',
+            'city' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|string|email|max:255',
+        ]);
+
+        $school->update($validated);
+
+        return redirect()->route('admin.schools')->with('success', 'Scuola aggiornata con successo.');
+    }
+
+    /**
+     * Delete the specified school.
+     */
+    public function deleteSchool(School $school): RedirectResponse
+    {
+        $school->delete();
+
+        return redirect()->route('admin.schools')->with('success', 'Scuola eliminata con successo.');
     }
 
     /**
@@ -55,7 +119,11 @@ class AdminController extends Controller
      */
     public function createUser(): View
     {
-        return view('admin.users.create');
+        $schools = School::latest()->get();
+        
+        return view('admin.users.create', [
+            'schools' => $schools,
+        ]);
     }
 
     /**
@@ -69,6 +137,7 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:studente,staff,admin',
+            'school_id' => 'nullable|exists:schools,id',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -84,8 +153,11 @@ class AdminController extends Controller
      */
     public function editUser(User $user): View
     {
+        $schools = School::latest()->get();
+        
         return view('admin.users.edit', [
             'user' => $user,
+            'schools' => $schools,
         ]);
     }
 
@@ -99,6 +171,7 @@ class AdminController extends Controller
             'surname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:studente,staff,admin',
+            'school_id' => 'nullable|exists:schools,id',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 

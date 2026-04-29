@@ -40,6 +40,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nome</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ruolo</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Scuola</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Iscritto il</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Azioni</th>
                     </tr>
@@ -65,6 +66,13 @@
                                     <span class="px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Staff</span>
                                 @else
                                     <span class="px-3 py-1 text-xs font-semibold text-blue-800 bg-blue-100 rounded-full">Studente</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                @if ($user->school)
+                                    {{ $user->school->name }}
+                                @else
+                                    <span class="text-gray-400">—</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $user->created_at->format('d/m/Y') }}</td>

@@ -53,7 +53,16 @@ class LoginController extends Controller
         )) {
             // Autenticazione riuscita
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard')->with('success', 'Benvenuto nel tuo account!');
+            
+            $user = Auth::user();
+            $redirect = match($user->role) {
+                'admin' => '/admin',
+                'studente' => '/student',
+                'staff' => '/staff',
+                default => '/dashboard',
+            };
+            
+            return redirect()->intended($redirect)->with('success', 'Benvenuto nel tuo account!');
         }
 
         // Autenticazione fallita
