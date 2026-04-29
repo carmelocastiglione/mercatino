@@ -52,23 +52,28 @@
 
             <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <a href="/admin" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin') && !request()->is('admin/schools*') && !request()->is('admin/users*') && !request()->is('admin/books*')) bg-gray-100 text-gray-900 @endif">
+                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin') && !request()->is('admin/schools*') && !request()->is('admin/users*') && !request()->is('admin/books*') && !request()->is('admin/listings*')) bg-gray-100 text-gray-900 @endif">
                     Dashboard
                 </a>
 
                 <!-- Schools Management -->
-                <a href="/admin/schools" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/schools*')) bg-gray-100 text-gray-900 @endif">
+                <a href="{{ route('admin.schools.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/schools*')) bg-gray-100 text-gray-900 @endif">
                     Gestione Scuole
                 </a>
 
                 <!-- Users Management -->
-                <a href="/admin/users" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/users*')) bg-gray-100 text-gray-900 @endif">
+                <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/users*')) bg-gray-100 text-gray-900 @endif">
                     Gestione Utenti
                 </a>
 
-                <!-- Books Management -->
-                <a href="/admin/books" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/books*')) bg-gray-100 text-gray-900 @endif">
-                    Gestione Libri
+                <!-- Books Catalog -->
+                <a href="{{ route('admin.books.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/books*')) bg-gray-100 text-gray-900 @endif">
+                    Catalogo Libri
+                </a>
+
+                <!-- Book Listings -->
+                <a href="{{ route('admin.listings.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/listings*')) bg-gray-100 text-gray-900 @endif">
+                    Gestione Annunci
                 </a>
             </nav>
 

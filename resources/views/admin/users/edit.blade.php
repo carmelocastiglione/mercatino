@@ -3,7 +3,7 @@
 @section('dashboard-content')
     <!-- Header -->
     <div class="mb-8">
-        <a href="{{ route('admin.users') }}" class="text-blue-600 hover:text-blue-900 font-medium text-sm mb-4 inline-block">← Torna alla lista</a>
+        <a href="{{ route('admin.users.index') }}" class="text-blue-600 hover:text-blue-900 font-medium text-sm mb-4 inline-block">← Torna alla lista</a>
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Modifica Utente</h1>
         <p class="text-gray-600">Aggiorna le informazioni dell'utente</p>
     </div>
@@ -141,7 +141,7 @@
                     Salva Modifiche
                 </button>
                 <a 
-                    href="{{ route('admin.users') }}" 
+                    href="{{ route('admin.users.index') }}" 
                     class="bg-gray-200 hover:bg-gray-300 text-gray-900 font-medium py-2 px-6 rounded-lg transition"
                 >
                     Annulla

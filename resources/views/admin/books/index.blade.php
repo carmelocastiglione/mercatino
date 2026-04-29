@@ -39,9 +39,9 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Titolo</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Autore</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Venditore</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Stato</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Materia</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Classe</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo Copertina</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Azioni</th>
                     </tr>
                 </thead>
@@ -50,27 +50,20 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
                                 <p class="font-medium text-gray-900">{{ $book->title }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ $book->subject }} • {{ $book->school_class }}</p>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $book->author ?? '—' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ $book->seller->name }} {{ $book->seller->surname }}
-                            </td>
-                            <td class="px-6 py-4 text-sm font-semibold text-gray-900">€ {{ number_format($book->price, 2, ',', '.') }}</td>
-                            <td class="px-6 py-4 text-sm">
-                                @if ($book->status === 'available')
-                                    <span class="px-3 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Disponibile</span>
-                                @elseif ($book->status === 'reserved')
-                                    <span class="px-3 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Riservato</span>
-                                @elseif ($book->status === 'sold')
-                                    <span class="px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">Venduto</span>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $book->subject }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $book->school_class }}</td>
+                            <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                                @if ($book->original_price)
+                                    € {{ number_format($book->original_price, 2, ',', '.') }}
                                 @else
-                                    <span class="px-3 py-1 text-xs font-semibold text-gray-800 bg-gray-100 rounded-full">Archiviato</span>
+                                    —
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
                                 <a href="{{ route('admin.books.edit', $book) }}" class="text-blue-600 hover:text-blue-900 font-medium text-sm">Modifica</a>
-                                <form method="POST" action="{{ route('admin.books.delete', $book) }}" class="inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo libro?');">
+                                <form method="POST" action="{{ route('admin.books.delete', $book) }}" class="inline" onsubmit="return confirm('Sei sicuro di voler eliminare questo libro dal catalogo?');">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900 font-medium text-sm">Elimina</button>

@@ -3,41 +3,44 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Book extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
-        'seller_id',
         'title',
         'author',
         'isbn',
         'description',
         'subject',
         'school_class',
-        'condition',
-        'price',
         'original_price',
-        'status',
-        'images',
         'cover_image',
-        'views',
-        'favorites',
     ];
 
     protected $casts = [
-        'images' => 'json',
-        'price' => 'decimal:2',
         'original_price' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
-     * Get the seller of the book.
+     * Get all listings for this book.
      */
-    public function seller(): BelongsTo
+    public function listings(): HasMany
     {
-        return $this->belongsTo(User::class, 'seller_id');
+        return $this->hasMany(BookListing::class);
+    }
+
+    /**
+     * Get available listings for this book.
+     */
+    public function availableListings()
+    {
+        return $this->listings()->where('status', 'available');
     }
 }
