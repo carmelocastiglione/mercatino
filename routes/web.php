@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
+use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -79,4 +81,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/listings/{listing}/edit', [BookListingController::class, 'edit'])->name('admin.listings.edit');
     Route::put('/listings/{listing}', [BookListingController::class, 'update'])->name('admin.listings.update');
     Route::delete('/listings/{listing}', [BookListingController::class, 'destroy'])->name('admin.listings.delete');
+});
+
+/**
+ * Staff Routes
+ * Dashboard e gestione approvazione consegne (per staff e admin)
+ */
+Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
+    Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    
+    Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');
+    Route::get('/deliveries/{delivery}', [StaffDeliveryController::class, 'show'])->name('staff.deliveries.show');
+    Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
+    Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');
+    Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
 });

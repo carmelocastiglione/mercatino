@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\StudentMiddleware;
+use App\Http\Middleware\StaffMiddleware;
 use App\Http\Middleware\Authenticate;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth' => Authenticate::class,
             'admin' => AdminMiddleware::class,
             'student' => StudentMiddleware::class,
+            'staff' => StaffMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
