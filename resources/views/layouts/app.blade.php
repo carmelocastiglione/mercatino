@@ -17,6 +17,7 @@
         html { scroll-behavior: smooth; }
         .gradient-hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .gradient-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .bg-gradient-primary { background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%); }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
         .delay-100 { animation-delay: 0.1s; }
@@ -39,7 +40,6 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <a href="/login" class="text-gray-600 hover:text-gray-900 transition font-medium hidden md:inline">Accedi</a>
-                    <a href="/register" class="bg-gradient-primary text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition">Registrati</a>
                 </div>
                 <button id="mobile-menu-btn" class="md:hidden text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
