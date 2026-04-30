@@ -13,12 +13,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-
     @if($listings->count() > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
@@ -28,7 +22,7 @@
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Condizione</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Prezzo</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acquisito da</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Venditore</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azioni</th>
                         </tr>
                     </thead>
@@ -65,7 +59,7 @@
                                     €{{ number_format($listing->price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-600">
-                                    {{ $listing->seller->name }}
+                                    {{ $listing->seller->name }} {{ $listing->seller->surname }}
                                 </td>
                                 <td class="px-6 py-4 text-sm">
                                     <form action="{{ route('staff.listings.mark-sold', $listing->id) }}" method="POST" class="inline">

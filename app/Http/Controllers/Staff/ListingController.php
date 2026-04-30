@@ -26,15 +26,53 @@ class ListingController extends Controller
     }
 
     /**
+     * Search books by title or ISBN.
+     */
+    public function searchBooks()
+    {
+        $query = request()->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $books = Book::where('title', 'ilike', "%{$query}%")
+            ->orWhere('isbn', 'ilike', "%{$query}%")
+            ->orWhere('author', 'ilike', "%{$query}%")
+            ->select('id', 'title', 'author', 'isbn', 'original_price')
+            ->limit(10)
+            ->get();
+
+        return response()->json($books);
+    }
+
+    /**
+     * Search sellers by name or email.
+     */
+    public function searchSellers()
+    {
+        $query = request()->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $users = \App\Models\User::where('name', 'ilike', "%{$query}%")
+            ->orWhere('surname', 'ilike', "%{$query}%")
+            ->orWhere('email', 'ilike', "%{$query}%")
+            ->select('id', 'name', 'surname', 'email')
+            ->limit(10)
+            ->get();
+
+        return response()->json($users);
+    }
+
+    /**
      * Show the form for creating a new acquisition.
      */
     public function create(): View
     {
-        $books = Book::all();
-
-        return view('staff.listings.create', [
-            'books' => $books,
-        ]);
+        return view('staff.listings.create');
     }
 
     /**
@@ -43,6 +81,7 @@ class ListingController extends Controller
     public function store(): RedirectResponse
     {
         $validated = request()->validate([
+            'seller_id' => ['required', 'exists:users,id'],
             'book_id' => ['required', 'exists:books,id'],
             'condition' => ['required', 'in:like-new,good,fair,poor'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -50,7 +89,7 @@ class ListingController extends Controller
 
         BookListing::create([
             'book_id' => $validated['book_id'],
-            'seller_id' => auth()->id(),
+            'seller_id' => $validated['seller_id'],
             'condition' => $validated['condition'],
             'price' => $validated['price'],
             'status' => 'available',
