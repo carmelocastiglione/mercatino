@@ -25,6 +25,7 @@ class UserSeeder extends Seeder
             'role' => 'studente',
             'school_id' => $vigano?->id,
             'email_verified_at' => now(),
+            'code' => User::generateCode('Marco', 'Rossi'),
         ]);
 
         User::create([
@@ -35,6 +36,7 @@ class UserSeeder extends Seeder
             'role' => 'staff',
             'school_id' => $vigano?->id,
             'email_verified_at' => now(),
+            'code' => User::generateCode('Anna', 'Bianchi'),
         ]);
 
         User::create([
@@ -44,6 +46,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('mercatino'),
             'role' => 'admin',
             'email_verified_at' => now(),
+            'code' => User::generateCode('Giovanni', 'Verdi'),
         ]);
     }
 }

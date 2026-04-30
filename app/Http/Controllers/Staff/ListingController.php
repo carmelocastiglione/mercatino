@@ -60,7 +60,7 @@ class ListingController extends Controller
         $users = \App\Models\User::where('name', 'ilike', "%{$query}%")
             ->orWhere('surname', 'ilike', "%{$query}%")
             ->orWhere('email', 'ilike', "%{$query}%")
-            ->select('id', 'name', 'surname', 'email')
+            ->select('id', 'name', 'surname', 'email', 'code')
             ->limit(10)
             ->get();
 

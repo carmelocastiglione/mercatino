@@ -12,6 +12,12 @@
     </div>
 
     <div class="max-w-2xl">
+        <!-- Seller Code Box -->
+        <div id="seller_code_box" class="mb-6 hidden bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-6 shadow-md">
+            <p class="text-sm text-center text-gray-600 mb-2">Codice venditore</p>
+            <p id="seller_code_display" class="text-5xl font-bold text-blue-600 text-center tracking-widest"></p>
+        </div>
+
         <form action="{{ route('staff.listings.store') }}" method="POST" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             @csrf
 
@@ -115,6 +121,8 @@
         const sellerIdInput = document.getElementById('seller_id');
         const selectedSellerDiv = document.getElementById('selected_seller');
         const selectedSellerText = document.getElementById('selected_seller_text');
+        const sellerCodeBox = document.getElementById('seller_code_box');
+        const sellerCodeDisplay = document.getElementById('seller_code_display');
         let sellerDebounceTimer;
 
         sellerSearch.addEventListener('input', (e) => {
@@ -137,9 +145,14 @@
                         }
 
                         sellerResults.innerHTML = users.map(user => `
-                            <div class="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition" onclick="selectSeller(${user.id}, '${user.name.replace(/'/g, "\\'")} ${user.surname.replace(/'/g, "\\'")}')"}>
-                                <p class="font-medium text-gray-900">${user.name} ${user.surname}</p>
-                                <p class="text-sm text-gray-500">${user.email}</p>
+                            <div class="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition" onclick="selectSeller(${user.id}, '${user.name.replace(/'/g, "\\'")} ${user.surname.replace(/'/g, "\\'")}', '${user.code}')">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-gray-900">${user.name} ${user.surname}</p>
+                                        <p class="text-sm text-gray-500">${user.email}</p>
+                                    </div>
+                                    <p class="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded">${user.code}</p>
+                                </div>
                             </div>
                         `).join('');
                         sellerResults.classList.remove('hidden');
@@ -152,12 +165,14 @@
             }, 300);
         });
 
-        function selectSeller(id, name) {
+        function selectSeller(id, name, code) {
             sellerIdInput.value = id;
             sellerSearch.value = name;
             sellerResults.classList.add('hidden');
             selectedSellerText.textContent = name;
             selectedSellerDiv.classList.remove('hidden');
+            sellerCodeDisplay.textContent = code;
+            sellerCodeBox.classList.remove('hidden');
         }
 
         // === BOOK SEARCH ===
