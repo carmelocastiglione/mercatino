@@ -18,6 +18,21 @@
             <p id="seller_code_display" class="text-5xl font-bold text-blue-600 text-center tracking-widest"></p>
         </div>
 
+        <!-- Seller Password Box -->
+        <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+            <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+            <div class="space-y-4">
+                <div>
+                    <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
+                    <p id="seller_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+                </div>
+                <div>
+                    <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
+                    <code id="seller_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                </div>
+            </div>
+        </div>
+
         <form action="{{ route('staff.listings.store') }}" method="POST" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             @csrf
 
@@ -26,18 +41,23 @@
                 <label for="seller_search" class="block text-sm font-semibold text-gray-900 mb-2">
                     Venditore <span class="text-red-600">*</span>
                 </label>
-                <div class="relative">
-                    <input 
-                        type="text" 
-                        id="seller_search" 
-                        placeholder="Cerca per nome o email..." 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        autocomplete="off"
-                    />
-                    <input type="hidden" id="seller_id" name="seller_id" value="">
-                    
-                    <!-- Dropdown dei risultati -->
-                    <div id="seller_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <input 
+                            type="text" 
+                            id="seller_search" 
+                            placeholder="Cerca per nome o email..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            autocomplete="off"
+                        />
+                        <input type="hidden" id="seller_id" name="seller_id" value="">
+                        
+                        <!-- Dropdown dei risultati -->
+                        <div id="seller_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                    </div>
+                    <button type="button" onclick="openRegisterModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                        + Registra
+                    </button>
                 </div>
                 @error('seller_id')
                     <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
@@ -114,6 +134,36 @@
         </form>
     </div>
 
+    <!-- Modal Registrazione Venditore -->
+    <div id="register_modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Registra Venditore</h2>
+            <form id="register_form" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="reg_name" class="block text-sm font-semibold text-gray-900 mb-2">Nome <span class="text-red-600">*</span></label>
+                    <input type="text" id="reg_name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="reg_name_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="reg_surname" class="block text-sm font-semibold text-gray-900 mb-2">Cognome <span class="text-red-600">*</span></label>
+                    <input type="text" id="reg_surname" name="surname" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="reg_surname_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="reg_email" class="block text-sm font-semibold text-gray-900 mb-2">Email <span class="text-red-600">*</span></label>
+                    <input type="email" id="reg_email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="reg_email_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Registra</button>
+                    <button type="button" onclick="closeRegisterModal()" class="flex-1 px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">Annulla</button>
+                </div>
+                <p id="register_message" class="text-center text-sm mt-2 hidden"></p>
+            </form>
+        </div>
+    </div>
+
     <script>
         // === SELLER SEARCH ===
         const sellerSearch = document.getElementById('seller_search');
@@ -165,7 +215,7 @@
             }, 300);
         });
 
-        function selectSeller(id, name, code) {
+        function selectSeller(id, name, code, email, password) {
             sellerIdInput.value = id;
             sellerSearch.value = name;
             sellerResults.classList.add('hidden');
@@ -173,6 +223,15 @@
             selectedSellerDiv.classList.remove('hidden');
             sellerCodeDisplay.textContent = code;
             sellerCodeBox.classList.remove('hidden');
+            
+            // Nascondi le credenziali di default
+            document.getElementById('seller_password_box').classList.add('hidden');
+            
+            if (password) {
+                document.getElementById('seller_email_display').textContent = email;
+                document.getElementById('seller_password_display').textContent = password;
+                document.getElementById('seller_password_box').classList.remove('hidden');
+            }
         }
 
         // === BOOK SEARCH ===
@@ -245,6 +304,109 @@
             }
             if (!e.target.closest('#book_search') && !e.target.closest('#search_results')) {
                 searchResults.classList.add('hidden');
+            }
+        });
+
+        // === MODAL REGISTRAZIONE ===
+        const registerModal = document.getElementById('register_modal');
+        const registerForm = document.getElementById('register_form');
+
+        function openRegisterModal() {
+            registerModal.classList.remove('hidden');
+            document.getElementById('reg_name').focus();
+        }
+
+        function closeRegisterModal() {
+            registerModal.classList.add('hidden');
+            registerForm.reset();
+            clearRegisterErrors();
+        }
+
+        function clearRegisterErrors() {
+            document.getElementById('reg_name_error').classList.add('hidden');
+            document.getElementById('reg_surname_error').classList.add('hidden');
+            document.getElementById('reg_email_error').classList.add('hidden');
+            document.getElementById('register_message').classList.add('hidden');
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearRegisterErrors();
+
+            try {
+                const response = await fetch('{{ route("staff.register-user") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('reg_name').value,
+                        surname: document.getElementById('reg_surname').value,
+                        email: document.getElementById('reg_email').value,
+                    })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    const text = await response.text();
+                    console.error('Risposta non JSON:', text);
+                    const msg = document.getElementById('register_message');
+                    msg.textContent = 'Errore del server. Controlla la console.';
+                    msg.className = 'text-center text-sm mt-2 text-red-600';
+                    msg.classList.remove('hidden');
+                    return;
+                }
+
+                if (!response.ok) {
+                    if (data.errors) {
+                        if (data.errors.name && data.errors.name.length > 0) {
+                            document.getElementById('reg_name_error').textContent = data.errors.name.join(', ');
+                            document.getElementById('reg_name_error').classList.remove('hidden');
+                        }
+                        if (data.errors.surname && data.errors.surname.length > 0) {
+                            document.getElementById('reg_surname_error').textContent = data.errors.surname.join(', ');
+                            document.getElementById('reg_surname_error').classList.remove('hidden');
+                        }
+                        if (data.errors.email && data.errors.email.length > 0) {
+                            document.getElementById('reg_email_error').textContent = data.errors.email.join(', ');
+                            document.getElementById('reg_email_error').classList.remove('hidden');
+                        }
+                    } else if (data.message) {
+                        const msg = document.getElementById('register_message');
+                        msg.textContent = data.message;
+                        msg.className = 'text-center text-sm mt-2 text-red-600';
+                        msg.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                // Utente registrato con successo
+                const newUser = data.user;
+                selectSeller(newUser.id, `${newUser.name} ${newUser.surname}`, newUser.code, newUser.email, newUser.password);
+                closeRegisterModal();
+
+                const msg = document.getElementById('register_message');
+                msg.textContent = 'Venditore registrato con successo!';
+                msg.className = 'text-center text-sm mt-2 text-green-600';
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3000);
+
+            } catch (error) {
+                console.error('Errore:', error);
+                const msg = document.getElementById('register_message');
+                msg.textContent = 'Errore durante la registrazione: ' + error.message;
+                msg.className = 'text-center text-sm mt-2 text-red-600';
+                msg.classList.remove('hidden');
+            }
+        });
+
+        // Chiudi modale quando clicca fuori
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                closeRegisterModal();
             }
         });
     </script>

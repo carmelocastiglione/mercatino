@@ -9,6 +9,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\ListingController as StaffListingController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
+use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -111,4 +112,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/sales', [StaffSaleController::class, 'index'])->name('staff.sales.index');
     Route::get('/sales/create', [StaffSaleController::class, 'create'])->name('staff.sales.create');
     Route::post('/sales', [StaffSaleController::class, 'store'])->name('staff.sales.store');
+    
+    // User Registration (for staff to register new sellers quickly)
+    Route::post('/register-user', [StaffRegisterController::class, 'registerUser'])->name('staff.register-user');
 });
