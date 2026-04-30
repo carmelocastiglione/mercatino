@@ -76,32 +76,6 @@ class ListingController extends Controller
     }
 
     /**
-     * Store a newly created acquisition in storage.
-     */
-    public function store(): RedirectResponse
-    {
-        $validated = request()->validate([
-            'seller_id' => ['required', 'exists:users,id'],
-            'book_id' => ['required', 'exists:books,id'],
-            'condition' => ['required', 'in:like-new,good,fair,poor'],
-            'price' => ['required', 'numeric', 'min:0'],
-        ]);
-
-        BookListing::create([
-            'book_id' => $validated['book_id'],
-            'seller_id' => $validated['seller_id'],
-            'condition' => $validated['condition'],
-            'price' => $validated['price'],
-            'status' => 'available',
-            'views' => 0,
-            'favorites' => 0,
-        ]);
-
-        return redirect()->route('staff.listings.index')
-            ->with('success', 'Libro acquisito con successo!');
-    }
-
-    /**
      * Mark a listing as sold.
      */
     public function markAsSold(BookListing $listing): RedirectResponse
@@ -142,6 +116,51 @@ class ListingController extends Controller
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Errore: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store multiple acquisitions in batch.
+     */
+    public function storeBatch()
+    {
+        try {
+            $validated = request()->validate([
+                'acquisitions' => ['required', 'array', 'min:1'],
+                'acquisitions.*.seller_id' => ['required', 'exists:users,id'],
+                'acquisitions.*.book_id' => ['required', 'exists:books,id'],
+                'acquisitions.*.condition' => ['required', 'in:like-new,good,fair,poor'],
+                'acquisitions.*.price' => ['required', 'numeric', 'min:0'],
+            ]);
+
+            $count = 0;
+            foreach ($validated['acquisitions'] as $acquisition) {
+                BookListing::create([
+                    'book_id' => $acquisition['book_id'],
+                    'seller_id' => $acquisition['seller_id'],
+                    'condition' => $acquisition['condition'],
+                    'price' => $acquisition['price'],
+                    'status' => 'available',
+                    'views' => 0,
+                    'favorites' => 0,
+                ]);
+                $count++;
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $count . ' acquisizione/i completata/e',
+                'count' => $count,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Errore di validazione',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {

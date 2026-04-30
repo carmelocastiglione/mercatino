@@ -8,135 +8,156 @@
             <a href="{{ route('staff.listings.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">← Torna alle acquisizioni</a>
         </div>
         <h1 class="text-4xl font-bold text-gray-900">Acquisisci Libro</h1>
-        <p class="text-gray-600 mt-2">Aggiungi un nuovo libro al catalogo disponibile per la vendita</p>
+        <p class="text-gray-600 mt-2">Aggiungi uno o più libri al catalogo disponibile per la vendita</p>
     </div>
 
-    <div class="max-w-2xl">
-        <!-- Seller Code Box -->
-        <div id="seller_code_box" class="mb-6 hidden bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-6 shadow-md">
-            <p class="text-sm text-center text-gray-600 mb-2">Codice venditore</p>
-            <p id="seller_code_display" class="text-5xl font-bold text-blue-600 text-center tracking-widest"></p>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- LEFT SIDE: FORM -->
+        <div class="lg:col-span-2">
+            <!-- Seller Password Box -->
+            <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+                <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
+                        <p id="seller_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
+                        <code id="seller_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                    </div>
+                </div>
+            </div>
+
+            <form id="acquisition_form" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+                @csrf
+
+                <!-- Seller Selection -->
+                <div class="mb-8">
+                    <label for="seller_search" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Venditore <span class="text-red-600">*</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="seller_search" 
+                                placeholder="Cerca per nome o email..." 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" id="seller_id" name="seller_id" value="">
+                            
+                            <!-- Dropdown dei risultati -->
+                            <div id="seller_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                        </div>
+                        <button type="button" onclick="openRegisterModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                            + Registra
+                        </button>
+                    </div>
+                    <p id="selected_seller" class="text-sm text-gray-600 mt-2 hidden">
+                        <span class="font-medium">Venditore selezionato:</span> <span id="selected_seller_text"></span>
+                    </p>
+                </div>
+
+                <!-- Book Selection -->
+                <div class="mb-8">
+                    <label for="book_search" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Libro <span class="text-red-600">*</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="book_search" 
+                                placeholder="Cerca per titolo, autore o ISBN..." 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                autocomplete="off"
+                            />
+                            <input type="hidden" id="book_id" name="book_id" value="">
+                            
+                            <!-- Dropdown dei risultati -->
+                            <div id="search_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                        </div>
+                        <button type="button" onclick="openBookModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                            + Aggiungi
+                        </button>
+                    </div>
+                    <p id="selected_book" class="text-sm text-gray-600 mt-2 hidden">
+                        <span class="font-medium">Libro selezionato:</span> <span id="selected_book_text"></span>
+                    </p>
+                </div>
+
+                <!-- Condition -->
+                <div class="mb-8">
+                    <label for="condition" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Condizione <span class="text-red-600">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-4">
+                        @foreach(['like-new' => 'Come Nuovo', 'good' => 'Buona', 'fair' => 'Discreta', 'poor' => 'Scarsa'] as $value => $label)
+                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                                <input type="radio" id="condition_{{ $value }}" name="condition" value="{{ $value }}" class="w-4 h-4 text-blue-600">
+                                <span class="ml-3 text-sm font-medium text-gray-900">{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-8">
+                    <label for="price" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Prezzo (€) <span class="text-red-600">*</span>
+                    </label>
+                    <input type="number" name="price" id="price" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="">
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center space-x-4">
+                    <button type="button" onclick="addToCart()" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                        ➕ Acquisisci Libro
+                    </button>
+                    <a href="{{ route('staff.listings.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
+                        Annulla
+                    </a>
+                </div>
+            </form>
         </div>
 
-        <!-- Seller Password Box -->
-        <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
-            <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
-            <div class="space-y-4">
-                <div>
-                    <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
-                    <p id="seller_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+        <!-- RIGHT SIDE: SUMMARY CART -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+                <!-- Seller Code Box -->
+                <div id="seller_code_box" class="mb-6 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-6 shadow-md">
+                    <p class="text-sm text-center text-gray-600 mb-2">Codice venditore</p>
+                    <p id="seller_code_display" class="text-4xl font-bold text-blue-600 text-center tracking-widest">--</p>
                 </div>
-                <div>
-                    <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
-                    <code id="seller_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-lg font-bold text-gray-900">Riepilogo Acquisizioni</h2>
+                    <span id="cart_counter" class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center">0</span>
+                </div>
+
+                <div id="cart_items" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                    <p class="text-gray-500 text-sm text-center py-8">Nessun libro acquisito</p>
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-gray-700 font-medium">Totale:</span>
+                        <span id="cart_total" class="text-2xl font-bold text-blue-600">€0.00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <button type="button" onclick="finishAcquisitions()" class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
+                        ✓ Termina Acquisizioni
+                    </button>
+                    <button type="button" onclick="clearCart()" class="w-full px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition text-sm">
+                        🗑️ Cancella Tutto
+                    </button>
                 </div>
             </div>
         </div>
-
-        <form action="{{ route('staff.listings.store') }}" method="POST" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            @csrf
-
-            <!-- Seller Selection -->
-            <div class="mb-8">
-                <label for="seller_search" class="block text-sm font-semibold text-gray-900 mb-2">
-                    Venditore <span class="text-red-600">*</span>
-                </label>
-                <div class="flex gap-2">
-                    <div class="relative flex-1">
-                        <input 
-                            type="text" 
-                            id="seller_search" 
-                            placeholder="Cerca per nome o email..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            autocomplete="off"
-                        />
-                        <input type="hidden" id="seller_id" name="seller_id" value="">
-                        
-                        <!-- Dropdown dei risultati -->
-                        <div id="seller_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
-                    </div>
-                    <button type="button" onclick="openRegisterModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
-                        + Registra
-                    </button>
-                </div>
-                @error('seller_id')
-                    <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
-                @enderror
-                <p id="selected_seller" class="text-sm text-gray-600 mt-2 hidden">
-                    <span class="font-medium">Venditore selezionato:</span> <span id="selected_seller_text"></span>
-                </p>
-            </div>
-
-            <!-- Book Selection -->
-            <div class="mb-8">
-                <label for="book_search" class="block text-sm font-semibold text-gray-900 mb-2">
-                    Libro <span class="text-red-600">*</span>
-                </label>
-                <div class="flex gap-2">
-                    <div class="relative flex-1">
-                        <input 
-                            type="text" 
-                            id="book_search" 
-                            placeholder="Cerca per titolo, autore o ISBN..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            autocomplete="off"
-                        />
-                        <input type="hidden" id="book_id" name="book_id" value="">
-                        
-                        <!-- Dropdown dei risultati -->
-                        <div id="search_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
-                    </div>
-                    <button type="button" onclick="openBookModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
-                        + Aggiungi
-                    </button>
-                </div>
-                @error('book_id')
-                    <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
-                @enderror
-                <p id="selected_book" class="text-sm text-gray-600 mt-2 hidden">
-                    <span class="font-medium">Libro selezionato:</span> <span id="selected_book_text"></span>
-                </p>
-            </div>
-
-            <!-- Condition -->
-            <div class="mb-8">
-                <label for="condition" class="block text-sm font-semibold text-gray-900 mb-2">
-                    Condizione <span class="text-red-600">*</span>
-                </label>
-                <div class="grid grid-cols-2 gap-4">
-                    @foreach(['like-new' => 'Come Nuovo', 'good' => 'Buona', 'fair' => 'Discreta', 'poor' => 'Scarsa'] as $value => $label)
-                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition @error('condition') border-red-500 @enderror" @checked(old('condition') == $value)>
-                            <input type="radio" name="condition" value="{{ $value }}" class="w-4 h-4 text-blue-600" @checked(old('condition') == $value) required>
-                            <span class="ml-3 text-sm font-medium text-gray-900">{{ $label }}</span>
-                        </label>
-                    @endforeach
-                </div>
-                @error('condition')
-                    <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Price -->
-            <div class="mb-8">
-                <label for="price" class="block text-sm font-semibold text-gray-900 mb-2">
-                    Prezzo (€) <span class="text-red-600">*</span>
-                </label>
-                <input type="number" name="price" id="price" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('price') border-red-500 @enderror" value="{{ old('price') }}" required>
-                @error('price')
-                    <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center space-x-4">
-                <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                    Acquisisci Libro
-                </button>
-                <a href="{{ route('staff.listings.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
-                    Annulla
-                </a>
-            </div>
-        </form>
     </div>
 
     <!-- Modal Registrazione Venditore -->
@@ -262,7 +283,6 @@
             selectedSellerText.textContent = name;
             selectedSellerDiv.classList.remove('hidden');
             sellerCodeDisplay.textContent = code;
-            sellerCodeBox.classList.remove('hidden');
             
             // Nascondi le credenziali di default
             document.getElementById('seller_password_box').classList.add('hidden');
@@ -336,6 +356,199 @@
             selectedBookText.textContent = title;
             selectedBookDiv.classList.remove('hidden');
         }
+
+        // === SHOPPING CART MANAGEMENT ===
+        let cart = [];
+
+        function addToCart() {
+            // Validazione
+            const sellerId = document.getElementById('seller_id').value;
+            const bookId = document.getElementById('book_id').value;
+            const condition = document.querySelector('input[name="condition"]:checked');
+            const price = document.getElementById('price').value;
+
+            if (!sellerId) {
+                showToast('Seleziona un venditore', 'error');
+                return;
+            }
+            if (!bookId) {
+                showToast('Seleziona un libro', 'error');
+                return;
+            }
+            if (!condition) {
+                showToast('Seleziona una condizione', 'error');
+                return;
+            }
+            if (!price || parseFloat(price) <= 0) {
+                showToast('Inserisci un prezzo valido', 'error');
+                return;
+            }
+
+            // Ottieni i dati dalla pagina
+            const sellerName = document.getElementById('selected_seller_text').textContent;
+            const bookTitle = document.getElementById('selected_book_text').textContent;
+            const conditionLabel = document.querySelector(`label:has(input[value="${condition.value}"]) span`).textContent;
+
+            // Aggiungi al carrello
+            const item = {
+                id: Math.random(),
+                seller_id: parseInt(sellerId),
+                seller_name: sellerName,
+                book_id: parseInt(bookId),
+                book_title: bookTitle,
+                condition: condition.value,
+                condition_label: conditionLabel,
+                price: parseFloat(price)
+            };
+
+            cart.push(item);
+            showToast('✓ Libro aggiunto al carrello!', 'success');
+            
+            // Resetta il form per il prossimo libro
+            resetForm();
+            updateCartDisplay();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            showToast('Libro rimosso dal carrello', 'info');
+            updateCartDisplay();
+        }
+
+        function clearCart() {
+            if (cart.length === 0) {
+                showToast('Il carrello è già vuoto', 'info');
+                return;
+            }
+            if (!confirm('Sei sicuro di voler eliminare tutti i libri dal carrello?')) {
+                return;
+            }
+            cart = [];
+            showToast('Carrello svuotato', 'info');
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const counter = document.getElementById('cart_counter');
+            const itemsContainer = document.getElementById('cart_items');
+            const totalElement = document.getElementById('cart_total');
+
+            counter.textContent = cart.length;
+
+            if (cart.length === 0) {
+                itemsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">Nessun libro acquisito</p>';
+                totalElement.textContent = '€0.00';
+                return;
+            }
+
+            let total = 0;
+            itemsContainer.innerHTML = cart.map((item, index) => {
+                total += item.price;
+                const conditionColors = {
+                    'like-new': 'bg-green-100 text-green-800',
+                    'good': 'bg-blue-100 text-blue-800',
+                    'fair': 'bg-yellow-100 text-yellow-800',
+                    'poor': 'bg-red-100 text-red-800'
+                };
+                return `
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-start">
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900 text-sm">${item.book_title}</p>
+                            <p class="text-xs text-gray-600 mt-1">Venditore: ${item.seller_name}</p>
+                            <div class="flex gap-2 mt-2">
+                                <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${conditionColors[item.condition]}">${item.condition_label}</span>
+                                <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded">€${item.price.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeFromCart(${index})" class="ml-2 text-red-600 hover:text-red-800 font-bold text-lg" title="Rimuovi">×</button>
+                    </div>
+                `;
+            }).join('');
+
+            totalElement.textContent = '€' + total.toFixed(2);
+        }
+
+        function resetForm() {
+            // Resetta solo i campi del libro, mantenendo il venditore
+            document.getElementById('book_search').value = '';
+            document.getElementById('book_id').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('selected_book').classList.add('hidden');
+            
+            // Resetta la condizione
+            document.querySelectorAll('input[name="condition"]').forEach(input => input.checked = false);
+            
+            // Nasconde le credenziali (password box)
+            document.getElementById('seller_password_box').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'info') {
+            // Rimuovi toast precedente se esiste
+            const oldToast = document.querySelector('.toast-message');
+            if (oldToast) oldToast.remove();
+
+            const colors = {
+                'success': 'bg-green-500',
+                'error': 'bg-red-500',
+                'info': 'bg-blue-500'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast-message fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function finishAcquisitions() {
+            if (cart.length === 0) {
+                showToast('Aggiungi almeno un libro al carrello', 'error');
+                return;
+            }
+
+            if (!confirm(`Stai per acquisire ${cart.length} libr${cart.length !== 1 ? 'i' : 'o'}. Continuare?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('{{ route("staff.listings.store-batch") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        acquisitions: cart.map(item => ({
+                            seller_id: item.seller_id,
+                            book_id: item.book_id,
+                            condition: item.condition,
+                            price: item.price
+                        }))
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showToast('Errore: ' + (data.message || 'Errore durante l\'acquisizione'), 'error');
+                    return;
+                }
+
+                showToast(`✓ ${cart.length} libr${cart.length !== 1 ? 'i' : 'o'} acquisit${cart.length !== 1 ? 'i' : 'o'} con successo!`, 'success');
+                cart = [];
+                updateCartDisplay();
+                resetForm();
+                setTimeout(() => {
+                    window.location.href = '{{ route("staff.listings.index") }}';
+                }, 2000);
+
+            } catch (error) {
+                console.error('Errore:', error);
+                showToast('Errore durante l\'acquisizione: ' + error.message, 'error');
+            }
+        }
+
 
         // Chiudi i dropdown quando clicca fuori
         document.addEventListener('click', (e) => {

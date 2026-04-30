@@ -105,7 +105,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/listings/create', [StaffListingController::class, 'create'])->name('staff.listings.create');
     Route::get('/listings/search-books', [StaffListingController::class, 'searchBooks'])->name('staff.listings.search-books');
     Route::get('/listings/search-sellers', [StaffListingController::class, 'searchSellers'])->name('staff.listings.search-sellers');
-    Route::post('/listings', [StaffListingController::class, 'store'])->name('staff.listings.store');
+    Route::post('/listings/batch', [StaffListingController::class, 'storeBatch'])->name('staff.listings.store-batch');
     Route::put('/listings/{listing}/mark-sold', [StaffListingController::class, 'markAsSold'])->name('staff.listings.mark-sold');
     Route::post('/create-book', [StaffListingController::class, 'createBook'])->name('staff.create-book');
     
