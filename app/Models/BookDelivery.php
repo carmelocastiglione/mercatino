@@ -20,6 +20,7 @@ class BookDelivery extends Model
         'status',
         'rejection_reason',
         'approved_by',
+        'leave',
     ];
 
     /**

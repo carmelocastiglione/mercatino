@@ -137,8 +137,10 @@ class ListingController extends Controller
                 'acquisitions.*.book_id' => ['required', 'exists:books,id'],
                 'acquisitions.*.condition' => ['required', 'in:like-new,good,fair,poor'],
                 'acquisitions.*.price' => ['required', 'numeric', 'min:0'],
+                'acquisitions.*.leave' => ['nullable', 'boolean'],
             ]);
 
+            $leave = request()->input('leave', false);
             $count = 0;
             foreach ($validated['acquisitions'] as $acquisition) {
                 BookListing::create([
@@ -149,6 +151,7 @@ class ListingController extends Controller
                     'status' => 'available',
                     'views' => 0,
                     'favorites' => 0,
+                    'leave' => $acquisition['leave'] ?? false,
                 ]);
                 $count++;
             }

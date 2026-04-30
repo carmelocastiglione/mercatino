@@ -141,6 +141,11 @@
                     <p class="text-gray-500 text-sm text-center py-8">Nessun libro acquisito</p>
                 </div>
 
+                <label class="flex items-center mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                    <input type="checkbox" id="cedere_se_invenduti" class="w-4 h-4 text-blue-600 rounded">
+                    <span class="ml-3 text-sm font-medium text-gray-900">Cedi se invenduti</span>
+                </label>
+
                 <div class="border-t border-gray-200 pt-4 mb-6">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-gray-700 font-medium">Totale:</span>
@@ -512,6 +517,8 @@
             }
 
             try {
+                const leave = document.getElementById('cedere_se_invenduti').checked;
+                
                 const response = await fetch('{{ route("staff.listings.store-batch") }}', {
                     method: 'POST',
                     headers: {
@@ -519,11 +526,13 @@
                         'X-CSRF-Token': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
+                        leave: leave,
                         acquisitions: cart.map(item => ({
                             seller_id: item.seller_id,
                             book_id: item.book_id,
                             condition: item.condition,
-                            price: item.price
+                            price: item.price,
+                            leave: leave
                         }))
                     })
                 });

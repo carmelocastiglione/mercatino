@@ -19,6 +19,7 @@ class BookListing extends Model
         'images',
         'views',
         'favorites',
+        'leave',
     ];
 
     protected $casts = [
