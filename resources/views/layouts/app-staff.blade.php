@@ -57,6 +57,11 @@
                 <a href="{{ route('staff.listings.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/listings*')) bg-gray-100 text-gray-900 @endif">
                     Acquisizioni
                 </a>
+
+                <!-- Vendite -->
+                <a href="{{ route('staff.sales.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/sales*')) bg-gray-100 text-gray-900 @endif">
+                    Vendite
+                </a>
             </nav>
 
             <div class="p-6 border-t border-gray-200 bg-white">

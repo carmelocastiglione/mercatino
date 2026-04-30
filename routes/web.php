@@ -8,6 +8,7 @@ use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\ListingController as StaffListingController;
+use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -103,4 +104,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/listings/create', [StaffListingController::class, 'create'])->name('staff.listings.create');
     Route::post('/listings', [StaffListingController::class, 'store'])->name('staff.listings.store');
     Route::put('/listings/{listing}/mark-sold', [StaffListingController::class, 'markAsSold'])->name('staff.listings.mark-sold');
+    
+    // Sales Management - Vendite al mercatino
+    Route::get('/sales', [StaffSaleController::class, 'index'])->name('staff.sales.index');
+    Route::get('/sales/create', [StaffSaleController::class, 'create'])->name('staff.sales.create');
+    Route::post('/sales', [StaffSaleController::class, 'store'])->name('staff.sales.store');
 });

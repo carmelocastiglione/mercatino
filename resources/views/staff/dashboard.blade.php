@@ -29,5 +29,15 @@
             bgColor="blue"
             label="CATALOGO"
         />
+
+        <!-- Vendite -->
+        <x-dashboard-card 
+            href="{{ route('staff.sales.index') }}"
+            title="Vendite"
+            description="Libri venduti al mercatino (totale)"
+            count="{{ $totalSales ?? 0 }}"
+            bgColor="green"
+            label="INCASSO"
+        />
     </div>
 @endsection
