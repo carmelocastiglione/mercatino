@@ -110,4 +110,44 @@ class ListingController extends Controller
 
         return back()->with('success', 'Libro marcato come venduto!');
     }
+
+    /**
+     * Create a new book via AJAX (for staff to add new books).
+     */
+    public function createBook()
+    {
+        try {
+            $validated = request()->validate([
+                'title' => ['required', 'string', 'max:255'],
+                'author' => ['required', 'string', 'max:255'],
+                'isbn' => ['required', 'string', 'max:20', 'unique:books'],
+                'original_price' => ['required', 'numeric', 'min:0'],
+            ]);
+
+            $book = Book::create([
+                'title' => $validated['title'],
+                'author' => $validated['author'],
+                'isbn' => $validated['isbn'],
+                'original_price' => $validated['original_price'],
+            ]);
+
+            return response()->json([
+                'book' => [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'isbn' => $book->isbn,
+                    'original_price' => $book->original_price,
+                ]
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Errore: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

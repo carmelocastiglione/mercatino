@@ -72,18 +72,23 @@
                 <label for="book_search" class="block text-sm font-semibold text-gray-900 mb-2">
                     Libro <span class="text-red-600">*</span>
                 </label>
-                <div class="relative">
-                    <input 
-                        type="text" 
-                        id="book_search" 
-                        placeholder="Cerca per titolo, autore o ISBN..." 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        autocomplete="off"
-                    />
-                    <input type="hidden" id="book_id" name="book_id" value="">
-                    
-                    <!-- Dropdown dei risultati -->
-                    <div id="search_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <input 
+                            type="text" 
+                            id="book_search" 
+                            placeholder="Cerca per titolo, autore o ISBN..." 
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            autocomplete="off"
+                        />
+                        <input type="hidden" id="book_id" name="book_id" value="">
+                        
+                        <!-- Dropdown dei risultati -->
+                        <div id="search_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
+                    </div>
+                    <button type="button" onclick="openBookModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
+                        + Aggiungi
+                    </button>
                 </div>
                 @error('book_id')
                     <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
@@ -160,6 +165,41 @@
                     <button type="button" onclick="closeRegisterModal()" class="flex-1 px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">Annulla</button>
                 </div>
                 <p id="register_message" class="text-center text-sm mt-2 hidden"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Aggiunta Libro -->
+    <div id="book_modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Aggiungi Libro</h2>
+            <form id="book_form" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="book_title" class="block text-sm font-semibold text-gray-900 mb-2">Titolo <span class="text-red-600">*</span></label>
+                    <input type="text" id="book_title" name="title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="book_title_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="book_author" class="block text-sm font-semibold text-gray-900 mb-2">Autore <span class="text-red-600">*</span></label>
+                    <input type="text" id="book_author" name="author" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="book_author_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="book_isbn" class="block text-sm font-semibold text-gray-900 mb-2">ISBN <span class="text-red-600">*</span></label>
+                    <input type="text" id="book_isbn" name="isbn" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="book_isbn_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="book_original_price" class="block text-sm font-semibold text-gray-900 mb-2">Prezzo Originale (€) <span class="text-red-600">*</span></label>
+                    <input type="number" id="book_original_price" name="original_price" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    <p id="book_original_price_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Aggiungi</button>
+                    <button type="button" onclick="closeBookModal()" class="flex-1 px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">Annulla</button>
+                </div>
+                <p id="book_message" class="text-center text-sm mt-2 hidden"></p>
             </form>
         </div>
     </div>
@@ -407,6 +447,115 @@
         registerModal.addEventListener('click', (e) => {
             if (e.target === registerModal) {
                 closeRegisterModal();
+            }
+        });
+
+        // === MODAL AGGIUNTA LIBRO ===
+        const bookModal = document.getElementById('book_modal');
+        const bookForm = document.getElementById('book_form');
+
+        function openBookModal() {
+            bookModal.classList.remove('hidden');
+            document.getElementById('book_title').focus();
+        }
+
+        function closeBookModal() {
+            bookModal.classList.add('hidden');
+            bookForm.reset();
+            clearBookErrors();
+        }
+
+        function clearBookErrors() {
+            document.getElementById('book_title_error').classList.add('hidden');
+            document.getElementById('book_author_error').classList.add('hidden');
+            document.getElementById('book_isbn_error').classList.add('hidden');
+            document.getElementById('book_original_price_error').classList.add('hidden');
+            document.getElementById('book_message').classList.add('hidden');
+        }
+
+        bookForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearBookErrors();
+
+            try {
+                const response = await fetch('{{ route("staff.create-book") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById('book_title').value,
+                        author: document.getElementById('book_author').value,
+                        isbn: document.getElementById('book_isbn').value,
+                        original_price: parseFloat(document.getElementById('book_original_price').value)
+                    })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    const text = await response.text();
+                    console.error('Risposta non JSON:', text);
+                    const msg = document.getElementById('book_message');
+                    msg.textContent = 'Errore del server. Controlla la console.';
+                    msg.className = 'text-center text-sm mt-2 text-red-600';
+                    msg.classList.remove('hidden');
+                    return;
+                }
+
+                if (!response.ok) {
+                    if (data.errors) {
+                        if (data.errors.title && data.errors.title.length > 0) {
+                            document.getElementById('book_title_error').textContent = data.errors.title.join(', ');
+                            document.getElementById('book_title_error').classList.remove('hidden');
+                        }
+                        if (data.errors.author && data.errors.author.length > 0) {
+                            document.getElementById('book_author_error').textContent = data.errors.author.join(', ');
+                            document.getElementById('book_author_error').classList.remove('hidden');
+                        }
+                        if (data.errors.isbn && data.errors.isbn.length > 0) {
+                            document.getElementById('book_isbn_error').textContent = data.errors.isbn.join(', ');
+                            document.getElementById('book_isbn_error').classList.remove('hidden');
+                        }
+                        if (data.errors.original_price && data.errors.original_price.length > 0) {
+                            document.getElementById('book_original_price_error').textContent = data.errors.original_price.join(', ');
+                            document.getElementById('book_original_price_error').classList.remove('hidden');
+                        }
+                    } else if (data.message) {
+                        const msg = document.getElementById('book_message');
+                        msg.textContent = data.message;
+                        msg.className = 'text-center text-sm mt-2 text-red-600';
+                        msg.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                // Libro creato con successo
+                const newBook = data.book;
+                selectBook(newBook.id, newBook.title + ' - ' + newBook.author, newBook.original_price);
+                closeBookModal();
+
+                const msg = document.getElementById('book_message');
+                msg.textContent = 'Libro aggiunto con successo!';
+                msg.className = 'text-center text-sm mt-2 text-green-600';
+                msg.classList.remove('hidden');
+                setTimeout(() => msg.classList.add('hidden'), 3000);
+
+            } catch (error) {
+                console.error('Errore:', error);
+                const msg = document.getElementById('book_message');
+                msg.textContent = 'Errore durante l\'aggiunta del libro: ' + error.message;
+                msg.className = 'text-center text-sm mt-2 text-red-600';
+                msg.classList.remove('hidden');
+            }
+        });
+
+        // Chiudi modale quando clicca fuori
+        bookModal.addEventListener('click', (e) => {
+            if (e.target === bookModal) {
+                closeBookModal();
             }
         });
     </script>

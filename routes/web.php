@@ -107,6 +107,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/listings/search-sellers', [StaffListingController::class, 'searchSellers'])->name('staff.listings.search-sellers');
     Route::post('/listings', [StaffListingController::class, 'store'])->name('staff.listings.store');
     Route::put('/listings/{listing}/mark-sold', [StaffListingController::class, 'markAsSold'])->name('staff.listings.mark-sold');
+    Route::post('/create-book', [StaffListingController::class, 'createBook'])->name('staff.create-book');
     
     // Sales Management - Vendite al mercatino
     Route::get('/sales', [StaffSaleController::class, 'index'])->name('staff.sales.index');
