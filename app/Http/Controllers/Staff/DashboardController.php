@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookDelivery;
+use App\Models\BookListing;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -14,15 +15,11 @@ class DashboardController extends Controller
     public function index(): View
     {
         $pendingDeliveries = BookDelivery::where('status', 'pending')->count();
-        $approvedDeliveries = BookDelivery::where('status', 'approved')->count();
-        $rejectedDeliveries = BookDelivery::where('status', 'rejected')->count();
-        $totalProcessed = $approvedDeliveries + $rejectedDeliveries;
+        $availableBooks = BookListing::where('status', 'available')->count();
 
         return view('staff.dashboard', [
             'pendingDeliveries' => $pendingDeliveries,
-            'approvedDeliveries' => $approvedDeliveries,
-            'rejectedDeliveries' => $rejectedDeliveries,
-            'totalProcessed' => $totalProcessed,
+            'availableBooks' => $availableBooks,
         ]);
     }
 }

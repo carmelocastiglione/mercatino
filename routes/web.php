@@ -7,6 +7,7 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
+use App\Http\Controllers\Staff\ListingController as StaffListingController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -90,9 +91,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
     
+    // Deliveries Management
     Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');
     Route::get('/deliveries/{delivery}', [StaffDeliveryController::class, 'show'])->name('staff.deliveries.show');
     Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
     Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
+    
+    // Listings Management - Acquisizioni
+    Route::get('/listings', [StaffListingController::class, 'index'])->name('staff.listings.index');
+    Route::get('/listings/create', [StaffListingController::class, 'create'])->name('staff.listings.create');
+    Route::post('/listings', [StaffListingController::class, 'store'])->name('staff.listings.store');
+    Route::put('/listings/{listing}/mark-sold', [StaffListingController::class, 'markAsSold'])->name('staff.listings.mark-sold');
 });
