@@ -15,6 +15,7 @@ class BookSale extends Model
     protected $fillable = [
         'book_listing_id',
         'sold_by',
+        'buyer_id',
         'payment_method',
         'notes',
     ];
@@ -33,5 +34,13 @@ class BookSale extends Model
     public function soldBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sold_by');
+    }
+
+    /**
+     * Get the buyer who purchased the book.
+     */
+    public function buyer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'buyer_id');
     }
 }
