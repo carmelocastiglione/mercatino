@@ -13,6 +13,7 @@ class BookListing extends Model
     protected $fillable = [
         'book_id',
         'seller_id',
+        'acquisition_id',
         'condition',
         'price',
         'status',
@@ -44,5 +45,13 @@ class BookListing extends Model
     public function seller(): BelongsTo
     {
         return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    /**
+     * Get the acquisition this listing belongs to.
+     */
+    public function acquisition(): BelongsTo
+    {
+        return $this->belongsTo(Acquisition::class);
     }
 }

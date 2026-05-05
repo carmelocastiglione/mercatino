@@ -1,14 +1,14 @@
 @extends('layouts.app-staff')
 
-@section('title', 'Acquisisci Libro')
+@section('title', 'Nuova Acquisizione')
 
 @section('content')
     <div class="mb-8">
         <div class="flex items-center space-x-4 mb-6">
-            <a href="{{ route('staff.listings.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">← Torna alle acquisizioni</a>
+            <a href="{{ route('staff.acquisitions.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">← Torna alle acquisizioni</a>
         </div>
-        <h1 class="text-4xl font-bold text-gray-900">Acquisisci Libro</h1>
-        <p class="text-gray-600 mt-2">Aggiungi uno o più libri al catalogo disponibile per la vendita</p>
+        <h1 class="text-4xl font-bold text-gray-900">Nuova Acquisizione</h1>
+        <p class="text-gray-600 mt-2">Aggiungi uno o più libri da un venditore al catalogo disponibile per la vendita</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -52,7 +52,7 @@
                             <div id="seller_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
                         </div>
                         <button type="button" onclick="openRegisterModal()" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition whitespace-nowrap">
-                            + Registra
+                            + Aggiungi
                         </button>
                     </div>
                     <p id="selected_seller" class="text-sm text-gray-600 mt-2 hidden">
@@ -114,9 +114,9 @@
                 <!-- Actions -->
                 <div class="flex items-center space-x-4">
                     <button type="button" onclick="addToCart()" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                        ➕ Acquisisci Libro
+                        ➕ Aggiungi Libro
                     </button>
-                    <a href="{{ route('staff.listings.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('staff.acquisitions.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
                         Annulla
                     </a>
                 </div>
@@ -133,12 +133,12 @@
                 </div>
 
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-lg font-bold text-gray-900">Riepilogo Acquisizioni</h2>
+                    <h2 class="text-lg font-bold text-gray-900">Riepilogo</h2>
                     <span id="cart_counter" class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center">0</span>
                 </div>
 
                 <div id="cart_items" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
-                    <p class="text-gray-500 text-sm text-center py-8">Nessun libro acquisito</p>
+                    <p class="text-gray-500 text-sm text-center py-8">Nessun libro aggiunto</p>
                 </div>
 
                 <label class="flex items-center mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition">
@@ -155,7 +155,7 @@
 
                 <div class="space-y-2">
                     <button type="button" onclick="finishAcquisitions()" class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
-                        ✓ Termina Acquisizioni
+                        ✓ Salva Acquisizione
                     </button>
                     <button type="button" onclick="clearCart()" class="w-full px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition text-sm">
                         🗑️ Cancella Tutto
@@ -165,10 +165,10 @@
         </div>
     </div>
 
-    <!-- Modal Registrazione Venditore -->
+    <!-- Modal Aggiunta Venditore -->
     <div id="register_modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
         <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Registra Venditore</h2>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Aggiungi Venditore</h2>
             <form id="register_form" class="space-y-4">
                 @csrf
                 <div>
@@ -187,7 +187,7 @@
                     <p id="reg_email_error" class="text-red-600 text-sm mt-1 hidden"></p>
                 </div>
                 <div class="flex space-x-3 pt-4">
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Registra</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Aggiungi</button>
                     <button type="button" onclick="closeRegisterModal()" class="flex-1 px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">Annulla</button>
                 </div>
                 <p id="register_message" class="text-center text-sm mt-2 hidden"></p>
@@ -251,7 +251,7 @@
             }
 
             sellerDebounceTimer = setTimeout(() => {
-                fetch(`{{ route('staff.listings.search-sellers') }}?q=${encodeURIComponent(query)}`)
+                fetch(`{{ route('staff.acquisitions.search-sellers') }}?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(users => {
                         if (users.length === 0) {
@@ -319,7 +319,7 @@
             }
 
             debounceTimer = setTimeout(() => {
-                fetch(`{{ route('staff.listings.search-books') }}?q=${encodeURIComponent(query)}`)
+                fetch(`{{ route('staff.acquisitions.search-books') }}?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(books => {
                         if (books.length === 0) {
@@ -407,7 +407,7 @@
             };
 
             cart.push(item);
-            showToast('✓ Libro aggiunto al carrello!', 'success');
+            showToast('✓ Libro aggiunto!', 'success');
             
             // Resetta il form per il prossimo libro
             resetForm();
@@ -416,7 +416,7 @@
 
         function removeFromCart(index) {
             cart.splice(index, 1);
-            showToast('Libro rimosso dal carrello', 'info');
+            showToast('Libro rimosso', 'info');
             updateCartDisplay();
         }
 
@@ -441,7 +441,7 @@
             counter.textContent = cart.length;
 
             if (cart.length === 0) {
-                itemsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">Nessun libro acquisito</p>';
+                itemsContainer.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">Nessun libro aggiunto</p>';
                 totalElement.textContent = '€0.00';
                 return;
             }
@@ -508,7 +508,7 @@
 
         async function finishAcquisitions() {
             if (cart.length === 0) {
-                showToast('Aggiungi almeno un libro al carrello', 'error');
+                showToast('Aggiungi almeno un libro', 'error');
                 return;
             }
 
@@ -519,7 +519,7 @@
             try {
                 const leave = document.getElementById('cedere_se_invenduti').checked;
                 
-                const response = await fetch('{{ route("staff.listings.store-batch") }}', {
+                const response = await fetch('{{ route("staff.acquisitions.store-batch") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -540,21 +540,16 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    showToast('Errore: ' + (data.message || 'Errore durante l\'acquisizione'), 'error');
+                    showToast('Errore: ' + (data.message || 'Errore durante il salvataggio'), 'error');
                     return;
                 }
 
-                showToast(`✓ ${cart.length} libr${cart.length !== 1 ? 'i' : 'o'} acquisit${cart.length !== 1 ? 'i' : 'o'} con successo!`, 'success');
-                cart = [];
-                updateCartDisplay();
-                resetForm();
-                setTimeout(() => {
-                    window.location.href = '{{ route("staff.listings.index") }}';
-                }, 2000);
+                showToast(`✓ ${data.message}`, 'success');
+                window.location.href = `{{ route('staff.acquisitions.show', ':id') }}`.replace(':id', data.acquisition_id);
 
             } catch (error) {
                 console.error('Errore:', error);
-                showToast('Errore durante l\'acquisizione: ' + error.message, 'error');
+                showToast('Errore durante il salvataggio: ' + error.message, 'error');
             }
         }
 
@@ -700,7 +695,7 @@
             clearBookErrors();
 
             try {
-                const response = await fetch('{{ route("staff.create-book") }}', {
+                const response = await fetch('{{ route("staff.acquisitions.create-book") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

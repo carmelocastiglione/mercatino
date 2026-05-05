@@ -22,7 +22,7 @@
 
         <!-- Acquisizioni -->
         <x-dashboard-card 
-            href="{{ route('staff.listings.index') }}"
+            href="{{ route('staff.acquisitions.index') }}"
             title="Acquisizioni"
             description="Lista dei libri attualmente disponibili nel catalogo"
             count="{{ $availableBooks ?? 0 }}"

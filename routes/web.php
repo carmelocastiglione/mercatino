@@ -7,7 +7,7 @@ use App\Http\Controllers\Student\DashboardController as StudentDashboardControll
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
-use App\Http\Controllers\Staff\ListingController as StaffListingController;
+use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -100,14 +100,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
     
-    // Listings Management - Acquisizioni
-    Route::get('/listings', [StaffListingController::class, 'index'])->name('staff.listings.index');
-    Route::get('/listings/create', [StaffListingController::class, 'create'])->name('staff.listings.create');
-    Route::get('/listings/search-books', [StaffListingController::class, 'searchBooks'])->name('staff.listings.search-books');
-    Route::get('/listings/search-sellers', [StaffListingController::class, 'searchSellers'])->name('staff.listings.search-sellers');
-    Route::post('/listings/batch', [StaffListingController::class, 'storeBatch'])->name('staff.listings.store-batch');
-    Route::put('/listings/{listing}/mark-sold', [StaffListingController::class, 'markAsSold'])->name('staff.listings.mark-sold');
-    Route::post('/create-book', [StaffListingController::class, 'createBook'])->name('staff.create-book');
+    // Acquisitions Management - Acquisizioni
+    Route::get('/acquisitions', [StaffAcquisitionController::class, 'index'])->name('staff.acquisitions.index');
+    Route::get('/acquisitions/create', [StaffAcquisitionController::class, 'create'])->name('staff.acquisitions.create');
+    Route::get('/acquisitions/{acquisition}/show', [StaffAcquisitionController::class, 'show'])->name('staff.acquisitions.show');
+    Route::get('/acquisitions/search-books', [StaffAcquisitionController::class, 'searchBooks'])->name('staff.acquisitions.search-books');
+    Route::get('/acquisitions/search-sellers', [StaffAcquisitionController::class, 'searchSellers'])->name('staff.acquisitions.search-sellers');
+    Route::post('/acquisitions/batch', [StaffAcquisitionController::class, 'storeBatch'])->name('staff.acquisitions.store-batch');
+    Route::put('/acquisitions/{listing}/mark-sold', [StaffAcquisitionController::class, 'markAsSold'])->name('staff.acquisitions.mark-sold');
+    Route::post('/acquisitions/create-book', [StaffAcquisitionController::class, 'createBook'])->name('staff.acquisitions.create-book');
     
     // Sales Management - Vendite al mercatino
     Route::get('/sales', [StaffSaleController::class, 'index'])->name('staff.sales.index');

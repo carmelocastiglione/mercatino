@@ -4,24 +4,25 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\Acquisition;
 use App\Models\BookListing;
+use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
-class ListingController extends Controller
+class AcquisitionController extends Controller
 {
     /**
-     * Display the list of acquired books.
+     * Display the list of acquisitions.
      */
     public function index(): View
     {
-        $listings = BookListing::with('book', 'seller')
-            ->where('status', 'available')
+        $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
             ->latest()
             ->paginate(15);
 
-        return view('staff.listings.index', [
-            'listings' => $listings,
+        return view('staff.acquisitions.index', [
+            'acquisitions' => $acquisitions,
         ]);
     }
 
@@ -57,7 +58,7 @@ class ListingController extends Controller
             return response()->json([]);
         }
 
-        $users = \App\Models\User::where('name', 'ilike', "%{$query}%")
+        $users = User::where('name', 'ilike', "%{$query}%")
             ->orWhere('surname', 'ilike', "%{$query}%")
             ->orWhere('email', 'ilike', "%{$query}%")
             ->select('id', 'name', 'surname', 'email', 'code')
@@ -72,17 +73,7 @@ class ListingController extends Controller
      */
     public function create(): View
     {
-        return view('staff.listings.create');
-    }
-
-    /**
-     * Mark a listing as sold.
-     */
-    public function markAsSold(BookListing $listing): RedirectResponse
-    {
-        $listing->update(['status' => 'sold']);
-
-        return back()->with('success', 'Libro marcato come venduto!');
+        return view('staff.acquisitions.create');
     }
 
     /**
@@ -126,12 +117,13 @@ class ListingController extends Controller
     }
 
     /**
-     * Store multiple acquisitions in batch.
+     * Store multiple acquisitions in batch (create Acquisition + BookListings).
      */
     public function storeBatch()
     {
         try {
             $validated = request()->validate([
+                'leave' => ['nullable', 'boolean'],
                 'acquisitions' => ['required', 'array', 'min:1'],
                 'acquisitions.*.seller_id' => ['required', 'exists:users,id'],
                 'acquisitions.*.book_id' => ['required', 'exists:books,id'],
@@ -140,26 +132,67 @@ class ListingController extends Controller
                 'acquisitions.*.leave' => ['nullable', 'boolean'],
             ]);
 
-            $leave = request()->input('leave', false);
-            $count = 0;
-            foreach ($validated['acquisitions'] as $acquisition) {
-                BookListing::create([
-                    'book_id' => $acquisition['book_id'],
-                    'seller_id' => $acquisition['seller_id'],
-                    'condition' => $acquisition['condition'],
-                    'price' => $acquisition['price'],
-                    'status' => 'available',
-                    'views' => 0,
-                    'favorites' => 0,
-                    'leave' => $acquisition['leave'] ?? false,
+            // Get all acquisitions to group by seller
+            $acquisitionsBySellerAndLeave = [];
+            $totalPrice = 0;
+
+            foreach ($validated['acquisitions'] as $item) {
+                $key = $item['seller_id'] . '_' . ($item['leave'] ?? false ? '1' : '0');
+                if (!isset($acquisitionsBySellerAndLeave[$key])) {
+                    $acquisitionsBySellerAndLeave[$key] = [
+                        'seller_id' => $item['seller_id'],
+                        'leave' => $item['leave'] ?? false,
+                        'items' => [],
+                        'total' => 0,
+                    ];
+                }
+                $acquisitionsBySellerAndLeave[$key]['items'][] = $item;
+                $acquisitionsBySellerAndLeave[$key]['total'] += $item['price'];
+                $totalPrice += $item['price'];
+            }
+
+            $createdCount = 0;
+            $booksCount = 0;
+            $firstAcquisitionId = null;
+
+            // Create an Acquisition for each seller/leave combination
+            foreach ($acquisitionsBySellerAndLeave as $group) {
+                $acquisition = Acquisition::create([
+                    'staff_id' => auth()->id(),
+                    'seller_id' => $group['seller_id'],
+                    'status' => 'completed',
+                    'total_price' => $group['total'],
+                    'notes' => null,
                 ]);
-                $count++;
+
+                if (!$firstAcquisitionId) {
+                    $firstAcquisitionId = $acquisition->id;
+                }
+
+                // Create BookListings for each item
+                foreach ($group['items'] as $item) {
+                    BookListing::create([
+                        'acquisition_id' => $acquisition->id,
+                        'book_id' => $item['book_id'],
+                        'seller_id' => $item['seller_id'],
+                        'condition' => $item['condition'],
+                        'price' => $item['price'],
+                        'status' => 'available',
+                        'views' => 0,
+                        'favorites' => 0,
+                        'leave' => $item['leave'] ?? false,
+                    ]);
+                    $booksCount++;
+                }
+
+                $createdCount++;
             }
 
             return response()->json([
                 'success' => true,
-                'message' => $count . ' acquisizione/i completata/e',
-                'count' => $count,
+                'message' => $createdCount . ' acquisizion' . ($createdCount !== 1 ? 'i' : 'e') . ' completata/e con ' . $booksCount . ' libr' . ($booksCount !== 1 ? 'i' : 'o'),
+                'count' => $booksCount,
+                'acquisition_id' => $firstAcquisitionId,
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
@@ -171,5 +204,27 @@ class ListingController extends Controller
                 'message' => 'Errore: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Show acquisition summary/receipt.
+     */
+    public function show(Acquisition $acquisition): View
+    {
+        $acquisition->load('staff', 'seller', 'bookListings.book');
+        
+        return view('staff.acquisitions.show', [
+            'acquisition' => $acquisition,
+        ]);
+    }
+
+    /**
+     * Mark a listing as sold.
+     */
+    public function markAsSold(BookListing $listing): RedirectResponse
+    {
+        $listing->update(['status' => 'sold']);
+
+        return back()->with('success', 'Libro marcato come venduto!');
     }
 }
