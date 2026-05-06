@@ -18,7 +18,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         $pendingDeliveries = BookDelivery::where('status', 'pending')->count();
-        $totalAcquisitions = Acquisition::count();
+        $totalAcquisitions = BookListing::count();
         $availableBooks = BookListing::where('status', 'available')->count();
         $totalSales = BookSale::count();
         $totalWithdrawals = Withdrawal::count();
