@@ -104,33 +104,9 @@
             </div>
 
             <!-- Transaction Details -->
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <p class="text-sm text-gray-600 mb-2">Metodo di Pagamento</p>
-                    <p class="text-xl font-bold text-gray-900">
-                        @switch($sale->payment_method)
-                            @case('cash')
-                                💵 Contanti
-                                @break
-                            @case('card')
-                                💳 Carta
-                                @break
-                            @case('bank_transfer')
-                                🏦 Bonifico
-                                @break
-                            @case('satispay')
-                                📱 Satispay
-                                @break
-                            @case('paypal')
-                                🅿️ PayPal
-                                @break
-                        @endswitch
-                    </p>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <p class="text-sm text-gray-600 mb-2">Data Vendita</p>
-                    <p class="text-xl font-bold text-gray-900">{{ $sale->created_at->format('d/m/Y H:i') }}</p>
-                </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <p class="text-sm text-gray-600 mb-2">Data Vendita</p>
+                <p class="text-xl font-bold text-gray-900">{{ $sale->created_at->format('d/m/Y H:i') }}</p>
             </div>
 
             <!-- Total Amount -->

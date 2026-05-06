@@ -9,6 +9,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
+use App\Http\Controllers\Staff\BookListingController as StaffBookListingController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
@@ -99,6 +100,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
     Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
+    
+    // Book Listings - Libri disponibili
+    Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');
     
     // Acquisitions Management - Acquisizioni
     Route::get('/acquisitions', [StaffAcquisitionController::class, 'index'])->name('staff.acquisitions.index');

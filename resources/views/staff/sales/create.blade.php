@@ -17,6 +17,21 @@
         <!-- Left Column: Form -->
         <div class="lg:col-span-2">
             <div class="space-y-6">
+                <!-- Buyer Password Box -->
+                <div id="buyer_password_box" class="hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+                    <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
+                            <p id="buyer_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
+                            <code id="buyer_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Buyer Selection -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <label for="buyer_search" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -120,9 +135,10 @@
         // Variables
         let cart = [];
         let selectedBuyer = null;
+        let selectedBookPrice = 0;
 
         // Global Functions (callable from onclick)
-        function selectBuyer(id, name, surname, code, email) {
+        function selectBuyer(id, name, surname, code, email, password) {
             selectedBuyer = { id, name, surname, code, email };
             document.getElementById('buyer_id').value = id;
             document.getElementById('buyer_search').value = `${name} ${surname} (${code})`;
@@ -138,12 +154,22 @@
             document.getElementById('buyer_info_box').classList.remove('hidden');
             document.getElementById('sidebar_buyer_code').textContent = code;
             document.getElementById('sidebar_buyer_name').textContent = `${name} ${surname}`;
+
+            // Nascondi le credenziali di default
+            document.getElementById('buyer_password_box').classList.add('hidden');
+            
+            if (password) {
+                document.getElementById('buyer_email_display').textContent = email;
+                document.getElementById('buyer_password_display').textContent = password;
+                document.getElementById('buyer_password_box').classList.remove('hidden');
+            }
         }
 
         function selectBook(id, title, author, price, condition) {
             document.getElementById('book_listing_id').value = id;
             document.getElementById('book_search').value = `${title} - ${author}`;
             document.getElementById('book_results').classList.add('hidden');
+            selectedBookPrice = parseFloat(price);
         }
 
         function addToCart() {
@@ -160,12 +186,12 @@
             }
 
             const bookTitle = document.getElementById('book_search').value.split(' - ')[0];
-            const bookPrice = parseFloat(document.querySelector('[data-price]')?.dataset.price || 0);
 
             cart.push({
                 buyer_id: parseInt(buyerId),
                 book_listing_id: parseInt(listingId),
                 title: bookTitle,
+                price: selectedBookPrice,
             });
 
             updateCartDisplay();
@@ -212,7 +238,7 @@
                 </div>
             `).join('');
 
-            totalDiv.textContent = '€' + (cart.reduce((sum, item) => sum + 0, 0)).toFixed(2);
+            totalDiv.textContent = '€' + (cart.reduce((sum, item) => sum + (item.price || 0), 0)).toFixed(2);
         }
 
         function resetForm() {
@@ -235,9 +261,6 @@
         async function finishSales() {
             if (cart.length === 0) {
                 showToast('Aggiungi almeno un libro', 'error');
-                return;
-            }
-            if (!confirm(`Stai per registrare ${cart.length} vendita${cart.length !== 1 ? 'e' : ''}. Continuare?`)) {
                 return;
             }
             try {
@@ -264,18 +287,15 @@
             }
         }
 
-        // Initialize after DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            // Modal Management
-            const registerModal = document.getElementById('register_modal');
-            const registerForm = document.getElementById('register_form');
-
         function openRegisterModal() {
+            const registerModal = document.getElementById('register_modal');
             registerModal.classList.remove('hidden');
             document.getElementById('reg_name').focus();
         }
 
         function closeRegisterModal() {
+            const registerModal = document.getElementById('register_modal');
+            const registerForm = document.getElementById('register_form');
             registerModal.classList.add('hidden');
             registerForm.reset();
             clearRegisterErrors();
@@ -287,6 +307,12 @@
             document.getElementById('reg_email_error').classList.add('hidden');
             document.getElementById('register_message').classList.add('hidden');
         }
+
+        // Initialize after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal Management
+            const registerModal = document.getElementById('register_modal');
+            const registerForm = document.getElementById('register_form');
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -340,14 +366,16 @@
                         msg.classList.remove('hidden');
                     }
                 } else {
+                    // Utente registrato con successo
+                    const newUser = data.user;
+                    selectBuyer(newUser.id, newUser.name, newUser.surname, newUser.code, newUser.email, newUser.password);
+                    closeRegisterModal();
+
                     const msg = document.getElementById('register_message');
-                    msg.textContent = 'Utente creato con successo!';
+                    msg.textContent = 'Acquirente registrato con successo!';
                     msg.className = 'text-center text-sm mt-2 text-green-600';
                     msg.classList.remove('hidden');
-
-                    setTimeout(() => {
-                        closeRegisterModal();
-                    }, 1500);
+                    setTimeout(() => msg.classList.add('hidden'), 3000);
                 }
             } catch (error) {
                 console.error('Errore:', error);
@@ -412,10 +440,13 @@
                     .then(r => r.json())
                     .then(data => {
                         const resultsDiv = document.getElementById('book_results');
-                        if (data.length === 0) {
+                        const cartListingIds = cart.map(item => item.book_listing_id);
+                        const availableBooks = data.filter(book => !cartListingIds.includes(book.id));
+                        
+                        if (availableBooks.length === 0) {
                             resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun libro disponibile</div>';
                         } else {
-                            resultsDiv.innerHTML = data.map(book => `
+                            resultsDiv.innerHTML = availableBooks.map(book => `
                                 <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.condition}')">
                                     <p class="font-medium text-sm text-gray-900">${book.title}</p>
                                     <p class="text-xs text-gray-600">${book.author}</p>

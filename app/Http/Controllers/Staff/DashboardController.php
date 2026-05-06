@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\Acquisition;
 use App\Models\BookDelivery;
 use App\Models\BookListing;
 use App\Models\BookSale;
@@ -16,11 +17,13 @@ class DashboardController extends Controller
     public function index(): View
     {
         $pendingDeliveries = BookDelivery::where('status', 'pending')->count();
+        $totalAcquisitions = Acquisition::count();
         $availableBooks = BookListing::where('status', 'available')->count();
         $totalSales = BookSale::count();
 
         return view('staff.dashboard', [
             'pendingDeliveries' => $pendingDeliveries,
+            'totalAcquisitions' => $totalAcquisitions,
             'availableBooks' => $availableBooks,
             'totalSales' => $totalSales,
         ]);

@@ -20,14 +20,24 @@
             label="DA ESAMINARE"
         />
 
+        <!-- Libri disponibili -->
+        <x-dashboard-card 
+            href="{{ route('staff.book-listings.index') }}"
+            title="Libri disponibili"
+            description="Visualizza tutti i libri disponibili nel mercatino"
+            count="{{ $availableBooks ?? 0 }}"
+            bgColor="purple"
+            label="IN CATALOGO"
+        />
+
         <!-- Acquisizioni -->
         <x-dashboard-card 
             href="{{ route('staff.acquisitions.index') }}"
             title="Acquisizioni"
-            description="Lista dei libri attualmente disponibili nel catalogo"
-            count="{{ $availableBooks ?? 0 }}"
+            description="Numero totale di acquisizioni registrate"
+            count="{{ $totalAcquisitions ?? 0 }}"
             bgColor="blue"
-            label="CATALOGO"
+            label="TOTALE"
         />
 
         <!-- Vendite -->
