@@ -10,6 +10,7 @@ use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Staff\BookListingController as StaffBookListingController;
+use App\Http\Controllers\Staff\WithdrawalController as StaffWithdrawalController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
@@ -122,6 +123,16 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/sales/search-listings', [StaffSaleController::class, 'searchListings'])->name('staff.sales.search-listings');
     Route::post('/sales/batch', [StaffSaleController::class, 'storeBatch'])->name('staff.sales.store-batch');
     Route::post('/sales', [StaffSaleController::class, 'store'])->name('staff.sales.store');
+    
+    // Withdrawals Management - Riscossioni
+    Route::get('/withdrawals', [StaffWithdrawalController::class, 'index'])->name('staff.withdrawals.index');
+    Route::get('/withdrawals/create', [StaffWithdrawalController::class, 'create'])->name('staff.withdrawals.create');
+    Route::get('/withdrawals/search-sellers', [StaffWithdrawalController::class, 'searchSellers'])->name('staff.withdrawals.search-sellers');
+    Route::get('/withdrawals/{user}/process', [StaffWithdrawalController::class, 'processSeller'])->name('staff.withdrawals.process-seller');
+    Route::post('/withdrawals/{listing}/withdraw-money', [StaffWithdrawalController::class, 'withdrawMoney'])->name('staff.withdrawals.withdraw-money');
+    Route::post('/withdrawals/{listing}/withdraw-book', [StaffWithdrawalController::class, 'withdrawBook'])->name('staff.withdrawals.withdraw-book');
+    Route::get('/withdrawals/{withdrawal}/show', [StaffWithdrawalController::class, 'show'])->name('staff.withdrawals.show');
+    Route::post('/withdrawals', [StaffWithdrawalController::class, 'store'])->name('staff.withdrawals.store');
     
     // User Registration (for staff to register new sellers quickly)
     Route::post('/register-user', [StaffRegisterController::class, 'registerUser'])->name('staff.register-user');

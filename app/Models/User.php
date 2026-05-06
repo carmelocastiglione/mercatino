@@ -84,4 +84,46 @@ class User extends Authenticatable
     {
         return $this->hasMany(BookDelivery::class, 'approved_by');
     }
+
+    /**
+     * Get the sales made by this user (seller).
+     */
+    public function sales(): HasMany
+    {
+        return $this->hasMany(BookSale::class, 'sold_by');
+    }
+
+    /**
+     * Get the withdrawals for this user.
+     */
+    public function withdrawals(): HasMany
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
+     * Get total amount from sales of books sold by this user.
+     */
+    public function getTotalSalesAmount(): float
+    {
+        return (float) BookSale::where('sold_by', $this->id)
+            ->join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
+            ->sum('book_listings.price');
+    }
+
+    /**
+     * Get total amount already withdrawn by this user.
+     */
+    public function getTotalWithdrawnAmount(): float
+    {
+        return (float) $this->withdrawals()->sum('amount');
+    }
+
+    /**
+     * Get the available balance (total sales - total withdrawn).
+     */
+    public function getAvailableBalance(): float
+    {
+        return $this->getTotalSalesAmount() - $this->getTotalWithdrawnAmount();
+    }
 }

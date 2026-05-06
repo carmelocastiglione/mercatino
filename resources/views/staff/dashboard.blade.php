@@ -49,5 +49,15 @@
             bgColor="green"
             label="INCASSO"
         />
+
+        <!-- Riscossioni -->
+        <x-dashboard-card 
+            href="{{ route('staff.withdrawals.index') }}"
+            title="Riscossioni"
+            description="Gestisci i prelievi denaro dei venditori"
+            count="{{ $totalWithdrawals ?? 0 }}"
+            bgColor="indigo"
+            label="RITIRATE"
+        />
     </div>
 @endsection
