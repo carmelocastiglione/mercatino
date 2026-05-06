@@ -280,7 +280,7 @@
                     return;
                 }
                 showToast(`✓ ${data.message}`, 'success');
-                window.location.href = `{{ route('staff.sales.show', ':id') }}`.replace(':id', data.sale_id);
+                window.location.href = data.redirect;
             } catch (error) {
                 console.error('Errore:', error);
                 showToast('Errore durante il salvataggio: ' + error.message, 'error');

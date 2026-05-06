@@ -114,9 +114,9 @@ class SaleController extends Controller
                 'sales.*.book_listing_id' => ['required', 'exists:book_listings,id'],
             ]);
 
-            $salesToCreate = [];
             $totalAmount = 0;
-            $firstSaleId = null;
+            $count = 0;
+            $saleIds = [];
 
             foreach ($validated['sales'] as $sale) {
                 // Verify book listing exists and is available
@@ -132,22 +132,21 @@ class SaleController extends Controller
                     'buyer_id' => $sale['buyer_id'],
                 ]);
 
-                if (!$firstSaleId) {
-                    $firstSaleId = $bookSale->id;
-                }
+                $saleIds[] = $bookSale->id;
 
                 // Update listing status
                 $listing->update(['status' => 'sold']);
 
                 $totalAmount += $listing->price;
+                $count++;
             }
 
             return response()->json([
                 'success' => true,
-                'message' => count($validated['sales']) . ' vendita/e registrata/e con successo',
-                'count' => count($validated['sales']),
+                'message' => $count . ' vendita/e registrata/e con successo',
+                'count' => $count,
                 'total' => $totalAmount,
-                'sale_id' => $firstSaleId,
+                'redirect' => route('staff.sales.batch-summary', ['ids' => implode(',', $saleIds)]),
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -172,6 +171,28 @@ class SaleController extends Controller
         
         return view('staff.sales.show', [
             'sale' => $sale,
+        ]);
+    }
+
+    /**
+     * Show batch sales summary.
+     */
+    public function batchSummary(): View
+    {
+        $ids = request()->query('ids', '');
+        $saleIds = array_filter(explode(',', $ids));
+
+        if (empty($saleIds)) {
+            return redirect()->route('staff.sales.create');
+        }
+
+        $sales = BookSale::with('bookListing.book', 'soldBy', 'buyer')
+            ->whereIn('id', $saleIds)
+            ->get();
+
+        return view('staff.sales.show', [
+            'sales' => $sales,
+            'isBatch' => true,
         ]);
     }
 

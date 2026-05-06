@@ -118,6 +118,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     // Sales Management - Vendite al mercatino
     Route::get('/sales', [StaffSaleController::class, 'index'])->name('staff.sales.index');
     Route::get('/sales/create', [StaffSaleController::class, 'create'])->name('staff.sales.create');
+    Route::get('/sales/batch-summary', [StaffSaleController::class, 'batchSummary'])->name('staff.sales.batch-summary');
     Route::get('/sales/{sale}/show', [StaffSaleController::class, 'show'])->name('staff.sales.show');
     Route::get('/sales/search-buyers', [StaffSaleController::class, 'searchBuyers'])->name('staff.sales.search-buyers');
     Route::get('/sales/search-listings', [StaffSaleController::class, 'searchListings'])->name('staff.sales.search-listings');
