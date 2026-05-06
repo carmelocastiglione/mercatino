@@ -51,11 +51,12 @@ class SaleController extends Controller
             return response()->json([]);
         }
 
-        $buyers = User::where('name', 'ilike', "%{$query}%")
-            ->orWhere('surname', 'ilike', "%{$query}%")
-            ->orWhere('code', 'ilike', "%{$query}%")
-            ->orWhere('email', 'ilike', "%{$query}%")
-            ->where('role', 'student')
+        $buyers = User::where(function ($q) use ($query) {
+                $q->where('name', 'ilike', "%{$query}%")
+                    ->orWhere('surname', 'ilike', "%{$query}%")
+                    ->orWhere('code', 'ilike', "%{$query}%")
+                    ->orWhere('email', 'ilike', "%{$query}%");
+            })
             ->select('id', 'name', 'surname', 'code', 'email')
             ->limit(10)
             ->get();

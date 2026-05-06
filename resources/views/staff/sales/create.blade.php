@@ -22,15 +22,20 @@
                     <label for="buyer_search" class="block text-sm font-semibold text-gray-900 mb-2">
                         Acquirente <span class="text-red-600">*</span>
                     </label>
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            id="buyer_search" 
-                            placeholder="Cerca per nome, codice o email..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            autocomplete="off"
-                        >
-                        <div id="buyer_results" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto z-10"></div>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <input 
+                                type="text" 
+                                id="buyer_search" 
+                                placeholder="Cerca per nome, codice o email..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                autocomplete="off"
+                            >
+                            <div id="buyer_results" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto z-10"></div>
+                        </div>
+                        <button type="button" onclick="openRegisterModal()" class="px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition whitespace-nowrap">
+                            + Aggiungi
+                        </button>
                     </div>
                     <div id="buyer_selected" class="mt-4 hidden">
                         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -112,40 +117,11 @@
     <div class="mt-8"></div>
 
     <script>
+        // Variables
         let cart = [];
         let selectedBuyer = null;
 
-        // Buyer Search with Debounce
-        let buyerDebounce;
-        document.getElementById('buyer_search').addEventListener('input', function(e) {
-            clearTimeout(buyerDebounce);
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                document.getElementById('buyer_results').classList.add('hidden');
-                return;
-            }
-
-            buyerDebounce = setTimeout(() => {
-                fetch(`{{ route('staff.sales.search-buyers') }}?q=${encodeURIComponent(query)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        const resultsDiv = document.getElementById('buyer_results');
-                        if (data.length === 0) {
-                            resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun acquirente trovato</div>';
-                        } else {
-                            resultsDiv.innerHTML = data.map(buyer => `
-                                <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBuyer(${buyer.id}, '${buyer.name}', '${buyer.surname}', '${buyer.code}', '${buyer.email}')">
-                                    <p class="font-medium text-sm text-gray-900">${buyer.name} ${buyer.surname}</p>
-                                    <p class="text-xs text-gray-600">${buyer.code} • ${buyer.email}</p>
-                                </div>
-                            `).join('');
-                        }
-                        resultsDiv.classList.remove('hidden');
-                    });
-            }, 300);
-        });
-
+        // Global Functions (callable from onclick)
         function selectBuyer(id, name, surname, code, email) {
             selectedBuyer = { id, name, surname, code, email };
             document.getElementById('buyer_id').value = id;
@@ -164,47 +140,12 @@
             document.getElementById('sidebar_buyer_name').textContent = `${name} ${surname}`;
         }
 
-        // Book Search with Debounce
-        let bookDebounce;
-        document.getElementById('book_search').addEventListener('input', function(e) {
-            clearTimeout(bookDebounce);
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                document.getElementById('book_results').classList.add('hidden');
-                return;
-            }
-
-            bookDebounce = setTimeout(() => {
-                fetch(`{{ route('staff.sales.search-listings') }}?q=${encodeURIComponent(query)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        const resultsDiv = document.getElementById('book_results');
-                        if (data.length === 0) {
-                            resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun libro disponibile</div>';
-                        } else {
-                            resultsDiv.innerHTML = data.map(book => `
-                                <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.condition}')">
-                                    <p class="font-medium text-sm text-gray-900">${book.title}</p>
-                                    <p class="text-xs text-gray-600">${book.author}</p>
-                                    <p class="text-xs text-gray-600 mt-1">Condizione: <span class="font-semibold">${book.condition}</span></p>
-                                    <p class="text-xs text-gray-600">Venditore: <span class="font-semibold">${book.seller_name} ${book.seller_surname}</span> (${book.seller_code})</p>
-                                    <p class="text-xs text-green-600 font-semibold mt-1">€${parseFloat(book.price).toFixed(2)}</p>
-                                </div>
-                            `).join('');
-                        }
-                        resultsDiv.classList.remove('hidden');
-                    });
-            }, 300);
-        });
-
         function selectBook(id, title, author, price, condition) {
             document.getElementById('book_listing_id').value = id;
             document.getElementById('book_search').value = `${title} - ${author}`;
             document.getElementById('book_results').classList.add('hidden');
         }
 
-        // Add to Cart
         function addToCart() {
             const buyerId = document.getElementById('buyer_id').value;
             const listingId = document.getElementById('book_listing_id').value;
@@ -322,7 +263,170 @@
                 showToast('Errore durante il salvataggio: ' + error.message, 'error');
             }
         }
+
+        // Initialize after DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal Management
+            const registerModal = document.getElementById('register_modal');
+            const registerForm = document.getElementById('register_form');
+
+        function openRegisterModal() {
+            registerModal.classList.remove('hidden');
+            document.getElementById('reg_name').focus();
+        }
+
+        function closeRegisterModal() {
+            registerModal.classList.add('hidden');
+            registerForm.reset();
+            clearRegisterErrors();
+        }
+
+        function clearRegisterErrors() {
+            document.getElementById('reg_name_error').classList.add('hidden');
+            document.getElementById('reg_surname_error').classList.add('hidden');
+            document.getElementById('reg_email_error').classList.add('hidden');
+            document.getElementById('register_message').classList.add('hidden');
+        }
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearRegisterErrors();
+
+            try {
+                const response = await fetch('{{ route("staff.register-user") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('reg_name').value,
+                        surname: document.getElementById('reg_surname').value,
+                        email: document.getElementById('reg_email').value,
+                    })
+                });
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    const text = await response.text();
+                    console.error('Risposta non JSON:', text);
+                    const msg = document.getElementById('register_message');
+                    msg.textContent = 'Errore del server. Controlla la console.';
+                    msg.className = 'text-center text-sm mt-2 text-red-600';
+                    msg.classList.remove('hidden');
+                    return;
+                }
+
+                if (!response.ok) {
+                    if (data.errors) {
+                        if (data.errors.name && data.errors.name.length > 0) {
+                            document.getElementById('reg_name_error').textContent = data.errors.name.join(', ');
+                            document.getElementById('reg_name_error').classList.remove('hidden');
+                        }
+                        if (data.errors.surname && data.errors.surname.length > 0) {
+                            document.getElementById('reg_surname_error').textContent = data.errors.surname.join(', ');
+                            document.getElementById('reg_surname_error').classList.remove('hidden');
+                        }
+                        if (data.errors.email && data.errors.email.length > 0) {
+                            document.getElementById('reg_email_error').textContent = data.errors.email.join(', ');
+                            document.getElementById('reg_email_error').classList.remove('hidden');
+                        }
+                    } else if (data.message) {
+                        const msg = document.getElementById('register_message');
+                        msg.textContent = data.message;
+                        msg.className = 'text-center text-sm mt-2 text-red-600';
+                        msg.classList.remove('hidden');
+                    }
+                } else {
+                    const msg = document.getElementById('register_message');
+                    msg.textContent = 'Utente creato con successo!';
+                    msg.className = 'text-center text-sm mt-2 text-green-600';
+                    msg.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        closeRegisterModal();
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                const msg = document.getElementById('register_message');
+                msg.textContent = 'Errore: ' + error.message;
+                msg.className = 'text-center text-sm mt-2 text-red-600';
+                msg.classList.remove('hidden');
+            }
+        });
+
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) {
+                closeRegisterModal();
+            }
+        });
+
+        // Buyer Search with Debounce
+        let buyerDebounce;
+        document.getElementById('buyer_search').addEventListener('input', function(e) {
+            clearTimeout(buyerDebounce);
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+                document.getElementById('buyer_results').classList.add('hidden');
+                return;
+            }
+
+            buyerDebounce = setTimeout(() => {
+                fetch(`{{ route('staff.sales.search-buyers') }}?q=${encodeURIComponent(query)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const resultsDiv = document.getElementById('buyer_results');
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun acquirente trovato</div>';
+                        } else {
+                            resultsDiv.innerHTML = data.map(buyer => `
+                                <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBuyer(${buyer.id}, '${buyer.name}', '${buyer.surname}', '${buyer.code}', '${buyer.email}')">
+                                    <p class="font-medium text-sm text-gray-900">${buyer.name} ${buyer.surname}</p>
+                                    <p class="text-xs text-gray-600">${buyer.code} • ${buyer.email}</p>
+                                </div>
+                            `).join('');
+                        }
+                        resultsDiv.classList.remove('hidden');
+                    })
+                    .catch(err => console.error('Errore ricerca:', err));
+            }, 300);
+        });
+        });
     </script>
+
+    <!-- Modal Aggiunta Acquirente -->
+    <div id="register_modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-md w-full mx-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Aggiungi Acquirente</h2>
+            <form id="register_form" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="reg_name" class="block text-sm font-semibold text-gray-900 mb-2">Nome <span class="text-red-600">*</span></label>
+                    <input type="text" id="reg_name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    <p id="reg_name_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="reg_surname" class="block text-sm font-semibold text-gray-900 mb-2">Cognome <span class="text-red-600">*</span></label>
+                    <input type="text" id="reg_surname" name="surname" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    <p id="reg_surname_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div>
+                    <label for="reg_email" class="block text-sm font-semibold text-gray-900 mb-2">Email <span class="text-red-600">*</span></label>
+                    <input type="email" id="reg_email" name="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    <p id="reg_email_error" class="text-red-600 text-sm mt-1 hidden"></p>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">Aggiungi</button>
+                    <button type="button" onclick="closeRegisterModal()" class="flex-1 px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">Annulla</button>
+                </div>
+                <p id="register_message" class="text-center text-sm mt-2 hidden"></p>
+            </form>
+        </div>
+    </div>
 
     <!-- CSRF Token (hidden) -->
     @csrf
