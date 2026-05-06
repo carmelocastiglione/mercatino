@@ -51,22 +51,14 @@ class SaleController extends Controller
             return response()->json([]);
         }
 
-        $buyers = User::where(function ($q) use ($query) {
-            $q->whereRaw("CONCAT(name, ' ', surname) ILIKE ?", ["%$query%"])
-                ->orWhere('code', 'ILIKE', "%$query%")
-                ->orWhere('email', 'ILIKE', "%$query%");
-        })
+        $buyers = User::where('name', 'ilike', "%{$query}%")
+            ->orWhere('surname', 'ilike', "%{$query}%")
+            ->orWhere('code', 'ilike', "%{$query}%")
+            ->orWhere('email', 'ilike', "%{$query}%")
             ->where('role', 'student')
+            ->select('id', 'name', 'surname', 'code', 'email')
             ->limit(10)
-            ->get(['id', 'name', 'surname', 'code', 'email'])
-            ->map(fn($user) => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'surname' => $user->surname,
-                'code' => $user->code,
-                'email' => $user->email,
-                'display' => "{$user->name} {$user->surname} ({$user->code})",
-            ]);
+            ->get();
 
         return response()->json($buyers);
     }
@@ -82,23 +74,28 @@ class SaleController extends Controller
             return response()->json([]);
         }
 
-        $listings = BookListing::with('book')
-            ->where('status', 'available')
-            ->whereHas('book', function ($q) use ($query) {
-                $q->where('title', 'ILIKE', "%$query%")
-                    ->orWhere('author', 'ILIKE', "%$query%")
-                    ->orWhere('isbn', 'ILIKE', "%$query%");
+        $listings = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')
+            ->join('users', 'book_listings.seller_id', '=', 'users.id')
+            ->where('book_listings.status', '=', 'available')
+            ->where(function ($q) use ($query) {
+                $q->where('books.title', 'ilike', "%{$query}%")
+                    ->orWhere('books.author', 'ilike', "%{$query}%")
+                    ->orWhere('books.isbn', 'ilike', "%{$query}%");
             })
+            ->select('book_listings.*', 'books.title', 'books.author', 'books.isbn', 'users.name as seller_name', 'users.surname as seller_surname', 'users.code as seller_code')
             ->limit(10)
             ->get()
             ->map(fn($listing) => [
                 'id' => $listing->id,
-                'title' => $listing->book->title,
-                'author' => $listing->book->author,
-                'isbn' => $listing->book->isbn,
+                'title' => $listing->title,
+                'author' => $listing->author,
+                'isbn' => $listing->isbn,
                 'condition' => $listing->condition,
                 'price' => $listing->price,
-                'display' => "{$listing->book->title} - {$listing->book->author}",
+                'seller_name' => $listing->seller_name,
+                'seller_surname' => $listing->seller_surname,
+                'seller_code' => $listing->seller_code,
+                'display' => "{$listing->title} - {$listing->author}",
             ]);
 
         return response()->json($listings);
@@ -114,7 +111,6 @@ class SaleController extends Controller
                 'sales' => ['required', 'array', 'min:1'],
                 'sales.*.buyer_id' => ['required', 'exists:users,id'],
                 'sales.*.book_listing_id' => ['required', 'exists:book_listings,id'],
-                'sales.*.payment_method' => ['required', 'in:cash,card,bank_transfer,satispay,paypal'],
             ]);
 
             $salesToCreate = [];
@@ -133,7 +129,6 @@ class SaleController extends Controller
                     'book_listing_id' => $listing->id,
                     'sold_by' => auth()->id(),
                     'buyer_id' => $sale['buyer_id'],
-                    'payment_method' => $sale['payment_method'],
                 ]);
 
                 if (!$firstSaleId) {

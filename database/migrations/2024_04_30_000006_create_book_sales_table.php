@@ -24,15 +24,6 @@ return new class extends Migration
                 ->constrained('users')
                 ->onDelete('restrict');
 
-            // Metodo di pagamento
-            $table->enum('payment_method', [
-                'cash',
-                'card',
-                'bank_transfer',
-                'satispay',
-                'paypal',
-            ])->default('cash');
-
             // Note aggiuntive
             $table->text('notes')->nullable()->comment('Note sulla vendita');
 

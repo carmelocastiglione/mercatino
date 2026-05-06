@@ -16,7 +16,6 @@ class BookSale extends Model
         'book_listing_id',
         'sold_by',
         'buyer_id',
-        'payment_method',
         'notes',
     ];
 

@@ -60,22 +60,6 @@
                     <input type="hidden" id="book_listing_id" value="">
                 </div>
 
-                <!-- Payment Method Selection -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <label class="block text-sm font-semibold text-gray-900 mb-4">
-                        Metodo di Pagamento <span class="text-red-600">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 gap-3">
-                        @foreach(['cash' => 'Contanti', 'card' => 'Carta', 'bank_transfer' => 'Bonifico', 'satispay' => 'Satispay', 'paypal' => 'PayPal'] as $value => $label)
-                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-green-500 transition" data-payment="{{ $value }}">
-                                <input type="radio" name="payment_method" value="{{ $value }}" class="w-4 h-4 text-green-600" required>
-                                <span class="ml-2 text-sm font-medium text-gray-900">{{ $label }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                    <input type="hidden" id="selected_payment" value="">
-                </div>
-
                 <!-- Add to Cart Button -->
                 <button type="button" onclick="addToCart()" class="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
                     ➕ Aggiungi Libro
@@ -203,7 +187,9 @@
                                 <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.condition}')">
                                     <p class="font-medium text-sm text-gray-900">${book.title}</p>
                                     <p class="text-xs text-gray-600">${book.author}</p>
-                                    <p class="text-xs text-green-600 font-semibold mt-1">€${book.price.toFixed(2)}</p>
+                                    <p class="text-xs text-gray-600 mt-1">Condizione: <span class="font-semibold">${book.condition}</span></p>
+                                    <p class="text-xs text-gray-600">Venditore: <span class="font-semibold">${book.seller_name} ${book.seller_surname}</span> (${book.seller_code})</p>
+                                    <p class="text-xs text-green-600 font-semibold mt-1">€${parseFloat(book.price).toFixed(2)}</p>
                                 </div>
                             `).join('');
                         }
@@ -218,18 +204,10 @@
             document.getElementById('book_results').classList.add('hidden');
         }
 
-        // Payment Method Selection
-        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.getElementById('selected_payment').value = this.value;
-            });
-        });
-
         // Add to Cart
         function addToCart() {
             const buyerId = document.getElementById('buyer_id').value;
             const listingId = document.getElementById('book_listing_id').value;
-            const paymentMethod = document.getElementById('selected_payment').value;
 
             if (!buyerId) {
                 showToast('Seleziona un acquirente', 'error');
@@ -239,10 +217,6 @@
                 showToast('Seleziona un libro', 'error');
                 return;
             }
-            if (!paymentMethod) {
-                showToast('Seleziona un metodo di pagamento', 'error');
-                return;
-            }
 
             const bookTitle = document.getElementById('book_search').value.split(' - ')[0];
             const bookPrice = parseFloat(document.querySelector('[data-price]')?.dataset.price || 0);
@@ -250,7 +224,6 @@
             cart.push({
                 buyer_id: parseInt(buyerId),
                 book_listing_id: parseInt(listingId),
-                payment_method: paymentMethod,
                 title: bookTitle,
             });
 
@@ -293,7 +266,6 @@
                 <div class="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900">${item.title}</p>
-                        <p class="text-xs text-gray-600 mt-1">Metodo: ${getPaymentLabel(item.payment_method)}</p>
                     </div>
                     <button onclick="removeFromCart(${index})" class="text-red-600 hover:text-red-800 font-bold text-lg ml-2">×</button>
                 </div>
@@ -305,17 +277,6 @@
         function resetForm() {
             document.getElementById('book_search').value = '';
             document.getElementById('book_listing_id').value = '';
-        }
-
-        function getPaymentLabel(method) {
-            const labels = {
-                'cash': 'Contanti',
-                'card': 'Carta',
-                'bank_transfer': 'Bonifico',
-                'satispay': 'Satispay',
-                'paypal': 'PayPal'
-            };
-            return labels[method] || method;
         }
 
         function showToast(message, type = 'info') {
