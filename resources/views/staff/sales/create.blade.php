@@ -395,6 +395,41 @@
                     .catch(err => console.error('Errore ricerca:', err));
             }, 300);
         });
+
+        // Book Search with Debounce
+        let bookDebounce;
+        document.getElementById('book_search').addEventListener('input', function(e) {
+            clearTimeout(bookDebounce);
+            const query = e.target.value.trim();
+            
+            if (query.length < 2) {
+                document.getElementById('book_results').classList.add('hidden');
+                return;
+            }
+
+            bookDebounce = setTimeout(() => {
+                fetch(`{{ route('staff.sales.search-listings') }}?q=${encodeURIComponent(query)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        const resultsDiv = document.getElementById('book_results');
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun libro disponibile</div>';
+                        } else {
+                            resultsDiv.innerHTML = data.map(book => `
+                                <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.condition}')">
+                                    <p class="font-medium text-sm text-gray-900">${book.title}</p>
+                                    <p class="text-xs text-gray-600">${book.author}</p>
+                                    <p class="text-xs text-gray-600 mt-1">Condizione: <span class="font-semibold">${book.condition}</span></p>
+                                    <p class="text-xs text-gray-600">Venditore: <span class="font-semibold">${book.seller_name} ${book.seller_surname}</span> (${book.seller_code})</p>
+                                    <p class="text-xs text-green-600 font-semibold mt-1">€${parseFloat(book.price).toFixed(2)}</p>
+                                </div>
+                            `).join('');
+                        }
+                        resultsDiv.classList.remove('hidden');
+                    })
+                    .catch(err => console.error('Errore ricerca libri:', err));
+            }, 300);
+        });
         });
     </script>
 
