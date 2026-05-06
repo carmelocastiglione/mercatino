@@ -102,13 +102,13 @@ class User extends Authenticatable
     }
 
     /**
-     * Get total amount from sales of books sold by this user.
+     * Get total amount from sales of books sold by this user (seller).
      */
     public function getTotalSalesAmount(): float
     {
-        return (float) BookSale::where('sold_by', $this->id)
-            ->join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
-            ->sum('book_listings.price');
+        return (float) BookListing::where('seller_id', $this->id)
+            ->where('status', 'sold')
+            ->sum('price');
     }
 
     /**

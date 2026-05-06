@@ -71,7 +71,7 @@ return new class extends Migration
             $table->decimal('price', 8, 2);
 
             // Status della vendita
-            $table->enum('status', ['available', 'reserved', 'sold', 'archived'])
+            $table->enum('status', ['available', 'reserved', 'sold', 'withdrawn', 'archived'])
                 ->default('available');
 
             // Immagini della copia specifica

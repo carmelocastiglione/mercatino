@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BookListing extends Model
@@ -53,5 +54,13 @@ class BookListing extends Model
     public function acquisition(): BelongsTo
     {
         return $this->belongsTo(Acquisition::class);
+    }
+
+    /**
+     * Get the sales records for this listing.
+     */
+    public function bookSales(): HasMany
+    {
+        return $this->hasMany(BookSale::class);
     }
 }

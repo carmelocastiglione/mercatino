@@ -18,8 +18,8 @@ class WithdrawalController extends Controller
      */
     public function index(): View
     {
-        // Get all users that have made sales
-        $sellers = User::whereHas('sales')->with(['sales', 'withdrawals'])
+        // Get all users that have book listings (sellers)
+        $sellers = User::whereHas('bookListings')->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
             ->latest('updated_at')
             ->paginate(15);
 
@@ -43,7 +43,8 @@ class WithdrawalController extends Controller
     {
         $query = $request->query('q', '');
         
-        $sellers = User::whereHas('sales')
+        // Get sellers (users with book listings)
+        $sellers = User::whereHas('bookListings')
             ->where(function ($q) use ($query) {
                 $q->where('name', 'ilike', "%$query%")
                     ->orWhere('surname', 'ilike', "%$query%")
@@ -63,14 +64,14 @@ class WithdrawalController extends Controller
     {
         // Get all book listings from this seller
         $bookListings = BookListing::where('seller_id', $user->id)
-            ->with(['book', 'sales'])
+            ->with(['book', 'bookSales'])
             ->get();
 
         // Group by status
         $soldBooks = $bookListings->where('status', 'sold')->values();
         $unsoldBooks = $bookListings->where('status', '!=', 'sold')->values();
 
-        return view('staff.withdrawals.process-seller', [
+        return view('staff.withdrawals.manage-seller', [
             'seller' => $user,
             'soldBooks' => $soldBooks,
             'unsoldBooks' => $unsoldBooks,
@@ -97,6 +98,9 @@ class WithdrawalController extends Controller
             'amount' => $amount,
             'notes' => $notes,
         ]);
+
+        // Mark the listing as withdrawn (payment collected)
+        $listing->update(['status' => 'withdrawn']);
 
         return redirect()->route('staff.withdrawals.process-seller', $seller->id)
             ->with('success', "Riscosso {$amount}€ per il libro \"{$listing->book->title}\"");
