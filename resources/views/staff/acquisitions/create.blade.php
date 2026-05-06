@@ -512,10 +512,6 @@
                 return;
             }
 
-            if (!confirm(`Stai per acquisire ${cart.length} libr${cart.length !== 1 ? 'i' : 'o'}. Continuare?`)) {
-                return;
-            }
-
             try {
                 const leave = document.getElementById('cedere_se_invenduti').checked;
                 
