@@ -27,7 +27,7 @@ return new class extends Migration
             // Informazioni di base del libro
             $table->string('title');
             $table->string('author')->nullable();
-            $table->string('isbn')->nullable()->unique();
+            $table->string('isbn')->nullable();
             $table->text('description')->nullable();
 
             // Informazioni scolastiche

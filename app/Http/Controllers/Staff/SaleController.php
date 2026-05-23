@@ -13,17 +13,21 @@ use Illuminate\Http\RedirectResponse;
 class SaleController extends Controller
 {
     /**
-     * Display the list of sold books.
+     * Display the list of sold books (filtered by staff's school).
      */
     public function index(): View
     {
         $sales = BookSale::with('bookListing.book', 'soldBy')
+            ->bySchool(auth()->user()->school_id)
             ->latest('created_at')
             ->paginate(15);
 
-        $totalSales = BookSale::join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
+        $totalSales = BookSale::bySchool(auth()->user()->school_id)
+            ->join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
             ->sum('book_listings.price');
-        $todaySales = BookSale::whereDate('created_at', today())->count();
+        $todaySales = BookSale::whereDate('created_at', today())
+            ->bySchool(auth()->user()->school_id)
+            ->count();
 
         return view('staff.sales.index', [
             'sales' => $sales,
@@ -41,17 +45,19 @@ class SaleController extends Controller
     }
 
     /**
-     * Search for buyers by name, surname, or code.
+     * Search for buyers by name, surname, or code (filtered by staff's school).
      */
     public function searchBuyers(): JsonResponse
     {
         $query = request('q', '');
+        $staffSchoolId = auth()->user()->school_id;
 
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $buyers = User::where(function ($q) use ($query) {
+        $buyers = User::where('school_id', $staffSchoolId)
+            ->where(function ($q) use ($query) {
                 $q->where('name', 'ilike', "%{$query}%")
                     ->orWhere('surname', 'ilike', "%{$query}%")
                     ->orWhere('code', 'ilike', "%{$query}%")
@@ -65,11 +71,12 @@ class SaleController extends Controller
     }
 
     /**
-     * Search for available book listings.
+     * Search for available book listings (filtered by staff's school).
      */
     public function searchListings(): JsonResponse
     {
         $query = request('q', '');
+        $staffSchoolId = auth()->user()->school_id;
 
         if (strlen($query) < 2) {
             return response()->json([]);
@@ -78,6 +85,7 @@ class SaleController extends Controller
         $listings = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')
             ->join('users', 'book_listings.seller_id', '=', 'users.id')
             ->where('book_listings.status', '=', 'available')
+            ->where('books.school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
                 $q->where('books.title', 'ilike', "%{$query}%")
                     ->orWhere('books.author', 'ilike', "%{$query}%")
@@ -103,11 +111,13 @@ class SaleController extends Controller
     }
 
     /**
-     * Store batch sales.
+     * Store batch sales (authorized by school).
      */
     public function storeBatch(): JsonResponse
     {
         try {
+            $staffSchoolId = auth()->user()->school_id;
+
             $validated = request()->validate([
                 'sales' => ['required', 'array', 'min:1'],
                 'sales.*.buyer_id' => ['required', 'exists:users,id'],
@@ -124,6 +134,13 @@ class SaleController extends Controller
                 
                 if ($listing->status !== 'available') {
                     continue;
+                }
+
+                // Verify book belongs to staff's school
+                if ($listing->book->school_id !== $staffSchoolId) {
+                    return response()->json([
+                        'message' => 'Il libro non appartiene alla tua scuola'
+                    ], 403);
                 }
 
                 $bookSale = BookSale::create([
@@ -162,20 +179,25 @@ class SaleController extends Controller
     }
 
     /**
-     * Show sale summary/receipt.
+     * Show sale summary/receipt (authorized by school).
      */
     public function show($saleId): View
     {
+        $staffSchoolId = auth()->user()->school_id;
         $sale = BookSale::with('bookListing.book', 'soldBy', 'buyer')
             ->findOrFail($saleId);
         
+        if ($sale->bookListing->book->school_id !== $staffSchoolId) {
+            abort(403, 'Non autorizzato');
+        }
+
         return view('staff.sales.show', [
             'sale' => $sale,
         ]);
     }
 
     /**
-     * Show batch sales summary.
+     * Show batch sales summary (authorized by school).
      */
     public function batchSummary(): View
     {
@@ -188,6 +210,7 @@ class SaleController extends Controller
 
         $sales = BookSale::with('bookListing.book', 'soldBy', 'buyer')
             ->whereIn('id', $saleIds)
+            ->bySchool(auth()->user()->school_id)
             ->get();
 
         return view('staff.sales.show', [
@@ -197,27 +220,23 @@ class SaleController extends Controller
     }
 
     /**
-     * Store a newly created sale in storage (legacy).
+     * Store a newly created sale in storage (legacy, authorized by school).
      */
     public function store(): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+
         $validated = request()->validate([
             'book_listing_id' => ['required', 'exists:book_listings,id'],
             'payment_method' => ['required', 'in:cash,card,bank_transfer,satispay,paypal'],
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
 
-        // Crea la vendita
-        BookSale::create([
-            'book_listing_id' => $validated['book_listing_id'],
-            'sold_by' => auth()->id(),
-            'payment_method' => $validated['payment_method'],
-            'notes' => $validated['notes'] ?? null,
-        ]);
-
-        // Marca il listing come sold
-        BookListing::findOrFail($validated['book_listing_id'])
-            ->update(['status' => 'sold']);
+        // Verifica che il libro appartiene alla scuola dello staff
+        $listing = BookListing::findOrFail($validated['book_listing_id']);
+        if ($listing->book->school_id !== $staffSchoolId) {
+            return back()->with('error', 'Non autorizzato');
+        }
 
         return redirect()->route('staff.sales.index')
             ->with('success', 'Vendita registrata con successo!');

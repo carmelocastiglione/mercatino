@@ -12,12 +12,13 @@ use Illuminate\Http\RedirectResponse;
 class DeliveryController extends Controller
 {
     /**
-     * Display a listing of pending deliveries.
+     * Display a listing of pending deliveries (filtered by staff's school).
      */
     public function index(): View
     {
         $deliveries = BookDelivery::where('status', 'pending')
             ->with('user', 'book')
+            ->bySchool(auth()->user()->school_id)
             ->latest()
             ->paginate(10);
 
@@ -27,20 +28,32 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Display the specified delivery for review.
+     * Display the specified delivery for review (authorized by school).
      */
     public function show(BookDelivery $delivery): View
     {
+        $staffSchoolId = auth()->user()->school_id;
+        
+        if ($delivery->book->school_id !== $staffSchoolId) {
+            abort(403, 'Non puoi accedere a questa consegna');
+        }
+
         return view('staff.deliveries.show', [
             'delivery' => $delivery->load('user', 'book'),
         ]);
     }
 
     /**
-     * Approve the specified delivery.
+     * Approve the specified delivery (authorized by school).
      */
     public function approve(BookDelivery $delivery): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+        
+        if ($delivery->book->school_id !== $staffSchoolId) {
+            return back()->with('error', 'Non puoi accedere a questa consegna');
+        }
+
         if ($delivery->status !== 'pending') {
             return back()->with('error', 'Puoi approvare solo consegne in sospeso');
         }
@@ -65,10 +78,16 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Show the form for rejecting a delivery.
+     * Show the form for rejecting a delivery (authorized by school).
      */
     public function rejectForm(BookDelivery $delivery): View
     {
+        $staffSchoolId = auth()->user()->school_id;
+        
+        if ($delivery->book->school_id !== $staffSchoolId) {
+            abort(403, 'Non puoi accedere a questa consegna');
+        }
+
         if ($delivery->status !== 'pending') {
             return back()->with('error', 'Puoi rifiutare solo consegne in sospeso');
         }
@@ -79,10 +98,16 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Reject the specified delivery.
+     * Reject the specified delivery (authorized by school).
      */
     public function reject(Request $request, BookDelivery $delivery): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+        
+        if ($delivery->book->school_id !== $staffSchoolId) {
+            return back()->with('error', 'Non puoi accedere a questa consegna');
+        }
+
         if ($delivery->status !== 'pending') {
             return back()->with('error', 'Puoi rifiutare solo consegne in sospeso');
         }
@@ -105,15 +130,20 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Reject a delivery (JSON API endpoint)
+     * Reject a delivery (JSON API endpoint, authorized by school)
      */
     public function rejectDeliveryJson(Request $request)
     {
+        $staffSchoolId = auth()->user()->school_id;
         $deliveryId = $request->query('delivery_id');
         $delivery = BookDelivery::find($deliveryId);
 
         if (!$delivery) {
             return response()->json(['success' => false, 'message' => 'Consegna non trovata'], 404);
+        }
+
+        if ($delivery->book->school_id !== $staffSchoolId) {
+            return response()->json(['success' => false, 'message' => 'Non autorizzato'], 403);
         }
 
         if ($delivery->status !== 'pending') {
@@ -130,7 +160,7 @@ class DeliveryController extends Controller
     }
 
     /**
-     * Approve multiple deliveries (JSON API endpoint)
+     * Approve multiple deliveries (JSON API endpoint, filtered by staff's school)
      */
     public function approveBulk(Request $request)
     {
@@ -142,6 +172,7 @@ class DeliveryController extends Controller
 
         $deliveries = BookDelivery::whereIn('id', $deliveryIds)
             ->where('status', 'pending')
+            ->bySchool(auth()->user()->school_id)
             ->get();
 
         if ($deliveries->isEmpty()) {

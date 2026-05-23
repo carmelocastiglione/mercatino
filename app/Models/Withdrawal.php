@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class Withdrawal extends Model
 {
@@ -25,6 +26,14 @@ class Withdrawal extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Scope to filter withdrawals by school.
+     */
+    public function scopeBySchool(Builder $query, ?int $schoolId): Builder
+    {
+        return $query->whereHas('bookListing', fn($q) => $q->bySchool($schoolId));
+    }
 
     /**
      * Get the user who made the withdrawal.

@@ -9,12 +9,13 @@ use Illuminate\View\View;
 class BookListingController extends Controller
 {
     /**
-     * Display a list of available book listings for staff.
+     * Display a list of available book listings for staff (filtered by staff's school).
      */
     public function index(): View
     {
         $listings = BookListing::with('book', 'seller')
             ->where('status', 'available')
+            ->bySchool(auth()->user()->school_id)
             ->latest()
             ->paginate(15);
 

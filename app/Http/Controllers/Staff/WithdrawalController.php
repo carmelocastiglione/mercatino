@@ -15,12 +15,18 @@ use Illuminate\View\View;
 class WithdrawalController extends Controller
 {
     /**
-     * Display a listing of all withdrawals.
+     * Display a listing of all withdrawals (filtered by staff's school).
      */
     public function index(): View
     {
-        // Get all users that have book listings (sellers)
-        $sellers = User::whereHas('bookListings')->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
+        $schoolId = auth()->user()->school_id;
+
+        // Get all users that have book listings from staff's school
+        $sellers = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
+                $query->bySchool($schoolId);
+            })
+            ->where('school_id', $schoolId)
+            ->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
             ->latest('updated_at')
             ->paginate(15);
 
@@ -38,14 +44,18 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Search sellers for withdrawal management.
+     * Search sellers for withdrawal management (filtered by staff's school).
      */
     public function searchSellers(Request $request): JsonResponse
     {
         $query = $request->query('q', '');
+        $schoolId = auth()->user()->school_id;
         
-        // Get sellers (users with book listings)
-        $sellers = User::whereHas('bookListings')
+        // Get sellers (users with book listings from staff's school)
+        $sellers = User::where('school_id', $schoolId)
+            ->whereHas('bookListings.book', function ($q) use ($schoolId) {
+                $q->bySchool($schoolId);
+            })
             ->where(function ($q) use ($query) {
                 $q->where('name', 'ilike', "%$query%")
                     ->orWhere('surname', 'ilike', "%$query%")
@@ -59,12 +69,20 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Display seller's books and withdrawal summary.
+     * Display seller's books and withdrawal summary (authorized by school).
      */
     public function processSeller(User $user): View
     {
-        // Get all book listings from this seller
+        $schoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($user->school_id !== $schoolId) {
+            abort(403, 'Non autorizzato');
+        }
+
+        // Get all book listings from this seller that belong to staff's school
         $bookListings = BookListing::where('seller_id', $user->id)
+            ->bySchool($schoolId)
             ->with(['book', 'bookSales'])
             ->get();
 
@@ -80,10 +98,17 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Withdraw money for a sold book.
+     * Withdraw money for a sold book (authorized by school).
      */
     public function withdrawMoney(Request $request, BookListing $listing): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify listing belongs to staff's school
+        if ($listing->book->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
         // Verify the listing is sold and get the price
         if ($listing->status !== 'sold') {
             return redirect()->back()->withErrors(['error' => 'Il libro non è venduto']);
@@ -109,10 +134,17 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Withdraw an unsold book (remove from listings).
+     * Withdraw an unsold book (remove from listings, authorized by school).
      */
     public function withdrawBook(BookListing $listing): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify listing belongs to staff's school
+        if ($listing->book->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
         // Verify the listing is not sold
         if ($listing->status === 'sold') {
             return redirect()->back()->withErrors(['error' => 'Il libro è già venduto']);
@@ -136,18 +168,25 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created resource in storage (authorized by school).
      */
     public function store(Request $request): RedirectResponse
     {
+        $staffSchoolId = auth()->user()->school_id;
+
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'amount' => 'required|numeric|min:0.01',
             'notes' => 'nullable|string|max:500',
         ]);
 
-        // Verify user has sufficient balance
+        // Verify user belongs to staff's school
         $user = User::findOrFail($validated['user_id']);
+        if ($user->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
+        // Verify user has sufficient balance
         $availableBalance = $user->getAvailableBalance();
 
         if ($validated['amount'] > $availableBalance) {
@@ -163,10 +202,20 @@ class WithdrawalController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource (authorized by school).
      */
     public function show(Withdrawal $withdrawal): View
     {
+        $staffSchoolId = auth()->user()->school_id;
+        $withdrawal->load('user', 'bookListing.book');
+
+        // If associated with a book listing, verify it belongs to staff's school
+        if ($withdrawal->book_listing_id) {
+            if ($withdrawal->bookListing->book->school_id !== $staffSchoolId) {
+                abort(403, 'Non autorizzato');
+            }
+        }
+
         return view('staff.withdrawals.show', [
             'withdrawal' => $withdrawal,
         ]);

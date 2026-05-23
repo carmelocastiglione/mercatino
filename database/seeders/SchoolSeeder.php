@@ -16,16 +16,16 @@ class SchoolSeeder extends Seeder
             'name' => 'Agnesi',
             'description' => 'Liceo Maria Gaetana Agnesi',
             'city' => 'Merate',
-            'address' => 'Via Agnesi, 6',
+            'address' => 'Via del Lodovichi, 10',
             'phone' => '+39 02 1234 5678',
-            'email' => 'info@issagnesi.it',
+            'email' => 'info@liceoagnesi.edu.it',
         ]);
 
         School::create([
             'name' => 'Viganò',
             'description' => 'Istituto tecnico Francesco Viganò',
             'city' => 'Merate',
-            'address' => 'Via Viganò, 1',
+            'address' => 'Via dei Lodovichi, 2',
             'phone' => '+39 039 9876 5432',
             'email' => 'info@issvigano.org',
         ]);

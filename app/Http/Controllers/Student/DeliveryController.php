@@ -8,9 +8,34 @@ use App\Models\Book;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class DeliveryController extends Controller
 {
+    /**
+     * Search books by title, author or ISBN (filtered by user's school).
+     */
+    public function searchBooks(): JsonResponse
+    {
+        $query = request()->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $books = Book::bySchool(auth()->user()->school_id)
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'ilike', "%{$query}%")
+                    ->orWhere('isbn', 'ilike', "%{$query}%")
+                    ->orWhere('author', 'ilike', "%{$query}%");
+            })
+            ->select('id', 'title', 'author', 'isbn', 'original_price')
+            ->limit(10)
+            ->get();
+
+        return response()->json($books);
+    }
+
     /**
      * Display a listing of the student's deliveries.
      */
@@ -55,11 +80,7 @@ class DeliveryController extends Controller
      */
     public function create(): View
     {
-        $books = Book::latest()->get();
-
-        return view('student.deliveries.create', [
-            'books' => $books,
-        ]);
+        return view('student.deliveries.create');
     }
 
     /**
@@ -77,8 +98,13 @@ class DeliveryController extends Controller
             'condition.in' => 'Condizioni non valide',
         ]);
 
-        // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
+        // Verifica che il libro appartenga alla scuola dell'utente
         $book = Book::find($validated['book_id']);
+        if ($book->school_id !== auth()->user()->school_id) {
+            return back()->with('error', 'Non puoi consegnare un libro che non appartiene alla tua scuola');
+        }
+
+        // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
         $price = floor($book->original_price / 2);
 
         auth()->user()->bookDeliveries()->create([
@@ -98,12 +124,9 @@ class DeliveryController extends Controller
     public function edit(BookDelivery $delivery): View
     {
         $this->authorizeStudent($delivery);
-        
-        $books = Book::latest()->get();
 
         return view('student.deliveries.edit', [
             'delivery' => $delivery,
-            'books' => $books,
         ]);
     }
 
@@ -129,8 +152,13 @@ class DeliveryController extends Controller
             'condition.in' => 'Condizioni non valide',
         ]);
 
-        // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
+        // Verifica che il libro appartenga alla scuola dell'utente
         $book = Book::find($validated['book_id']);
+        if ($book->school_id !== auth()->user()->school_id) {
+            return back()->with('error', 'Non puoi consegnare un libro che non appartiene alla tua scuola');
+        }
+
+        // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
         $validated['price'] = floor($book->original_price / 2);
 
         $delivery->update($validated);

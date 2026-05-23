@@ -16,7 +16,10 @@ class UserSeeder extends Seeder
     {
         // Get Viganò school
         $vigano = School::where('name', 'Viganò')->first();
+        // Get or create Liceo Agnesi school
+        $agnesi = School::where('name', 'Agnesi')->first();
 
+        // Viganò users
         User::create([
             'name' => 'Marco',
             'surname' => 'Rossi',
@@ -50,6 +53,41 @@ class UserSeeder extends Seeder
             'code' => User::generateCode('Anna', 'Bianchi'),
         ]);
 
+        // Liceo Agnesi users
+        User::create([
+            'name' => 'Marco',
+            'surname' => 'Rossi',
+            'email' => 'studente@liceoagnesi.edu.it',
+            'password' => Hash::make('mercatino'),
+            'role' => 'studente',
+            'school_id' => $agnesi->id,
+            'email_verified_at' => now(),
+            'code' => User::generateCode('Marco', 'Rossi'),
+        ]);
+
+        User::create([
+            'name' => 'Sara',
+            'surname' => 'Neri',
+            'email' => 'studente2@liceoagnesi.edu.it',
+            'password' => Hash::make('mercatino'),
+            'role' => 'studente',
+            'school_id' => $agnesi->id,
+            'email_verified_at' => now(),
+            'code' => User::generateCode('Sara', 'Neri'),
+        ]);
+
+        User::create([
+            'name' => 'Anna',
+            'surname' => 'Bianchi',
+            'email' => 'staff@liceoagnesi.edu.it',
+            'password' => Hash::make('mercatino'),
+            'role' => 'staff',
+            'school_id' => $agnesi->id,
+            'email_verified_at' => now(),
+            'code' => User::generateCode('Anna', 'Bianchi'),
+        ]);
+
+        // Admin user (not associated with a school)
         User::create([
             'name' => 'Giovanni',
             'surname' => 'Verdi',

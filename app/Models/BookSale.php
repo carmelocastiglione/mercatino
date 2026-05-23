@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class BookSale extends Model
 {
@@ -18,6 +19,14 @@ class BookSale extends Model
         'buyer_id',
         'notes',
     ];
+
+    /**
+     * Scope to filter sales by school.
+     */
+    public function scopeBySchool(Builder $query, ?int $schoolId): Builder
+    {
+        return $query->whereHas('bookListing', fn($q) => $q->bySchool($schoolId));
+    }
 
     /**
      * Get the book listing that was sold.

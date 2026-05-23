@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Book;
+use App\Models\School;
 use Illuminate\Database\Seeder;
 
 class BookSeeder extends Seeder
@@ -12,6 +13,9 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
+        $vigano = School::where('name', 'Viganò')->first();
+        $agnesi = School::where('name', 'Agnesi')->first();
+
         $books = [
             [
                 'title' => 'I Promessi Sposi',
@@ -115,8 +119,15 @@ class BookSeeder extends Seeder
             ],
         ];
 
+        // Add books to Viganò
         foreach ($books as $book) {
-            Book::create($book);
+            Book::create(array_merge($book, ['school_id' => $vigano?->id]));
+        }
+
+        // Add books to Liceo Agnesi
+        foreach ($books as $book) {
+            Book::create(array_merge($book, ['school_id' => $agnesi?->id]));
         }
     }
 }
+    

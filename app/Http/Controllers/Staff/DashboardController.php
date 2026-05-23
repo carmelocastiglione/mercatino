@@ -14,24 +14,19 @@ use Illuminate\View\View;
 class DashboardController extends Controller
 {
     /**
-     * Display the staff dashboard.
+     * Display the staff dashboard (filtered by staff's school).
      */
     public function index(): View
     {
-        $pendingDeliveries = BookDelivery::where('status', 'pending')->count();
-        $totalAcquisitions = BookListing::count();
-        $availableBooks = BookListing::where('status', 'available')->count();
-        $totalSales = BookSale::count();
-        $totalWithdrawals = Withdrawal::count();
-        $pendingReclaims = Reclaim::where('status', 'pending')->count();
+        $schoolId = auth()->user()->school_id;
 
         return view('staff.dashboard', [
-            'pendingDeliveries' => $pendingDeliveries,
-            'totalAcquisitions' => $totalAcquisitions,
-            'availableBooks' => $availableBooks,
-            'totalSales' => $totalSales,
-            'totalWithdrawals' => $totalWithdrawals,
-            'pendingReclaims' => $pendingReclaims,
+            'pendingDeliveries' => BookDelivery::where('status', 'pending')->bySchool($schoolId)->count(),
+            'totalAcquisitions' => BookListing::bySchool($schoolId)->count(),
+            'availableBooks' => BookListing::where('status', 'available')->bySchool($schoolId)->count(),
+            'totalSales' => BookSale::bySchool($schoolId)->count(),
+            'totalWithdrawals' => Withdrawal::bySchool($schoolId)->count(),
+            'pendingReclaims' => Reclaim::where('status', 'pending')->bySchool($schoolId)->count(),
         ]);
     }
 }

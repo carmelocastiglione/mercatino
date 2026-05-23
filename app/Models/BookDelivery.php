@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class BookDelivery extends Model
 {
@@ -32,6 +33,14 @@ class BookDelivery extends Model
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    /**
+     * Scope to filter deliveries by school.
+     */
+    public function scopeBySchool(Builder $query, ?int $schoolId): Builder
+    {
+        return $query->whereHas('book', fn($q) => $q->bySchool($schoolId));
+    }
 
     /**
      * Get the student who requested the delivery.

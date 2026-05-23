@@ -20,6 +20,7 @@ class AcquisitionController extends Controller
     public function index(): View
     {
         $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
+            ->whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->latest()
             ->paginate(15);
 
@@ -29,7 +30,7 @@ class AcquisitionController extends Controller
     }
 
     /**
-     * Search books by title or ISBN.
+     * Search books by title or ISBN (filtered by staff's school).
      */
     public function searchBooks()
     {
@@ -39,9 +40,12 @@ class AcquisitionController extends Controller
             return response()->json([]);
         }
 
-        $books = Book::where('title', 'ilike', "%{$query}%")
-            ->orWhere('isbn', 'ilike', "%{$query}%")
-            ->orWhere('author', 'ilike', "%{$query}%")
+        $books = Book::bySchool(auth()->user()->school_id)
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'ilike', "%{$query}%")
+                    ->orWhere('isbn', 'ilike', "%{$query}%")
+                    ->orWhere('author', 'ilike', "%{$query}%");
+            })
             ->select('id', 'title', 'author', 'isbn', 'original_price')
             ->limit(10)
             ->get();
@@ -50,19 +54,23 @@ class AcquisitionController extends Controller
     }
 
     /**
-     * Search sellers by name or email.
+     * Search sellers by name or email (filtered by staff's school).
      */
     public function searchSellers()
     {
         $query = request()->input('q');
+        $staffSchoolId = auth()->user()->school_id;
 
         if (!$query || strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $users = User::where('name', 'ilike', "%{$query}%")
-            ->orWhere('surname', 'ilike', "%{$query}%")
-            ->orWhere('email', 'ilike', "%{$query}%")
+        $users = User::where('school_id', $staffSchoolId)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'ilike', "%{$query}%")
+                    ->orWhere('surname', 'ilike', "%{$query}%")
+                    ->orWhere('email', 'ilike', "%{$query}%");
+            })
             ->select('id', 'name', 'surname', 'email', 'code')
             ->limit(10)
             ->get();
@@ -71,31 +79,33 @@ class AcquisitionController extends Controller
     }
 
     /**
-     * Search students by name, email, or code.
+     * Search students by name, email, or code (filtered by staff's school).
      */
     public function searchStudents(): JsonResponse
     {
         $query = request()->input('q');
+        $staffSchoolId = auth()->user()->school_id;
 
         if (!$query || strlen($query) < 2) {
             return response()->json([]);
         }
 
-        $students = User::where(function ($q) use ($query) {
-            $q->where('name', 'ilike', "%{$query}%")
-                ->orWhere('surname', 'ilike', "%{$query}%")
-                ->orWhere('email', 'ilike', "%{$query}%")
-                ->orWhere('code', 'ilike', "%{$query}%");
-        })
-        ->select('id', 'name', 'surname', 'email', 'code')
-        ->limit(10)
-        ->get();
+        $students = User::where('school_id', $staffSchoolId)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'ilike', "%{$query}%")
+                    ->orWhere('surname', 'ilike', "%{$query}%")
+                    ->orWhere('email', 'ilike', "%{$query}%")
+                    ->orWhere('code', 'ilike', "%{$query}%");
+            })
+            ->select('id', 'name', 'surname', 'email', 'code')
+            ->limit(10)
+            ->get();
 
         return response()->json($students);
     }
 
     /**
-     * Get pending deliveries for a student.
+     * Get pending deliveries for a student (filtered by staff's school).
      */
     public function getStudentDeliveries(): JsonResponse
     {
@@ -107,6 +117,7 @@ class AcquisitionController extends Controller
 
         $deliveries = BookDelivery::where('user_id', $studentId)
             ->where('status', 'pending')
+            ->bySchool(auth()->user()->school_id)
             ->with('book')
             ->get();
 
@@ -146,6 +157,7 @@ class AcquisitionController extends Controller
             ]);
 
             $book = Book::create([
+                'school_id' => auth()->user()->school_id,
                 'title' => $validated['title'],
                 'author' => $validated['author'],
                 'isbn' => $validated['isbn'],
@@ -178,6 +190,8 @@ class AcquisitionController extends Controller
     public function storeBatch()
     {
         try {
+            $staffSchoolId = auth()->user()->school_id;
+
             $validated = request()->validate([
                 'leave' => ['nullable', 'boolean'],
                 'acquisitions' => ['required', 'array', 'min:1'],
@@ -187,6 +201,24 @@ class AcquisitionController extends Controller
                 'acquisitions.*.price' => ['required', 'numeric', 'min:0'],
                 'acquisitions.*.leave' => ['nullable', 'boolean'],
             ]);
+
+            // Verify all books and sellers belong to staff's school
+            foreach ($validated['acquisitions'] as $item) {
+                $book = Book::find($item['book_id']);
+                $seller = User::find($item['seller_id']);
+
+                if ($book->school_id !== $staffSchoolId) {
+                    return response()->json([
+                        'message' => 'Il libro selezionato non appartiene alla tua scuola',
+                    ], 403);
+                }
+
+                if ($seller->school_id !== $staffSchoolId) {
+                    return response()->json([
+                        'message' => 'Il venditore selezionato non appartiene alla tua scuola',
+                    ], 403);
+                }
+            }
 
             // Get all acquisitions to group by seller
             $acquisitionsBySellerAndLeave = [];
