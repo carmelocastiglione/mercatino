@@ -14,6 +14,10 @@ export default {
         primary: '#667eea',
         secondary: '#764ba2',
       },
+      backgroundImage: {
+        'gradient-primary': 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
+        'gradient-hero': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      },
       animation: {
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
       },

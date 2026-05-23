@@ -133,53 +133,53 @@
     </section>
 
     <!-- How It Works Section -->
-    <section id="how-it-works" class="py-20">
+    <section id="how-it-works" class="gradient-hero text-white py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Come Funziona</h2>
-                <p class="text-xl text-gray-600">Tre semplici step per iniziare</p>
+                <h2 class="text-4xl font-bold mb-4">Come Funziona</h2>
+                <p class="text-xl text-purple-100">Tre semplici step per iniziare</p>
             </div>
 
             <!-- Steps -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Step 1 -->
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary text-white rounded-full font-bold text-2xl mb-6 mx-auto">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white text-purple-600 rounded-full font-bold text-2xl mb-6 mx-auto">
                         1
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Registrati</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Registrati</h3>
+                    <p class="text-gray-100 mb-4">
                         Crea un account in pochi secondi con la tua email della scuola. Verificati istantaneamente.
                     </p>
-                    <div class="bg-purple-50 p-4 rounded-lg text-sm text-purple-900">
+                    <div class="bg-white/20 p-4 rounded-lg text-sm text-white">
                         <p>✓ Email <br> ✓ Password <br> ✓ Dati scuola</p>
                     </div>
                 </div>
 
                 <!-- Step 2 -->
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary text-white rounded-full font-bold text-2xl mb-6 mx-auto">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white text-purple-600 rounded-full font-bold text-2xl mb-6 mx-auto">
                         2
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Compra o Vendi</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Compra o Vendi</h3>
+                    <p class="text-gray-100 mb-4">
                         Sfoglia la nostra libreria o carica i tuoi libri da vendere. Descrivi le condizioni e fissa il prezzo.
                     </p>
-                    <div class="bg-blue-50 p-4 rounded-lg text-sm text-blue-900">
+                    <div class="bg-white/20 p-4 rounded-lg text-sm text-white">
                         <p>✓ Ricerca libri <br> ✓ Filtri avanzati <br> ✓ Carichi foto</p>
                     </div>
                 </div>
 
                 <!-- Step 3 -->
                 <div class="text-center">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary text-white rounded-full font-bold text-2xl mb-6 mx-auto">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white text-purple-600 rounded-full font-bold text-2xl mb-6 mx-auto">
                         3
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3">Scambia & Paga</h3>
-                    <p class="text-gray-600 mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Scambia & Paga</h3>
+                    <p class="text-gray-100 mb-4">
                         Contatta i venditori, negozia se necessario, e completa l'acquisto. Pagamento sicuro garantito.
                     </p>
-                    <div class="bg-green-50 p-4 rounded-lg text-sm text-green-900">
+                    <div class="bg-white/20 p-4 rounded-lg text-sm text-white">
                         <p>✓ Chat diretta <br> ✓ Pagamenti sicuri <br> ✓ Consegna</p>
                     </div>
                 </div>
@@ -187,8 +187,8 @@
 
             <!-- CTA -->
             <div class="text-center mt-16">
-                <p class="text-gray-600 mb-6">Pronto a iniziare il tuo percorso nel mercatino?</p>
-                <a href="/register" class="inline-block bg-gradient-primary text-white px-8 py-4 rounded-lg font-bold hover:shadow-lg transition text-lg">
+                <p class="text-purple-100 mb-6">Pronto a iniziare il tuo percorso nel mercatino?</p>
+                <a href="/register" class="inline-block bg-purple-500 text-white px-8 py-4 rounded-lg font-bold hover:bg-purple-700 transition text-lg border-2 border-white">
                     Inizia Ora - È Gratis! 🚀
                 </a>
             </div>
