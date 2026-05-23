@@ -104,6 +104,8 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
     Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
+    Route::put('/deliveries/reject-single', [StaffDeliveryController::class, 'rejectDeliveryJson'])->name('staff.deliveries.reject-json');
+    Route::put('/deliveries/approve-bulk', [StaffDeliveryController::class, 'approveBulk'])->name('staff.deliveries.approve-bulk');
     
     // Book Listings - Libri disponibili
     Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');
@@ -114,6 +116,8 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/acquisitions/{acquisition}/show', [StaffAcquisitionController::class, 'show'])->name('staff.acquisitions.show');
     Route::get('/acquisitions/search-books', [StaffAcquisitionController::class, 'searchBooks'])->name('staff.acquisitions.search-books');
     Route::get('/acquisitions/search-sellers', [StaffAcquisitionController::class, 'searchSellers'])->name('staff.acquisitions.search-sellers');
+    Route::get('/acquisitions/search-students', [StaffAcquisitionController::class, 'searchStudents'])->name('staff.acquisitions.search-students');
+    Route::get('/acquisitions/student-deliveries', [StaffAcquisitionController::class, 'getStudentDeliveries'])->name('staff.acquisitions.student-deliveries');
     Route::post('/acquisitions/batch', [StaffAcquisitionController::class, 'storeBatch'])->name('staff.acquisitions.store-batch');
     Route::put('/acquisitions/{listing}/mark-sold', [StaffAcquisitionController::class, 'markAsSold'])->name('staff.acquisitions.mark-sold');
     Route::post('/acquisitions/create-book', [StaffAcquisitionController::class, 'createBook'])->name('staff.acquisitions.create-book');

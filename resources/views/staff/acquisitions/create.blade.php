@@ -365,6 +365,43 @@
         // === SHOPPING CART MANAGEMENT ===
         let cart = [];
 
+        // Carica i deliveries da localStorage se disponibili
+        function loadDeliveriesFromLocalStorage() {
+            const savedDeliveries = localStorage.getItem('deliveriesToAdd');
+            const savedSellerData = localStorage.getItem('sellerData');
+            
+            if (savedDeliveries) {
+                try {
+                    const items = JSON.parse(savedDeliveries);
+                    
+                    // Se ci sono dati del venditore, popola il campo venditore
+                    if (savedSellerData) {
+                        const sellerData = JSON.parse(savedSellerData);
+                        selectSeller(
+                            sellerData.id,
+                            sellerData.name,
+                            sellerData.code,
+                            null, // email (non disponibile dal deliveries)
+                            null  // password (non disponibile dal deliveries)
+                        );
+                        localStorage.removeItem('sellerData');
+                    }
+                    
+                    cart.push(...items);
+                    updateCartDisplay();
+                    localStorage.removeItem('deliveriesToAdd');
+                    showToast(`✓ ${items.length} libro/i caricato/i dal carrello!`, 'success');
+                } catch (error) {
+                    console.error('Errore nel caricamento dei deliveries:', error);
+                }
+            }
+        }
+
+        // Carica i deliveries al caricamento della pagina
+        window.addEventListener('load', () => {
+            loadDeliveriesFromLocalStorage();
+        });
+
         function addToCart() {
             // Validazione
             const sellerId = document.getElementById('seller_id').value;

@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookDelivery;
 use App\Models\Acquisition;
 use App\Models\BookListing;
 use App\Models\User;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class AcquisitionController extends Controller
 {
@@ -66,6 +68,60 @@ class AcquisitionController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    /**
+     * Search students by name, email, or code.
+     */
+    public function searchStudents(): JsonResponse
+    {
+        $query = request()->input('q');
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $students = User::where(function ($q) use ($query) {
+            $q->where('name', 'ilike', "%{$query}%")
+                ->orWhere('surname', 'ilike', "%{$query}%")
+                ->orWhere('email', 'ilike', "%{$query}%")
+                ->orWhere('code', 'ilike', "%{$query}%");
+        })
+        ->select('id', 'name', 'surname', 'email', 'code')
+        ->limit(10)
+        ->get();
+
+        return response()->json($students);
+    }
+
+    /**
+     * Get pending deliveries for a student.
+     */
+    public function getStudentDeliveries(): JsonResponse
+    {
+        $studentId = request()->input('student_id');
+
+        if (!$studentId) {
+            return response()->json(['error' => 'Student ID is required'], 400);
+        }
+
+        $deliveries = BookDelivery::where('user_id', $studentId)
+            ->where('status', 'pending')
+            ->with('book')
+            ->get();
+
+        return response()->json([
+            'deliveries' => $deliveries->map(fn($d) => [
+                'id' => $d->id,
+                'book' => [
+                    'id' => $d->book->id,
+                    'title' => $d->book->title,
+                    'author' => $d->book->author,
+                ],
+                'condition' => $d->condition,
+                'price' => $d->price,
+            ])
+        ]);
     }
 
     /**

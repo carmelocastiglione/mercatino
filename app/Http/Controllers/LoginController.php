@@ -36,7 +36,7 @@ class LoginController extends Controller
     {
         // Validazione dei dati
         $credentials = $request->validate([
-            'email' => 'required|email:rfc,dns',
+            'email' => 'required|email:rfc',
             'password' => 'required|min:6',
             'remember' => 'nullable|boolean',
         ], [

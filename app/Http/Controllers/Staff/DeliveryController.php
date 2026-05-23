@@ -103,4 +103,74 @@ class DeliveryController extends Controller
         return redirect()->route('staff.deliveries.index')
             ->with('success', 'Consegna rifiutata correttamente.');
     }
+
+    /**
+     * Reject a delivery (JSON API endpoint)
+     */
+    public function rejectDeliveryJson(Request $request)
+    {
+        $deliveryId = $request->query('delivery_id');
+        $delivery = BookDelivery::find($deliveryId);
+
+        if (!$delivery) {
+            return response()->json(['success' => false, 'message' => 'Consegna non trovata'], 404);
+        }
+
+        if ($delivery->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Consegna non in sospeso'], 400);
+        }
+
+        $delivery->update([
+            'status' => 'rejected',
+            'rejection_reason' => 'Rifiutata dallo staff',
+            'approved_by' => auth()->id(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Consegna rifiutata']);
+    }
+
+    /**
+     * Approve multiple deliveries (JSON API endpoint)
+     */
+    public function approveBulk(Request $request)
+    {
+        $deliveryIds = $request->input('delivery_ids', []);
+
+        if (empty($deliveryIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessuna consegna specificata'], 400);
+        }
+
+        $deliveries = BookDelivery::whereIn('id', $deliveryIds)
+            ->where('status', 'pending')
+            ->get();
+
+        if ($deliveries->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Nessuna consegna pending trovata'], 404);
+        }
+
+        $approvedCount = 0;
+        foreach ($deliveries as $delivery) {
+            $delivery->update([
+                'status' => 'approved',
+                'approved_by' => auth()->id(),
+            ]);
+
+            // Crea una nuova BookListing dal BookDelivery
+            BookListing::create([
+                'book_id' => $delivery->book_id,
+                'seller_id' => $delivery->user_id,
+                'condition' => $delivery->condition,
+                'price' => $delivery->price,
+                'status' => 'available',
+            ]);
+
+            $approvedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "$approvedCount consegne approvate",
+            'approved_count' => $approvedCount
+        ]);
+    }
 }
