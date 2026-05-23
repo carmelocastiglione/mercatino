@@ -59,5 +59,15 @@
             bgColor="indigo"
             label="RITIRATE"
         />
+
+        <!-- Resi -->
+        <x-dashboard-card 
+            href="{{ route('staff.reclaims.index') }}"
+            title="Resi"
+            description="Gestisci i resi dei libri venduti"
+            count="{{ $pendingReclaims ?? 0 }}"
+            bgColor="red"
+            label="PENDENTI"
+        />
     </div>
 @endsection

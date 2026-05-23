@@ -14,6 +14,8 @@ class Reclaim extends Model
         'user_id',
         'book_listing_id',
         'notes',
+        'status',
+        'rejection_reason',
     ];
 
     /**

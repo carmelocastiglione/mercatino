@@ -7,6 +7,7 @@ use App\Models\Acquisition;
 use App\Models\BookDelivery;
 use App\Models\BookListing;
 use App\Models\BookSale;
+use App\Models\Reclaim;
 use App\Models\Withdrawal;
 use Illuminate\View\View;
 
@@ -22,6 +23,7 @@ class DashboardController extends Controller
         $availableBooks = BookListing::where('status', 'available')->count();
         $totalSales = BookSale::count();
         $totalWithdrawals = Withdrawal::count();
+        $pendingReclaims = Reclaim::where('status', 'pending')->count();
 
         return view('staff.dashboard', [
             'pendingDeliveries' => $pendingDeliveries,
@@ -29,6 +31,7 @@ class DashboardController extends Controller
             'availableBooks' => $availableBooks,
             'totalSales' => $totalSales,
             'totalWithdrawals' => $totalWithdrawals,
+            'pendingReclaims' => $pendingReclaims,
         ]);
     }
 }

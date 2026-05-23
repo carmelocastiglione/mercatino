@@ -9,6 +9,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
+use App\Http\Controllers\Staff\ReclaimController as StaffReclaimController;
 use App\Http\Controllers\Staff\BookListingController as StaffBookListingController;
 use App\Http\Controllers\Staff\WithdrawalController as StaffWithdrawalController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
@@ -131,6 +132,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/sales/search-listings', [StaffSaleController::class, 'searchListings'])->name('staff.sales.search-listings');
     Route::post('/sales/batch', [StaffSaleController::class, 'storeBatch'])->name('staff.sales.store-batch');
     Route::post('/sales', [StaffSaleController::class, 'store'])->name('staff.sales.store');
+    
+    // Reclaims Management - Resi
+    Route::get('/reclaims', [StaffReclaimController::class, 'index'])->name('staff.reclaims.index');
+    Route::get('/reclaims/search-buyers', [StaffReclaimController::class, 'searchBuyers'])->name('staff.reclaims.search-buyers');
+    Route::get('/reclaims/buyer-books', [StaffReclaimController::class, 'getBuyerBooks'])->name('staff.reclaims.buyer-books');
+    Route::get('/reclaims/create', [StaffReclaimController::class, 'create'])->name('staff.reclaims.create');
+    Route::post('/reclaims', [StaffReclaimController::class, 'store'])->name('staff.reclaims.store');
+    Route::get('/reclaims/{reclaim}', [StaffReclaimController::class, 'show'])->name('staff.reclaims.show');
+    Route::delete('/reclaims/{reclaim}', [StaffReclaimController::class, 'destroy'])->name('staff.reclaims.destroy');
     
     // Withdrawals Management - Riscossioni
     Route::get('/withdrawals', [StaffWithdrawalController::class, 'index'])->name('staff.withdrawals.index');

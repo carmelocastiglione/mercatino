@@ -20,6 +20,7 @@ class BookListing extends Model
     protected $fillable = [
         'book_id',
         'seller_id',
+        'buyer_id',
         'acquisition_id',
         'condition',
         'price',

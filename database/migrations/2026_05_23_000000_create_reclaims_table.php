@@ -35,6 +35,12 @@ return new class extends Migration
             // Note sul ritiro
             $table->text('notes')->nullable()->comment('Note aggiuntive sul ritiro');
 
+            // Status del reso
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+
+            // Motivo del rifiuto (se rifiutato)
+            $table->text('rejection_reason')->nullable();
+
             // Timestamp
             $table->timestamps();
 
