@@ -18,6 +18,7 @@ return new class extends Migration
             $table->enum('condition', ['like-new', 'good', 'fair', 'poor']);
             $table->decimal('price', 8, 2);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->boolean('leave')->default(false)->comment('Libro da lasciare a scuola');
             $table->text('rejection_reason')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Withdrawal extends Model
+class Reclaim extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -13,7 +13,6 @@ class Withdrawal extends Model
     protected $fillable = [
         'user_id',
         'book_listing_id',
-        'amount',
         'notes',
     ];
 
@@ -21,13 +20,12 @@ class Withdrawal extends Model
      * The attributes that should be cast.
      */
     protected $casts = [
-        'amount' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the user who made the withdrawal.
+     * Get the user (seller) who had the book reclaimed.
      */
     public function user(): BelongsTo
     {
@@ -35,7 +33,7 @@ class Withdrawal extends Model
     }
 
     /**
-     * Get the book listing associated with this withdrawal.
+     * Get the book listing that was reclaimed.
      */
     public function bookListing(): BelongsTo
     {

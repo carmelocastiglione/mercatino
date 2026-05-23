@@ -41,6 +41,9 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/', [StudentDashboardController::class, 'index'])->name('student.dashboard');
     
     Route::get('/deliveries', [StudentDeliveryController::class, 'index'])->name('student.deliveries.index');
+    Route::get('/deliveries/status/pending', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'pending')->name('student.deliveries.pending');
+    Route::get('/deliveries/status/approved', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'approved')->name('student.deliveries.approved');
+    Route::get('/deliveries/status/rejected', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'rejected')->name('student.deliveries.rejected');
     Route::get('/deliveries/create', [StudentDeliveryController::class, 'create'])->name('student.deliveries.create');
     Route::post('/deliveries', [StudentDeliveryController::class, 'store'])->name('student.deliveries.store');
     Route::get('/deliveries/{delivery}/edit', [StudentDeliveryController::class, 'edit'])->name('student.deliveries.edit');

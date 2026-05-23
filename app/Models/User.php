@@ -102,6 +102,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the reclaimed books for this user.
+     */
+    public function reclaims(): HasMany
+    {
+        return $this->hasMany(Reclaim::class);
+    }
+
+    /**
      * Get total amount from sales of books sold by this user (seller).
      */
     public function getTotalSalesAmount(): float

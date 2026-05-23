@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             SchoolSeeder::class,
             UserSeeder::class,
             BookSeeder::class,
+            BookDeliverySeeder::class,
         ]);
     }
 }

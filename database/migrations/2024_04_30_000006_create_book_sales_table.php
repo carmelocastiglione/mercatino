@@ -24,6 +24,12 @@ return new class extends Migration
                 ->constrained('users')
                 ->onDelete('restrict');
 
+            // Chi ha acquistato il libro
+            $table->foreignId('buyer_id')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
+
             // Note aggiuntive
             $table->text('notes')->nullable()->comment('Note sulla vendita');
 
@@ -33,6 +39,7 @@ return new class extends Migration
             // Indici
             $table->index('book_listing_id');
             $table->index('sold_by');
+            $table->index('buyer_id');
             $table->index('created_at');
         });
     }

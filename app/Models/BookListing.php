@@ -11,6 +11,12 @@ class BookListing extends Model
 {
     use SoftDeletes;
 
+    /**
+    * The attributes that are mass assignable.
+    * Possible values for 'status': 'available', 'reserved', 'sold', 'withdrawn', 'reclaim', 'archived'
+    *
+    * @var array<int, string>
+    */
     protected $fillable = [
         'book_id',
         'seller_id',
@@ -62,5 +68,21 @@ class BookListing extends Model
     public function bookSales(): HasMany
     {
         return $this->hasMany(BookSale::class);
+    }
+
+    /**
+     * Get the withdrawal record if this book was sold and money was withdrawn.
+     */
+    public function withdrawal(): HasMany
+    {
+        return $this->hasMany(Withdrawal::class);
+    }
+
+    /**
+     * Get the reclaim record if this book was reclaimed.
+     */
+    public function reclaim(): HasMany
+    {
+        return $this->hasMany(Reclaim::class);
     }
 }

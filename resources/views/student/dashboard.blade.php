@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Consegne in Sospeso -->
         <x-dashboard-card 
-            href="{{ route('student.deliveries.index') }}"
+            href="{{ route('student.deliveries.pending') }}"
             title="Consegne in Sospeso"
             description="Consegne in attesa di approvazione dello staff"
             count="{{ $pendingDeliveries }}"
@@ -22,12 +22,22 @@
 
         <!-- Consegne Approvate -->
         <x-dashboard-card 
-            href="{{ route('student.deliveries.index') }}"
+            href="{{ route('student.deliveries.approved') }}"
             title="Consegne Approvate"
             description="Libri approvati e pronti per il mercatino"
             count="{{ $approvedDeliveries }}"
             bgColor="green"
             label="APPROVATE"
+        />
+
+        <!-- Consegne Rifiutate -->
+        <x-dashboard-card 
+            href="{{ route('student.deliveries.rejected') }}"
+            title="Consegne Rifiutate"
+            description="Consegne non approvate dallo staff"
+            count="{{ $rejectedDeliveries }}"
+            bgColor="red"
+            label="RIFIUTATE"
         />
     </div>
 @endsection

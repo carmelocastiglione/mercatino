@@ -20,9 +20,14 @@ class DashboardController extends Controller
             ->where('status', 'approved')
             ->count();
 
+        $rejectedDeliveries = auth()->user()->bookDeliveries()
+            ->where('status', 'rejected')
+            ->count();
+
         return view('student.dashboard', [
             'pendingDeliveries' => $pendingDeliveries,
             'approvedDeliveries' => $approvedDeliveries,
+            'rejectedDeliveries' => $rejectedDeliveries,
         ]);
     }
 }

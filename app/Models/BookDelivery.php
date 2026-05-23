@@ -9,6 +9,7 @@ class BookDelivery extends Model
 {
     /**
      * The attributes that are mass assignable.
+     * Possible values for 'status': 'pending', 'approved', 'rejected'
      *
      * @var array<int, string>
      */
@@ -17,7 +18,7 @@ class BookDelivery extends Model
         'book_id',
         'condition',
         'price',
-        'status',
+        'status', 
         'rejection_reason',
         'approved_by',
         'leave',

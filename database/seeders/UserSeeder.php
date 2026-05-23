@@ -29,6 +29,17 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
+            'name' => 'Sara',
+            'surname' => 'Neri',
+            'email' => 'studente2@issvigano.org',
+            'password' => Hash::make('mercatino'),
+            'role' => 'studente',
+            'school_id' => $vigano?->id,
+            'email_verified_at' => now(),
+            'code' => User::generateCode('Sara', 'Neri'),
+        ]);
+
+        User::create([
             'name' => 'Anna',
             'surname' => 'Bianchi',
             'email' => 'staff@issvigano.org',

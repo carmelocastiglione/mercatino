@@ -53,6 +53,19 @@
                     Le Mie Consegne
                 </a>
 
+                <!-- Sottomenu Consegne -->
+                <div class="ml-4 space-y-1">
+                    <a href="{{ route('student.deliveries.pending') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/pending')) bg-yellow-50 text-yellow-700 @endif">
+                        In Sospeso
+                    </a>
+                    <a href="{{ route('student.deliveries.approved') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/approved')) bg-green-50 text-green-700 @endif">
+                        Approvate
+                    </a>
+                    <a href="{{ route('student.deliveries.rejected') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/rejected')) bg-red-50 text-red-700 @endif">
+                        Rifiutate
+                    </a>
+                </div>
+
                 <!-- Prenota Consegna -->
                 <a href="{{ route('student.deliveries.create') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition">
                     Prenota Consegna

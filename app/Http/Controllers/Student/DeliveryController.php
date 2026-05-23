@@ -27,6 +27,30 @@ class DeliveryController extends Controller
     }
 
     /**
+     * Display deliveries filtered by status.
+     */
+    public function byStatus($status): View
+    {
+        $deliveries = auth()->user()->bookDeliveries()
+            ->where('status', $status)
+            ->with('book')
+            ->latest()
+            ->paginate(10);
+
+        $statusLabels = [
+            'pending' => 'In Sospeso',
+            'approved' => 'Approvate',
+            'rejected' => 'Rifiutate',
+        ];
+
+        return view('student.deliveries.index', [
+            'deliveries' => $deliveries,
+            'statusFilter' => $status,
+            'statusLabel' => $statusLabels[$status] ?? $status,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new delivery.
      */
     public function create(): View

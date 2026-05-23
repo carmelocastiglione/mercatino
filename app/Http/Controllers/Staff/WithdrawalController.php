@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookListing;
+use App\Models\Reclaim;
 use App\Models\User;
 use App\Models\Withdrawal;
 use Illuminate\Http\JsonResponse;
@@ -69,7 +70,7 @@ class WithdrawalController extends Controller
 
         // Group by status
         $soldBooks = $bookListings->where('status', 'sold')->values();
-        $unsoldBooks = $bookListings->where('status', '!=', 'sold')->values();
+        $unsoldBooks = $bookListings->where('status', 'available')->values();
 
         return view('staff.withdrawals.manage-seller', [
             'seller' => $user,
@@ -95,6 +96,7 @@ class WithdrawalController extends Controller
         // Create withdrawal record
         Withdrawal::create([
             'user_id' => $seller->id,
+            'book_listing_id' => $listing->id,
             'amount' => $amount,
             'notes' => $notes,
         ]);
@@ -117,7 +119,17 @@ class WithdrawalController extends Controller
         }
 
         $bookTitle = $listing->book->title;
-        $listing->update(['status' => 'withdrawn']);
+        $seller = $listing->seller;
+        
+        // Create reclaim record
+        Reclaim::create([
+            'user_id' => $seller->id,
+            'book_listing_id' => $listing->id,
+            'notes' => "Libro non venduto ritirato: {$bookTitle}",
+        ]);
+        
+        // Mark the listing as reclaimed
+        $listing->update(['status' => 'reclaim']);
 
         return redirect()->back()
             ->with('success', "Libro \"{$bookTitle}\" ritirato dalla vendita");
