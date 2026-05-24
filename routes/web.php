@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\BookListingController;
+use App\Http\Controllers\Auth\GoogleController;
 
 /**
  * Home Route
@@ -33,6 +34,13 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+/**
+ * Google SSO Routes
+ * Autenticazione tramite Google OAuth
+ */
+Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
 /**
  * Student Routes

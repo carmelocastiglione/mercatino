@@ -87,7 +87,7 @@ class UserSeeder extends Seeder
             'code' => User::generateCode('Anna', 'Bianchi'),
         ]);
 
-        // Admin user (not associated with a school)
+        // Admin user for local login (not associated with a school)
         User::create([
             'name' => 'Giovanni',
             'surname' => 'Verdi',
@@ -96,6 +96,16 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'email_verified_at' => now(),
             'code' => User::generateCode('Giovanni', 'Verdi'),
+        ]);
+
+        // Admin user for Google SSO (not associated with a school)
+        User::create([
+            'name' => 'Carmelo',
+            'surname' => 'Castiglione',
+            'email' => 'castiglione.carmelo@issvigano.org',
+            'role' => 'admin',
+            'email_verified_at' => now(),
+            'code' => User::generateCode('Carmelo', 'Castiglione'),
         ]);
     }
 }
