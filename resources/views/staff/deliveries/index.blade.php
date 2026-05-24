@@ -8,6 +8,13 @@
         <p class="text-gray-600 mt-2">Esamina e approva le consegne dei libri dagli studenti</p>
     </div>
 
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <x-stats-card label="Da Approvare" :value="$pendingCount" color="yellow" />
+        <x-stats-card label="Approvate" :value="$approvedCount" color="green" />
+        <x-stats-card label="Rifiutate" :value="$rejectedCount" color="red" />
+    </div>
+
     <!-- SECTION: SEARCH DELIVERIES BY STUDENT -->
     <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6 mb-8">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">🔍 Ricerca per Studente</h2>

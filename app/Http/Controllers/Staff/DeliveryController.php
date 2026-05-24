@@ -22,8 +22,23 @@ class DeliveryController extends Controller
             ->latest()
             ->paginate(10);
 
+        $pendingCount = BookDelivery::where('status', 'pending')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        $approvedCount = BookDelivery::where('status', 'approved')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        $rejectedCount = BookDelivery::where('status', 'rejected')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
         return view('staff.deliveries.index', [
             'deliveries' => $deliveries,
+            'pendingCount' => $pendingCount,
+            'approvedCount' => $approvedCount,
+            'rejectedCount' => $rejectedCount,
         ]);
     }
 

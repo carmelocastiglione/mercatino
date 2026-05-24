@@ -28,21 +28,18 @@
     <!-- Summary Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <!-- Consegne in Sospeso -->
-        <a href="{{ route('student.deliveries.pending') }}" class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-sm border-2 border-yellow-200 hover:shadow-md transition">
-            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">In Sospeso</p>
-            <p class="mt-3 text-5xl font-black text-yellow-600">{{ $pendingDeliveries }}</p>
+        <a href="{{ route('student.deliveries.pending') }}" class="hover:shadow-md transition">
+            <x-stats-card label="In Sospeso" :value="$pendingDeliveries" color="yellow" />
         </a>
 
         <!-- Consegne Approvate -->
-        <a href="{{ route('student.deliveries.approved') }}" class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-sm border-2 border-green-200 hover:shadow-md transition">
-            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Approvate</p>
-            <p class="mt-3 text-5xl font-black text-green-600">{{ $approvedDeliveries }}</p>
+        <a href="{{ route('student.deliveries.approved') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Approvate" :value="$approvedDeliveries" color="green" />
         </a>
 
         <!-- Consegne Rifiutate -->
-        <a href="{{ route('student.deliveries.rejected') }}" class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-8 shadow-sm border-2 border-red-200 hover:shadow-md transition">
-            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Rifiutate</p>
-            <p class="mt-3 text-5xl font-black text-red-600">{{ $rejectedDeliveries }}</p>
+        <a href="{{ route('student.deliveries.rejected') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Rifiutate" :value="$rejectedDeliveries" color="red" />
         </a>
     </div>
 
