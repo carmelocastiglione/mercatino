@@ -59,7 +59,7 @@
 
         <!-- Le Mie Riscossioni -->
         <x-dashboard-card 
-            href="{{ route('student.reclaims.index') }}"
+            href="{{ route('student.withdrawals.index') }}"
             title="Le mie riscossioni"
             description="Visualizza tutte le riscossioni"
             count="{{ $totalReclaims }}"

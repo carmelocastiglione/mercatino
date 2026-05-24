@@ -13,6 +13,7 @@
         'yellow' => 'from-yellow-50 to-yellow-100 border-yellow-200 text-yellow-600',
         'purple' => 'from-purple-50 to-purple-100 border-purple-200 text-purple-600',
         'indigo' => 'from-indigo-50 to-indigo-100 border-indigo-200 text-indigo-600',
+        'orange' => 'from-orange-50 to-orange-100 border-orange-200 text-orange-600',
         default => 'from-blue-50 to-blue-100 border-blue-200 text-blue-600',
     };
 @endphp

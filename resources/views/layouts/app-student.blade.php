@@ -81,7 +81,7 @@
                 </a>
 
                 <!-- Le Mie Riscossioni -->
-                <a href="{{ route('student.reclaims.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/reclaims*')) bg-gray-100 text-gray-900 @endif">
+                <a href="{{ route('student.withdrawals.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/withdrawals*')) bg-gray-100 text-gray-900 @endif">
                     Le mie riscossioni
                 </a>
             </nav>
