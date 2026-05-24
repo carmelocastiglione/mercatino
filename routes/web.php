@@ -57,11 +57,15 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/deliveries/status/approved', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'approved')->name('student.deliveries.approved');
     Route::get('/deliveries/status/rejected', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'rejected')->name('student.deliveries.rejected');
     Route::get('/deliveries/search-books', [StudentDeliveryController::class, 'searchBooks'])->name('student.deliveries.search-books');
+    Route::post('/deliveries/add-to-cart', [StudentDeliveryController::class, 'addToCart'])->name('student.deliveries.add-to-cart');
     Route::get('/deliveries/create', [StudentDeliveryController::class, 'create'])->name('student.deliveries.create');
     Route::post('/deliveries', [StudentDeliveryController::class, 'store'])->name('student.deliveries.store');
+    Route::post('/deliveries/batch', [StudentDeliveryController::class, 'storeMultiple'])->name('student.deliveries.batch.store');
     Route::get('/deliveries/{delivery}/edit', [StudentDeliveryController::class, 'edit'])->name('student.deliveries.edit');
     Route::put('/deliveries/{delivery}', [StudentDeliveryController::class, 'update'])->name('student.deliveries.update');
     Route::delete('/deliveries/{delivery}', [StudentDeliveryController::class, 'destroy'])->name('student.deliveries.delete');
+    
+    Route::get('/batches/{batch}/show', [StudentDeliveryController::class, 'showBatch'])->name('student.batches.show');
     
     Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
     Route::get('/sales/{sale}', [StudentSalesController::class, 'show'])->name('student.sales.show');

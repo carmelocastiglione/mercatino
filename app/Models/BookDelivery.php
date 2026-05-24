@@ -16,6 +16,7 @@ class BookDelivery extends Model
      */
     protected $fillable = [
         'user_id',
+        'batch_id',
         'book_id',
         'condition',
         'price',
@@ -56,6 +57,14 @@ class BookDelivery extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
+    }
+
+    /**
+     * Get the batch this delivery belongs to.
+     */
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(BookDeliveryBatch::class);
     }
 
     /**

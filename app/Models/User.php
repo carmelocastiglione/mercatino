@@ -80,6 +80,11 @@ class User extends Authenticatable
         return $this->hasMany(BookDelivery::class);
     }
 
+    public function deliveryBatches(): HasMany
+    {
+        return $this->hasMany(BookDeliveryBatch::class);
+    }
+
     public function approvedDeliveries(): HasMany
     {
         return $this->hasMany(BookDelivery::class, 'approved_by');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookDelivery;
+use App\Models\BookDeliveryBatch;
 use App\Models\Book;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -132,6 +133,111 @@ class DeliveryController extends Controller
 
         return redirect()->route('student.deliveries.index')
             ->with('success', 'Consegna prenotata con successo! Lo staff la esaminerà presto.');
+    }
+
+    /**
+     * Add a book to the delivery batch cart (JSON endpoint).
+     */
+    public function addToCart(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'book_id' => 'required|exists:books,id',
+            'condition' => 'required|in:like-new,good,fair,poor',
+        ]);
+
+        // Verifica che il libro appartenga alla scuola dell'utente
+        $book = Book::find($validated['book_id']);
+        if ($book->school_id !== auth()->user()->school_id) {
+            return response()->json(['error' => 'Libro non disponibile'], 403);
+        }
+
+        $price = floor($book->original_price / 2);
+
+        return response()->json([
+            'id' => $book->id,
+            'title' => $book->title,
+            'author' => $book->author,
+            'isbn' => $book->isbn,
+            'condition' => $validated['condition'],
+            'price' => $price,
+        ]);
+    }
+
+    /**
+     * Store multiple deliveries as a batch.
+     */
+    /**
+     * Store multiple deliveries as a batch.
+     */
+    public function storeMultiple(Request $request): RedirectResponse
+    {
+        // Decodifica il JSON ricevuto dal form
+        $itemsJson = $request->input('items');
+        $items = json_decode($itemsJson, true);
+
+        // Valida i dati decodificati
+        if (!is_array($items) || count($items) === 0) {
+            return back()->with('error', 'Seleziona almeno un libro');
+        }
+
+        // Valida ogni item
+        $validator = \Illuminate\Support\Facades\Validator::make(['items' => $items], [
+            'items' => 'required|array|min:1',
+            'items.*.book_id' => 'required|exists:books,id',
+            'items.*.condition' => 'required|in:like-new,good,fair,poor',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator);
+        }
+
+        $user = auth()->user();
+
+        // Crea il batch
+        $batch = $user->deliveryBatches()->create([
+            'school_id' => $user->school_id,
+            'status' => 'pending',
+        ]);
+
+        // Aggiungi i libri al batch
+        foreach ($items as $item) {
+            $book = Book::find($item['book_id']);
+            
+            // Verifica che il libro appartenga alla scuola dell'utente
+            if ($book->school_id !== $user->school_id) {
+                $batch->delete();
+                return back()->with('error', 'Uno dei libri selezionati non appartiene alla tua scuola');
+            }
+
+            $price = floor($book->original_price / 2);
+
+            $user->bookDeliveries()->create([
+                'batch_id' => $batch->id,
+                'book_id' => $book->id,
+                'condition' => $item['condition'],
+                'price' => $price,
+                'status' => 'pending',
+            ]);
+        }
+
+        return redirect()->route('student.batches.show', $batch->id);
+    }
+
+    /**
+     * Show delivery batch summary.
+     */
+    public function showBatch(BookDeliveryBatch $batch): View
+    {
+        // Autorizza l'utente a visualizzare solo i propri batch
+        if ($batch->user_id !== auth()->id()) {
+            abort(403, 'Non sei autorizzato ad accedere a questo batch');
+        }
+
+        $batch->load('deliveries.book');
+
+        return view('student.deliveries.batch-show', [
+            'batch' => $batch,
+        ]);
     }
 
     /**
