@@ -9,6 +9,12 @@
         <p class="text-gray-600">Visualizza tutti i libri disponibili nel mercatino</p>
     </div>
 
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <x-stats-card label="Libri Disponibili" :value="$totalAvailableBooks" color="purple" />
+        <x-stats-card label="Valore Totale" :value="$totalAvailableAmount" color="purple" formatted />
+    </div>
+
     <!-- Listings Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">

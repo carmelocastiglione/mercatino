@@ -13,6 +13,12 @@
         </a>
     </div>
 
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <x-stats-card label="Acquisizioni Totali" :value="$totalAcquisitionsCount" color="indigo" />
+        <x-stats-card label="Importo Totale" :value="$totalAcquisitionsAmount" color="indigo" formatted />
+    </div>
+
     @if($acquisitions->count() > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">

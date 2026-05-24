@@ -24,8 +24,16 @@ class AcquisitionController extends Controller
             ->latest()
             ->paginate(15);
 
+        $totalAcquisitionsCount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->count();
+
+        $totalAcquisitionsAmount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->sum('total_price');
+
         return view('staff.acquisitions.index', [
             'acquisitions' => $acquisitions,
+            'totalAcquisitionsCount' => $totalAcquisitionsCount,
+            'totalAcquisitionsAmount' => $totalAcquisitionsAmount,
         ]);
     }
 
