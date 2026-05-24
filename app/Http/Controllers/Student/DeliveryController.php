@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\PriceHelper;
 use App\Models\BookDelivery;
 use App\Models\BookDeliveryBatch;
 use App\Models\Book;
@@ -24,7 +25,10 @@ class DeliveryController extends Controller
             return response()->json([]);
         }
 
-        $books = Book::bySchool(auth()->user()->school_id)
+        $user = auth()->user();
+        $school = $user->school;
+
+        $books = Book::bySchool($user->school_id)
             ->where(function ($q) use ($query) {
                 $q->where('title', 'ilike', "%{$query}%")
                     ->orWhere('isbn', 'ilike', "%{$query}%")
@@ -32,7 +36,20 @@ class DeliveryController extends Controller
             })
             ->select('id', 'title', 'author', 'isbn', 'original_price')
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($book) use ($school) {
+                $priceDetails = PriceHelper::calculatePrice($book->original_price, $school, true);
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'isbn' => $book->isbn,
+                    'original_price' => $priceDetails['original_price'],
+                    'marketplace_price' => $priceDetails['marketplace_price'],
+                    'fee' => $priceDetails['fee'],
+                    'price' => $priceDetails['total'],
+                ];
+            });
 
         return response()->json($books);
     }
@@ -146,12 +163,13 @@ class DeliveryController extends Controller
         ]);
 
         // Verifica che il libro appartenga alla scuola dell'utente
+        $user = auth()->user();
         $book = Book::find($validated['book_id']);
-        if ($book->school_id !== auth()->user()->school_id) {
+        if ($book->school_id !== $user->school_id) {
             return response()->json(['error' => 'Libro non disponibile'], 403);
         }
 
-        $price = floor($book->original_price / 2);
+        $priceDetails = PriceHelper::calculatePrice($book->original_price, $user->school, true);
 
         return response()->json([
             'id' => $book->id,
@@ -159,7 +177,10 @@ class DeliveryController extends Controller
             'author' => $book->author,
             'isbn' => $book->isbn,
             'condition' => $validated['condition'],
-            'price' => $price,
+            'original_price' => $priceDetails['original_price'],
+            'marketplace_price' => $priceDetails['marketplace_price'],
+            'fee' => $priceDetails['fee'],
+            'price' => $priceDetails['total'],
         ]);
     }
 
@@ -192,6 +213,7 @@ class DeliveryController extends Controller
         }
 
         $user = auth()->user();
+        $school = $user->school;
 
         // Crea il batch
         $batch = $user->deliveryBatches()->create([
@@ -209,13 +231,13 @@ class DeliveryController extends Controller
                 return back()->with('error', 'Uno dei libri selezionati non appartiene alla tua scuola');
             }
 
-            $price = floor($book->original_price / 2);
+            $priceDetails = PriceHelper::calculatePrice($book->original_price, $school, true);
 
             $user->bookDeliveries()->create([
                 'batch_id' => $batch->id,
                 'book_id' => $book->id,
                 'condition' => $item['condition'],
-                'price' => $price,
+                'price' => $priceDetails['total'],
                 'status' => 'pending',
             ]);
         }

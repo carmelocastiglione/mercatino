@@ -17,6 +17,25 @@
             <form id="delivery_form" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                 @csrf
 
+                <!-- Error message box -->
+                <div id="error_box" class="hidden mb-6 p-4 bg-red-50 border border-red-300 rounded-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p id="error_message" class="text-sm font-medium text-red-700"></p>
+                        </div>
+                        <button type="button" onclick="hideError()" class="ml-auto text-red-400 hover:text-red-600">
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Libro -->
                 <div class="mb-8">
                     <label for="book_search" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -56,12 +75,46 @@
                 </div>
 
                 <!-- Prezzo Calcolato -->
-                <div class="mb-8">
-                    <label for="calculated_price" class="block text-sm font-semibold text-gray-900 mb-2">
-                        Prezzo proposto (€)
+                <div class="mb-8" id="price_details_section" style="display: none;">
+                    <label class="block text-sm font-semibold text-gray-900 mb-4">
+                        Dettagli Prezzo
                     </label>
-                    <input type="text" id="calculated_price" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none cursor-not-allowed" readonly placeholder="Seleziona un libro per vedere il prezzo">
-                    <p class="text-gray-500 text-sm mt-2">Il prezzo è calcolato automaticamente come metà del prezzo originale del libro (arrotondato per difetto)</p>
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Prezzo copertina:</span>
+                                <span class="font-medium text-gray-900" id="price_original">€0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Prezzo mercatino:</span>
+                                <span class="font-medium text-gray-900" id="price_marketplace">€0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-2 border-t border-blue-200">
+                                <span class="text-gray-600">Fee applicata:</span>
+                                <span class="font-medium text-red-600" id="price_fee">-€0.00</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-3 border-t-2 border-blue-300 mt-3">
+                                <span class="font-bold text-gray-900">Totale da ricevere:</span>
+                                <span class="text-2xl font-bold text-blue-600" id="price_total">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info box -->
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-300 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    <span class="font-medium">Nota:</span> Il prezzo è indicativo e potrebbe subire modifiche in base alle reali condizioni del libro a discrezione dello staff.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Aggiungi al carrello -->
@@ -120,12 +173,28 @@
         const searchResults = document.getElementById('search_results');
         const selectedBookDisplay = document.getElementById('selected_book');
         const selectedBookText = document.getElementById('selected_book_text');
-        const priceInput = document.getElementById('calculated_price');
         const cartItemsDisplay = document.getElementById('cart_items');
         const cartCounter = document.getElementById('cart_counter');
         const cartTotal = document.getElementById('cart_total');
         const cartItemsJson = document.getElementById('cart_items_json');
         const submitBtn = document.getElementById('submit_btn');
+        const errorBox = document.getElementById('error_box');
+        const errorMessage = document.getElementById('error_message');
+
+        // Show error message in the right panel
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.classList.remove('hidden');
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Hide error message
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
 
         // Search functionality
         bookSearch.addEventListener('input', (e) => {
@@ -183,8 +252,12 @@
 
         function updatePrice() {
             if (currentBook) {
-                const price = Math.floor(currentBook.original_price / 2);
-                priceInput.value = '€' + price.toFixed(2);
+                const priceDetailsSection = document.getElementById('price_details_section');
+                document.getElementById('price_original').textContent = '€' + currentBook.original_price.toFixed(2);
+                document.getElementById('price_marketplace').textContent = '€' + currentBook.marketplace_price.toFixed(2);
+                document.getElementById('price_fee').textContent = '-€' + currentBook.fee.toFixed(2);
+                document.getElementById('price_total').textContent = '€' + currentBook.price.toFixed(2);
+                priceDetailsSection.style.display = 'block';
             }
         }
 
@@ -194,29 +267,31 @@
             const condition = document.querySelector('input[name="condition"]:checked');
 
             if (!bookId) {
-                alert('Seleziona un libro');
+                showError('Seleziona un libro');
                 return;
             }
 
             if (!condition) {
-                alert('Seleziona le condizioni del libro');
+                showError('Seleziona le condizioni del libro');
                 return;
             }
 
             // Check if book already in cart
-            if (cart.some(item => item.id === currentBook.id)) {
-                alert('Questo libro è già nel carrello');
+            if (cart.some(item => item.book_id === currentBook.id)) {
+                showError('Questo libro è già nel carrello');
                 return;
             }
 
             const item = {
                 book_id: currentBook.id,
-                id: currentBook.id,
                 title: currentBook.title,
                 author: currentBook.author,
                 isbn: currentBook.isbn,
                 condition: condition.value,
-                price: Math.floor(currentBook.original_price / 2),
+                original_price: currentBook.original_price,
+                marketplace_price: currentBook.marketplace_price,
+                fee: currentBook.fee,
+                price: currentBook.price,
             };
 
             cart.push(item);
@@ -227,13 +302,13 @@
             bookIdInput.value = '';
             selectedBookDisplay.classList.add('hidden');
             document.querySelectorAll('input[name="condition"]').forEach(input => input.checked = false);
-            priceInput.value = '';
+            document.getElementById('price_details_section').style.display = 'none';
             currentBook = null;
             bookSearch.focus();
         }
 
         function removeFromCart(bookId) {
-            cart = cart.filter(item => item.id !== bookId);
+            cart = cart.filter(item => item.book_id !== bookId);
             updateCartDisplay();
         }
 
@@ -258,9 +333,9 @@
                                     </span>
                                 </p>
                             </div>
-                            <button type="button" onclick="removeFromCart(${item.id})" class="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
+                            <button type="button" onclick="removeFromCart(${item.book_id})" class="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
                         </div>
-                        <div class="text-right">
+                        <div class="text-right pt-2 border-t border-gray-200">
                             <p class="text-lg font-bold text-blue-600">€${item.price.toFixed(2)}</p>
                         </div>
                     </div>

@@ -19,6 +19,8 @@ class SchoolSeeder extends Seeder
             'address' => 'Via del Lodovichi, 10',
             'phone' => '+39 02 1234 5678',
             'email' => 'info@liceoagnesi.edu.it',
+            'purchase_fee' => 1.00,
+            'sales_fee' => 1.00,
         ]);
 
         School::create([
@@ -28,6 +30,8 @@ class SchoolSeeder extends Seeder
             'address' => 'Via dei Lodovichi, 2',
             'phone' => '+39 039 9876 5432',
             'email' => 'info@issvigano.org',
+            'purchase_fee' => 0.50,
+            'sales_fee' => 0.50,
         ]);
     }
 }

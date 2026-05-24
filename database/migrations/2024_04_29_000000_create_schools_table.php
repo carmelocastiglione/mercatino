@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->decimal('purchase_fee', 8, 2)->default(0.50)->comment('Fee fissa in € quando uno studente acquista');
+            $table->decimal('sales_fee', 8, 2)->default(0.50)->comment('Fee fissa in € quando uno studente vende');
             $table->timestamps();
         });
 
