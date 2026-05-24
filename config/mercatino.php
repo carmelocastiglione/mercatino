@@ -137,20 +137,6 @@ return [
     ],
 
     /**
-     * ===== Status Transazioni =====
-     */
-
-    'transaction_statuses' => [
-        'pending' => 'In Sospeso',
-        'paid' => 'Pagato',
-        'shipped' => 'Spedito',
-        'delivered' => 'Consegnato',
-        'completed' => 'Completato',
-        'cancelled' => 'Annullato',
-        'refunded' => 'Rimborso',
-    ],
-
-    /**
      * ===== Status Libri =====
      */
 

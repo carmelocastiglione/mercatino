@@ -29,7 +29,6 @@ app/
 │   ├── Controllers/         # Gestori delle richieste HTTP
 │   │   ├── HomeController       # Home page del sito
 │   │   ├── BookController       # Operazioni sui libri (CRUD)
-│   │   ├── TransactionController # Gestione vendite
 │   │   └── UserController       # Profilo utente
 │   │
 │   ├── Requests/            # Form Request Validation
@@ -38,8 +37,7 @@ app/
 │
 ├── Models/                  # Eloquent Models
 │   ├── User.php                # Utente del sistema
-│   ├── Book.php                # Modello per i libri
-│   └── Transaction.php         # Modello per le vendite
+│   └── Book.php                # Modello per i libri
 │
 ├── Services/                # Business Logic (optional)
 │   ├── BookService.php         # Logica per i libri
@@ -79,8 +77,7 @@ resources/
 database/
 ├── migrations/              # Schemi database
 │   ├── 2024_04_28_000001_create_users_table.php
-│   ├── 2024_04_28_000003_create_books_table.php
-│   └── 2024_04_28_000004_create_transactions_table.php
+│   └── 2024_04_28_000003_create_books_table.php
 │
 ├── seeders/                 # Dati di test
 │   ├── DatabaseSeeder.php
@@ -89,8 +86,7 @@ database/
 │
 └── factories/               # Factory per testing
     ├── UserFactory.php
-    ├── BookFactory.php
-    └── TransactionFactory.php
+    └── BookFactory.php
 ```
 
 ### `/routes`
@@ -120,8 +116,6 @@ class User extends Authenticatable {
     // Relazioni
     public function booksForSale()       // Libri in vendita
     public function purchasedBooks()    // Libri acquistati
-    public function soldTransactions()  // Vendite effettuate
-    public function receivedTransactions() // Acquisti effettuati
 }
 ```
 
@@ -130,24 +124,10 @@ class User extends Authenticatable {
 class Book extends Model {
     // Relazioni
     public function seller()            // Chi vende
-    public function transactions()      // Storico vendite
     
     // Scopes
     public function scopeAvailable()    // Solo disponibili
     public function scopeBySubject($subject) // Per materia
-}
-```
-
-### Transaction Model
-```php
-class Transaction extends Model {
-    // Relazioni
-    public function buyer()
-    public function seller()
-    public function book()
-    
-    // Status workflow
-    // pending → paid → shipped → delivered → completed
 }
 ```
 
@@ -162,30 +142,18 @@ class Transaction extends Model {
    ↓
 2. BookController@show riceve richiesta
    ↓
-3. Controller recupera: Book, Seller, Reviews
+3. Controller recupera: Book, Seller
    Model.php $book = Book::with('seller')->find($id)
    ↓
 4. View (resources/views/books/show.blade.php) riceve dati
    ↓
-5. Utente compila form di acquisto
+5. Utente compila form di acquisto e paga
    ↓
-6. TransactionController@store riceve richiesta POST
-   ↓
-7. Validazione dati:
-   - Utente autenticato?
-   - Libro ancora disponibile?
-   - Metodo pagamento valido?
-   ↓
-8. Transaction creata con status 'pending'
-   ↓
-9. PaymentService elabora pagamento
-   ↓
-10. Se pagamento riuscito:
-    - Transaction status = 'paid'
-    - Book status = 'reserved'
+6. Se pagamento riuscito:
+    - Book status = 'sold'
     - Email confermata a buyer e seller
     ↓
-11. Redirect a success page con numero ordine
+7. Redirect a success page
 ```
 
 ---
@@ -253,8 +221,6 @@ public function store(StoreBookRequest $request)
 ### Relazioni One-to-Many
 ```
 Users (1) ──→ (Many) Books
-User (1) ──→ (Many) Transactions (come buyer)
-User (1) ──→ (Many) Transactions (come seller)
 ```
 
 ### Relazioni Many-to-Many (Futures)
@@ -273,7 +239,7 @@ $user->booksForSale()   // Solo libri disponibili
 $book->seller()         // Ottieni il venditore
 
 // Eager Loading (Ottimizzazione N+1 queries)
-$books = Book::with('seller', 'transactions')->get();
+$books = Book::with('seller')->get();
 // Singola query anziché N+1 queries
 ```
 
@@ -339,7 +305,6 @@ $books = Book::with('seller', 'transactions')->get();
 // Singolare per risorse
 BookController          // per libri
 UserController          // per utenti
-TransactionController   // per transazioni
 
 // Metodi standard (CRUD)
 index()         // GET /resource               - Lista
@@ -378,7 +343,7 @@ class BookController extends Controller
         $book->increment('views');
         
         return view('books.show', [
-            'book' => $book->load('seller', 'transactions'),
+            'book' => $book->load('seller'),
             'related' => Book::where('subject', $book->subject)
                              ->limit(4)
                              ->get()

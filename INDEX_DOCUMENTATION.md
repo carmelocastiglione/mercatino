@@ -152,7 +152,6 @@ config/mercatino.php                        ← App config
 ### Database
 ```
 database/migrations/2024_04_28_000003_create_books_table.php
-database/migrations/2024_04_28_000004_create_transactions_table.php
 ```
 
 ### Helpers

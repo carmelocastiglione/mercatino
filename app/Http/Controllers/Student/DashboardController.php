@@ -12,22 +12,19 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
-        $pendingDeliveries = auth()->user()->bookDeliveries()
-            ->where('status', 'pending')
-            ->count();
+        $user = auth()->user();
+        
+        $totalDeliveries = $user->bookDeliveries()->count();
 
-        $approvedDeliveries = auth()->user()->bookDeliveries()
-            ->where('status', 'approved')
-            ->count();
-
-        $rejectedDeliveries = auth()->user()->bookDeliveries()
-            ->where('status', 'rejected')
-            ->count();
+        $totalSales = $user->getTotalSalesAmount();
+        $totalSalesCount = $user->bookListings()->where('status', 'sold')->count();
+        $totalWithdrawn = $user->getTotalWithdrawnAmount();
 
         return view('student.dashboard', [
-            'pendingDeliveries' => $pendingDeliveries,
-            'approvedDeliveries' => $approvedDeliveries,
-            'rejectedDeliveries' => $rejectedDeliveries,
+            'totalDeliveries' => $totalDeliveries,
+            'totalSales' => $totalSales,
+            'totalSalesCount' => $totalSalesCount,
+            'totalWithdrawn' => $totalWithdrawn,
         ]);
     }
 }

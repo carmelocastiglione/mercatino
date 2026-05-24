@@ -79,12 +79,6 @@
 - Indici ottimizzati
 - Full-text search ready
 
-✅ `database/migrations/2024_04_28_000004_create_transactions_table.php` (NUOVO)
-- Tabella per transazioni/vendite
-- Status workflow completo
-- Rating system
-- Tracking spedizioni
-
 ### Routes
 ✅ `routes/web.php` (MODIFICATO)
 - Aggiunta rotta home con controller

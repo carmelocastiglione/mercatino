@@ -41,13 +41,21 @@ class DeliveryController extends Controller
      */
     public function index(): View
     {
-        $deliveries = auth()->user()->bookDeliveries()
+        $user = auth()->user();
+        $deliveries = $user->bookDeliveries()
             ->with('book')
             ->latest()
             ->paginate(10);
 
+        $pendingDeliveries = $user->bookDeliveries()->where('status', 'pending')->count();
+        $approvedDeliveries = $user->bookDeliveries()->where('status', 'approved')->count();
+        $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
+
         return view('student.deliveries.index', [
             'deliveries' => $deliveries,
+            'pendingDeliveries' => $pendingDeliveries,
+            'approvedDeliveries' => $approvedDeliveries,
+            'rejectedDeliveries' => $rejectedDeliveries,
         ]);
     }
 
@@ -56,7 +64,8 @@ class DeliveryController extends Controller
      */
     public function byStatus($status): View
     {
-        $deliveries = auth()->user()->bookDeliveries()
+        $user = auth()->user();
+        $deliveries = $user->bookDeliveries()
             ->where('status', $status)
             ->with('book')
             ->latest()
@@ -68,10 +77,17 @@ class DeliveryController extends Controller
             'rejected' => 'Rifiutate',
         ];
 
+        $pendingDeliveries = $user->bookDeliveries()->where('status', 'pending')->count();
+        $approvedDeliveries = $user->bookDeliveries()->where('status', 'approved')->count();
+        $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
+
         return view('student.deliveries.index', [
             'deliveries' => $deliveries,
             'statusFilter' => $status,
             'statusLabel' => $statusLabels[$status] ?? $status,
+            'pendingDeliveries' => $pendingDeliveries,
+            'approvedDeliveries' => $approvedDeliveries,
+            'rejectedDeliveries' => $rejectedDeliveries,
         ]);
     }
 

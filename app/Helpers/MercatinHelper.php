@@ -82,34 +82,7 @@ if (!function_exists('calculate_discount_percent')) {
 }
 
 /**
- * Converte lo stato della transazione in un label leggibile
- *
- * @param string $status Lo stato della transazione
- * @return string Lo stato formattato
- */
-if (!function_exists('format_transaction_status')) {
-    function format_transaction_status($status)
-    {
-        $statusMap = [
-            'pending' => 'In Sospeso',
-            'paid' => 'Pagato',
-            'shipped' => 'Spedito',
-            'delivered' => 'Consegnato',
-            'completed' => 'Completato',
-            'cancelled' => 'Annullato',
-            'refunded' => 'Rimborso',
-        ];
-
-        return $statusMap[$status] ?? ucfirst($status);
-    }
-}
-
-/**
- * Restituisce il colore/badge per uno stato di transazione
- *
- * @param string $status Lo stato della transazione
- * @return string La classe CSS per il badge
- */
+ * Restituisce il colore/badge per uno stato
 if (!function_exists('get_status_badge_class')) {
     function get_status_badge_class($status)
     {

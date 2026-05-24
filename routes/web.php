@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
+use App\Http\Controllers\Student\SalesController as StudentSalesController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
@@ -59,6 +60,9 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/deliveries/{delivery}/edit', [StudentDeliveryController::class, 'edit'])->name('student.deliveries.edit');
     Route::put('/deliveries/{delivery}', [StudentDeliveryController::class, 'update'])->name('student.deliveries.update');
     Route::delete('/deliveries/{delivery}', [StudentDeliveryController::class, 'destroy'])->name('student.deliveries.delete');
+    
+    Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
+    Route::get('/sales/{sale}', [StudentSalesController::class, 'show'])->name('student.sales.show');
 });
 
 /**
