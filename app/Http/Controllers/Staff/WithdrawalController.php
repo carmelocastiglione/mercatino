@@ -30,8 +30,46 @@ class WithdrawalController extends Controller
             ->latest('updated_at')
             ->paginate(15);
 
+        // Calculate total amounts
+        $totalEarned = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
+                $query->bySchool($schoolId);
+            })
+            ->where('school_id', $schoolId)
+            ->get()
+            ->sum(fn($user) => $user->getTotalSalesAmount());
+
+        $totalWithdrawn = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
+                $query->bySchool($schoolId);
+            })
+            ->where('school_id', $schoolId)
+            ->get()
+            ->sum(fn($user) => $user->getTotalWithdrawnAmount());
+
+        $totalAvailable = $totalEarned - $totalWithdrawn;
+
+        // Calculate progress: users who have withdrawn vs users who have sold books
+        $usersWithSoldBooks = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')
+            ->where('books.school_id', $schoolId)
+            ->where('book_listings.status', 'sold')
+            ->distinct('book_listings.seller_id')
+            ->count('book_listings.seller_id');
+
+        $usersWithdrawn = Withdrawal::whereHas('user', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
+            })
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $withdrawalProgress = $usersWithSoldBooks > 0 ? ($usersWithdrawn / $usersWithSoldBooks) * 100 : 0;
+
         return view('staff.withdrawals.index', [
             'sellers' => $sellers,
+            'totalEarned' => $totalEarned,
+            'totalWithdrawn' => $totalWithdrawn,
+            'totalAvailable' => $totalAvailable,
+            'usersWithdrawn' => $usersWithdrawn,
+            'usersWithSoldBooks' => $usersWithSoldBooks,
+            'withdrawalProgress' => $withdrawalProgress,
         ]);
     }
 

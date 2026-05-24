@@ -1,14 +1,36 @@
 @extends('layouts.app-staff')
 
+@section('title', 'Riscossioni')
+
 @section('content')
-<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="px-4 py-6 sm:px-0">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Riscossioni</h1>
-            <a href="{{ route('staff.withdrawals.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-900">Riscossioni</h1>
+                <p class="text-gray-600 mt-2">Gestione delle riscossioni degli studenti</p>
+            </div>
+            <a href="{{ route('staff.withdrawals.create') }}" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
                 + Nuova Riscossione
             </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <x-stats-card label="Totale Incassato" :value="$totalEarned" color="blue" formatted />
+            <x-stats-card label="Totale Riscosso" :value="$totalWithdrawn" color="blue" formatted />
+            <x-stats-card label="Totale Da Riscuotere" :value="$totalAvailable" color="blue" formatted />
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-900">Progresso Riscossioni</h3>
+                <span class="text-sm font-medium text-gray-600">{{ $usersWithdrawn }} / {{ $usersWithSoldBooks }} utenti</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-300" style="width: {{ $withdrawalProgress }}%"></div>
+            </div>
+            <p class="text-sm text-gray-600 mt-3">{{ round($withdrawalProgress) }}% degli utenti con libri venduti ha ritirato i propri guadagni</p>
         </div>
 
         @if(session('success'))
