@@ -9,9 +9,9 @@
     </div>
 
     <!-- Summary Stats -->
-    <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 shadow-sm border-2 border-purple-200 mb-12">
-        <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Totale Acquisti</p>
-        <p class="mt-3 text-5xl font-black text-purple-600">{{ $totalPurchases }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <x-stats-card label="Totale Acquisti" :value="$totalPurchases" color="purple" />
+        <x-stats-card label="Totale Speso" :value="$totalSpent" color="purple" formatted />
     </div>
 
     <!-- Purchases Table -->

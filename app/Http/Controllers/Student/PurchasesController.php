@@ -19,8 +19,9 @@ class PurchasesController extends Controller
             ->paginate(15);
 
         $totalPurchases = $user->purchases()->count();
+        $totalSpent = $purchases->sum(fn($p) => $p->bookListing->price);
 
-        return view('student.purchases.index', compact('purchases', 'totalPurchases'));
+        return view('student.purchases.index', compact('purchases', 'totalPurchases', 'totalSpent'));
     }
 
     /**

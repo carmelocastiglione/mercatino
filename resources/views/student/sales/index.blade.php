@@ -10,15 +10,8 @@
 
     <!-- Summary Stats -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-sm border-2 border-green-200">
-            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Totale Vendite</p>
-            <p class="mt-3 text-5xl font-black text-green-600">{{ $totalSales }}</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 shadow-sm border-2 border-blue-200">
-            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Totale Guadagni</p>
-            <p class="mt-3 text-5xl font-black text-blue-600">{{ number_format($totalEarnings, 2, ',', '.') }}€</p>
-        </div>
+        <x-stats-card label="Totale Vendite" :value="$totalSales" color="blue" />
+        <x-stats-card label="Totale Guadagnato" :value="$totalEarnings" color="blue" formatted />
     </div>
 
     <!-- Sales Table -->
