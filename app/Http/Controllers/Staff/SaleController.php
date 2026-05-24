@@ -22,17 +22,16 @@ class SaleController extends Controller
             ->latest('created_at')
             ->paginate(15);
 
-        $totalSales = BookSale::bySchool(auth()->user()->school_id)
+        $totalSalesCount = BookSale::bySchool(auth()->user()->school_id)->count();
+        
+        $totalRevenue = BookSale::bySchool(auth()->user()->school_id)
             ->join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
             ->sum('book_listings.price');
-        $todaySales = BookSale::whereDate('created_at', today())
-            ->bySchool(auth()->user()->school_id)
-            ->count();
 
         return view('staff.sales.index', [
             'sales' => $sales,
-            'totalSales' => $totalSales,
-            'todaySales' => $todaySales,
+            'totalSalesCount' => $totalSalesCount,
+            'totalRevenue' => $totalRevenue,
         ]);
     }
 

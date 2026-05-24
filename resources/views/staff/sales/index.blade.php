@@ -15,15 +15,9 @@
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-green-50 rounded-lg border border-green-200 p-6">
-                <p class="text-green-600 text-sm font-medium">VENDITE OGGI</p>
-                <p class="text-3xl font-bold text-green-600 mt-2">{{ $todaySales }}</p>
-            </div>
-            <div class="bg-blue-50 rounded-lg border border-blue-200 p-6">
-                <p class="text-blue-600 text-sm font-medium">INCASSO TOTALE</p>
-                <p class="text-3xl font-bold text-blue-600 mt-2">€{{ number_format($totalSales, 2) }}</p>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <x-stats-card label="Vendite Totali" :value="$totalSalesCount" color="green" />
+            <x-stats-card label="Incasso Totale" :value="$totalRevenue" color="green" formatted />
         </div>
     </div>
 
