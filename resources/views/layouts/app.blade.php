@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700|inter:400,500,600" rel="stylesheet">
     
+    <!-- Favicon Links -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
@@ -57,46 +63,9 @@
 
     @yield('content')
 
-    <footer class="bg-gray-900 text-gray-300 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <span class="text-2xl">📚</span>
-                        <span class="font-bold text-white">Mercatino Libri</span>
-                    </div>
-                    <p class="text-sm text-gray-400">La piattaforma per comprare e vendere libri scolastici usati.</p>
-                </div>
-                <div>
-                    <h3 class="text-white font-semibold mb-4">Navigazione</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition">Home</a></li>
-                        <li><a href="#" class="hover:text-white transition">Sfoglia Libri</a></li>
-                        <li><a href="#" class="hover:text-white transition">Vendi Libri</a></li>
-                        <li><a href="#" class="hover:text-white transition">Contatti</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-white font-semibold mb-4">Supporto</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition">Centro Aiuto</a></li>
-                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-white transition">Termini Servizio</a></li>
-                        <li><a href="#" class="hover:text-white transition">Cookie Policy</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-white font-semibold mb-4">Seguici</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="hover:text-white transition">Facebook</a></li>
-                        <li><a href="#" class="hover:text-white transition">Instagram</a></li>
-                        <li><a href="#" class="hover:text-white transition">Twitter</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
-                <p>Copyright {{ date('Y') }} Mercatino Libri. Tutti i diritti riservati.</p>
-            </div>
+    <footer class="bg-gray-900 text-gray-300 mt-0">
+        <div class="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <p>Made with ❤️ by <a href="https://carmelocastiglione.github.io">Carmelo Castiglione</a></p>
         </div>
     </footer>
 
