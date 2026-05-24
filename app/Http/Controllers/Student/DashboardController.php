@@ -19,12 +19,16 @@ class DashboardController extends Controller
         $totalSales = $user->getTotalSalesAmount();
         $totalSalesCount = $user->bookListings()->where('status', 'sold')->count();
         $totalWithdrawn = $user->getTotalWithdrawnAmount();
+        $totalPurchases = $user->purchases()->count();
+        $totalReclaims = $user->reclaims()->count();
 
         return view('student.dashboard', [
             'totalDeliveries' => $totalDeliveries,
             'totalSales' => $totalSales,
             'totalSalesCount' => $totalSalesCount,
             'totalWithdrawn' => $totalWithdrawn,
+            'totalPurchases' => $totalPurchases,
+            'totalReclaims' => $totalReclaims,
         ]);
     }
 }

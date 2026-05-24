@@ -3,29 +3,6 @@
 @section('title', isset($statusLabel) ? $statusLabel : 'Le Mie Consegne')
 
 @section('content')
-    @if(!isset($statusFilter))
-        <!-- Summary Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <!-- Consegne in Sospeso -->
-            <a href="{{ route('student.deliveries.pending') }}" class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-sm border-2 border-yellow-200 hover:shadow-md transition">
-                <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">In Sospeso</p>
-                <p class="mt-3 text-5xl font-black text-yellow-600">{{ $pendingDeliveries }}</p>
-            </a>
-
-            <!-- Consegne Approvate -->
-            <a href="{{ route('student.deliveries.approved') }}" class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-sm border-2 border-green-200 hover:shadow-md transition">
-                <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Approvate</p>
-                <p class="mt-3 text-5xl font-black text-green-600">{{ $approvedDeliveries }}</p>
-            </a>
-
-            <!-- Consegne Rifiutate -->
-            <a href="{{ route('student.deliveries.rejected') }}" class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-8 shadow-sm border-2 border-red-200 hover:shadow-md transition">
-                <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Rifiutate</p>
-                <p class="mt-3 text-5xl font-black text-red-600">{{ $rejectedDeliveries }}</p>
-            </a>
-        </div>
-    @endif
-
     <div class="mb-8 flex items-center justify-between">
         <div>
             <h1 class="text-4xl font-bold text-gray-900 mb-2">
@@ -45,6 +22,27 @@
         </div>
         <a href="{{ route('student.deliveries.create') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium">
             + Prenota Consegna
+        </a>
+    </div>
+
+    <!-- Summary Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <!-- Consegne in Sospeso -->
+        <a href="{{ route('student.deliveries.pending') }}" class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8 shadow-sm border-2 border-yellow-200 hover:shadow-md transition">
+            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">In Sospeso</p>
+            <p class="mt-3 text-5xl font-black text-yellow-600">{{ $pendingDeliveries }}</p>
+        </a>
+
+        <!-- Consegne Approvate -->
+        <a href="{{ route('student.deliveries.approved') }}" class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 shadow-sm border-2 border-green-200 hover:shadow-md transition">
+            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Approvate</p>
+            <p class="mt-3 text-5xl font-black text-green-600">{{ $approvedDeliveries }}</p>
+        </a>
+
+        <!-- Consegne Rifiutate -->
+        <a href="{{ route('student.deliveries.rejected') }}" class="bg-gradient-to-br from-red-50 to-red-100 rounded-2xl p-8 shadow-sm border-2 border-red-200 hover:shadow-md transition">
+            <p class="text-gray-600 font-semibold text-sm tracking-wide uppercase">Rifiutate</p>
+            <p class="mt-3 text-5xl font-black text-red-600">{{ $rejectedDeliveries }}</p>
         </a>
     </div>
 

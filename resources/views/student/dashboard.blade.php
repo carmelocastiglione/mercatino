@@ -46,5 +46,25 @@
             bgColor="indigo"
             label="VENDITE"
         />
+
+        <!-- I Miei Acquisti -->
+        <x-dashboard-card 
+            href="{{ route('student.purchases.index') }}"
+            title="I miei acquisti"
+            description="Visualizza tutti i libri acquistati"
+            count="{{ $totalPurchases }}"
+            bgColor="purple"
+            label="ACQUISTI"
+        />
+
+        <!-- Le Mie Riscossioni -->
+        <x-dashboard-card 
+            href="{{ route('student.reclaims.index') }}"
+            title="Le mie riscossioni"
+            description="Visualizza tutte le riscossioni"
+            count="{{ $totalReclaims }}"
+            bgColor="orange"
+            label="RISCOSSIONI"
+        />
     </div>
 @endsection

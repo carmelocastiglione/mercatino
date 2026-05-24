@@ -94,6 +94,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the books purchased by this user (buyer).
+     */
+    public function purchases(): HasMany
+    {
+        return $this->hasMany(BookSale::class, 'buyer_id');
+    }
+
+    /**
      * Get the withdrawals for this user.
      */
     public function withdrawals(): HasMany

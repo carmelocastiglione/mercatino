@@ -42,6 +42,11 @@
             </div>
 
             <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
+                <!-- Prenota Consegna - Highlighted -->
+                <a href="{{ route('student.deliveries.create') }}" class="block mb-4 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition shadow-md">
+                    ✨ Prenota consegna
+                </a>
+                
                 <!-- Dashboard -->
                 <a href="{{ route('student.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student') && !request()->is('student/deliveries*')) bg-gray-100 text-gray-900 @endif">
                     Dashboard
@@ -65,14 +70,19 @@
                     </a>
                 </div>
 
-                <!-- Prenota Consegna -->
-                <a href="{{ route('student.deliveries.create') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition">
-                    Prenota consegna
-                </a>
-
                 <!-- Le Mie Vendite -->
                 <a href="{{ route('student.sales.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/sales*')) bg-gray-100 text-gray-900 @endif">
                     Le mie vendite
+                </a>
+
+                <!-- I Miei Acquisti -->
+                <a href="{{ route('student.purchases.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/purchases*')) bg-gray-100 text-gray-900 @endif">
+                    I miei acquisti
+                </a>
+
+                <!-- Le Mie Riscossioni -->
+                <a href="{{ route('student.reclaims.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/reclaims*')) bg-gray-100 text-gray-900 @endif">
+                    Le mie riscossioni
                 </a>
             </nav>
 

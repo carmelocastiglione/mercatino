@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Student\SalesController as StudentSalesController;
+use App\Http\Controllers\Student\PurchasesController as StudentPurchasesController;
+use App\Http\Controllers\Student\ReclaimsController as StudentReclaimsController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
@@ -63,6 +65,12 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     
     Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
     Route::get('/sales/{sale}', [StudentSalesController::class, 'show'])->name('student.sales.show');
+    
+    Route::get('/purchases', [StudentPurchasesController::class, 'index'])->name('student.purchases.index');
+    Route::get('/purchases/{purchase}', [StudentPurchasesController::class, 'show'])->name('student.purchases.show');
+    
+    Route::get('/reclaims', [StudentReclaimsController::class, 'index'])->name('student.reclaims.index');
+    Route::get('/reclaims/{reclaim}', [StudentReclaimsController::class, 'show'])->name('student.reclaims.show');
 });
 
 /**
