@@ -7,6 +7,7 @@ use App\Helpers\PriceHelper;
 use App\Models\BookDelivery;
 use App\Models\BookDeliveryBatch;
 use App\Models\Book;
+use App\Models\SchoolDeliveryDate;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,33 @@ use Illuminate\Http\JsonResponse;
 
 class DeliveryController extends Controller
 {
+    /**
+     * Get available delivery dates for the user's school (JSON endpoint).
+     */
+    public function getDeliveryDates(): JsonResponse
+    {
+        $user = auth()->user();
+        $school = $user->school;
+
+        $dates = SchoolDeliveryDate::bySchool($school->id)
+            ->active()
+            ->future()
+            ->orderBy('scheduled_date')
+            ->get()
+            ->map(function ($date) {
+                return [
+                    'id' => $date->id,
+                    'scheduled_date' => $date->scheduled_date->format('Y-m-d'),
+                    'label' => $date->scheduled_date->format('d/m/Y'),
+                ];
+            });
+
+        return response()->json([
+            'dates' => $dates,
+            'has_dates' => $dates->count() > 0,
+        ]);
+    }
+
     /**
      * Search books by title, author or ISBN (filtered by user's school).
      */
@@ -114,7 +142,19 @@ class DeliveryController extends Controller
      */
     public function create(): View
     {
-        return view('student.deliveries.create');
+        $user = auth()->user();
+        $school = $user->school;
+
+        // Recupera le date di consegna disponibili (solo attive e future)
+        $deliveryDates = SchoolDeliveryDate::bySchool($school->id)
+            ->active()
+            ->future()
+            ->orderBy('scheduled_date')
+            ->get();
+
+        return view('student.deliveries.create', [
+            'deliveryDates' => $deliveryDates,
+        ]);
     }
 
     /**
@@ -187,9 +227,6 @@ class DeliveryController extends Controller
     /**
      * Store multiple deliveries as a batch.
      */
-    /**
-     * Store multiple deliveries as a batch.
-     */
     public function storeMultiple(Request $request): RedirectResponse
     {
         // Decodifica il JSON ricevuto dal form
@@ -202,22 +239,49 @@ class DeliveryController extends Controller
         }
 
         // Valida ogni item
-        $validator = \Illuminate\Support\Facades\Validator::make(['items' => $items], [
-            'items' => 'required|array|min:1',
-            'items.*.book_id' => 'required|exists:books,id',
-            'items.*.condition' => 'required|in:like-new,good,fair,poor',
-        ]);
+        $user = auth()->user();
+        
+        // Controlla se ci sono date di consegna disponibili
+        $hasDeliveryDates = SchoolDeliveryDate::bySchool($user->school_id)
+            ->active()
+            ->future()
+            ->exists();
+        
+        // Se ci sono date disponibili, la data è obbligatoria
+        $dateRule = $hasDeliveryDates ? 'required|exists:school_delivery_dates,id' : 'nullable|exists:school_delivery_dates,id';
+        
+        $validator = \Illuminate\Support\Facades\Validator::make(
+            array_merge(
+                ['items' => $items],
+                $request->except('items')  // Escludi 'items' dal request per non sovrascrivere l'array decodificato
+            ),
+            [
+                'items' => 'required|array|min:1',
+                'items.*.book_id' => 'required|exists:books,id',
+                'items.*.condition' => 'required|in:like-new,good,fair,poor',
+                'scheduled_delivery_date_id' => $dateRule,
+            ]
+        );
 
         if ($validator->fails()) {
             return back()->withErrors($validator);
         }
 
-        $user = auth()->user();
         $school = $user->school;
+
+        // Se la data è fornita, verifica che appartiene alla scuola dell'utente
+        $scheduledDeliveryDateId = $request->input('scheduled_delivery_date_id');
+        if ($scheduledDeliveryDateId) {
+            $deliveryDate = SchoolDeliveryDate::find($scheduledDeliveryDateId);
+            if (!$deliveryDate || $deliveryDate->school_id !== $user->school_id) {
+                return back()->with('error', 'Data di consegna non valida');
+            }
+        }
 
         // Crea il batch
         $batch = $user->deliveryBatches()->create([
             'school_id' => $user->school_id,
+            'scheduled_delivery_date_id' => $scheduledDeliveryDateId,
             'status' => 'pending',
         ]);
 

@@ -10,6 +10,7 @@ use App\Http\Controllers\Student\PurchasesController as StudentPurchasesControll
 use App\Http\Controllers\Student\WithdrawalsController as StudentWithdrawalsController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
+use App\Http\Controllers\Staff\SchoolDeliveryDateController as StaffSchoolDeliveryDateController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Staff\ReclaimController as StaffReclaimController;
@@ -57,6 +58,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/deliveries/status/approved', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'approved')->name('student.deliveries.approved');
     Route::get('/deliveries/status/rejected', [StudentDeliveryController::class, 'byStatus'])->defaults('status', 'rejected')->name('student.deliveries.rejected');
     Route::get('/deliveries/search-books', [StudentDeliveryController::class, 'searchBooks'])->name('student.deliveries.search-books');
+    Route::get('/deliveries/delivery-dates', [StudentDeliveryController::class, 'getDeliveryDates'])->name('student.deliveries.delivery-dates');
     Route::post('/deliveries/add-to-cart', [StudentDeliveryController::class, 'addToCart'])->name('student.deliveries.add-to-cart');
     Route::get('/deliveries/create', [StudentDeliveryController::class, 'create'])->name('student.deliveries.create');
     Route::post('/deliveries', [StudentDeliveryController::class, 'store'])->name('student.deliveries.store');
@@ -133,6 +135,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
     Route::put('/deliveries/reject-single', [StaffDeliveryController::class, 'rejectDeliveryJson'])->name('staff.deliveries.reject-json');
     Route::put('/deliveries/approve-bulk', [StaffDeliveryController::class, 'approveBulk'])->name('staff.deliveries.approve-bulk');
+    
+    // Delivery Dates Management - Date di consegna
+    Route::get('/delivery-dates', [StaffSchoolDeliveryDateController::class, 'index'])->name('staff.delivery-dates.index');
+    Route::get('/delivery-dates/create', [StaffSchoolDeliveryDateController::class, 'create'])->name('staff.delivery-dates.create');
+    Route::post('/delivery-dates', [StaffSchoolDeliveryDateController::class, 'store'])->name('staff.delivery-dates.store');
+    Route::get('/delivery-dates/{deliveryDate}/edit', [StaffSchoolDeliveryDateController::class, 'edit'])->name('staff.delivery-dates.edit');
+    Route::put('/delivery-dates/{deliveryDate}', [StaffSchoolDeliveryDateController::class, 'update'])->name('staff.delivery-dates.update');
+    Route::delete('/delivery-dates/{deliveryDate}', [StaffSchoolDeliveryDateController::class, 'destroy'])->name('staff.delivery-dates.destroy');
+    Route::patch('/delivery-dates/{deliveryDate}/toggle', [StaffSchoolDeliveryDateController::class, 'toggle'])->name('staff.delivery-dates.toggle');
     
     // Book Listings - Libri disponibili
     Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');

@@ -3,8 +3,7 @@
 ## Studente
 - Farsi approvare dai tecnici l'applicazione per il Google SSO
 - Testare il login via Google SSO
-- Migliorare la pagina di stampa
-- Scelta data consegna (data e ora, anche se al momento solo data) 
+- Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
 
 ## Staff
 - Aggiungere riepilogo stampa vendite
@@ -19,10 +18,10 @@
 - Migliorare visualizzazione pagine di ogni categoria
 - Rivedere pagina riscossioni
 
-
 ## Admin
 - Accesso ai log di sistema
 - Import dati da CSV (es. studenti, libri)
+- Gestione fee scuole
 
 ## Miglioramenti Generali
 - Creare interfaccia comune per la stampa
@@ -32,6 +31,6 @@
 - Controllare che nella stampa ogni libro sia su una riga
 - Generare codici a barre univoci per ogni consegna / vendita / acquisto
 
-## Ulteriori miglioramenti
+## Ulteriori miglioramenti anni successivi
 - Utilizzare un framework JS più robusto per la gestione del carrello (es. Vue o React)
 - Gestione turni volontari

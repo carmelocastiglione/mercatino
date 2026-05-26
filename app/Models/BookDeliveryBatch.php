@@ -17,6 +17,7 @@ class BookDeliveryBatch extends Model
     protected $fillable = [
         'user_id',
         'school_id',
+        'scheduled_delivery_date_id',
         'status',
         'delivered_date',
         'notes',
@@ -45,6 +46,14 @@ class BookDeliveryBatch extends Model
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    /**
+     * Get the scheduled delivery date for this batch.
+     */
+    public function scheduledDeliveryDate(): BelongsTo
+    {
+        return $this->belongsTo(SchoolDeliveryDate::class);
     }
 
     /**

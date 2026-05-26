@@ -140,6 +140,19 @@
                     <span id="cart_counter" class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center">0</span>
                 </div>
 
+                <!-- Data di consegna -->
+                <div class="mb-6">
+                    <label for="scheduled_delivery_date_id" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Data di consegna
+                    </label>
+                    <select id="scheduled_delivery_date_id" name="scheduled_delivery_date_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Seleziona data --</option>
+                    </select>
+                    <p id="no_dates_message" class="text-center text-sm text-gray-600 mt-2 hidden">
+                        <span class="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">ℹ️ Consegna nel giorno concordato</span>
+                    </p>
+                </div>
+
                 <div id="cart_items" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
                     <p class="text-gray-500 text-sm text-center py-8">Nessun libro aggiunto</p>
                 </div>
@@ -180,6 +193,39 @@
         const submitBtn = document.getElementById('submit_btn');
         const errorBox = document.getElementById('error_box');
         const errorMessage = document.getElementById('error_message');
+        const deliveryDateSelect = document.getElementById('scheduled_delivery_date_id');
+        const noDatesMessage = document.getElementById('no_dates_message');
+
+        // Load delivery dates on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDeliveryDates();
+        });
+
+        // Load available delivery dates from the server
+        function loadDeliveryDates() {
+            fetch(`{{ route('student.deliveries.delivery-dates') }}`)
+                .then(response => response.json())
+                .then(data => {
+                    deliveryDateSelect.innerHTML = '<option value="">-- Seleziona data --</option>';
+                    
+                    if (data.has_dates) {
+                        noDatesMessage.classList.add('hidden');
+                        data.dates.forEach(date => {
+                            const option = document.createElement('option');
+                            option.value = date.id;
+                            option.textContent = date.label;
+                            deliveryDateSelect.appendChild(option);
+                        });
+                    } else {
+                        noDatesMessage.classList.remove('hidden');
+                        deliveryDateSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading delivery dates:', error);
+                    showError('Errore nel caricamento delle date di consegna');
+                });
+        }
 
         // Show error message in the right panel
         function showError(message) {
@@ -368,10 +414,33 @@
             
             if (cart.length === 0) {
                 alert('Aggiungi almeno un libro al carrello');
-                return;
+                return false;
             }
-
-            // Form will submit normally with the hidden input already populated
+            
+            // Controlla se la data di consegna è obbligatoria
+            const deliveryDateSelect = document.getElementById('scheduled_delivery_date_id');
+            const noDatesMessage = document.getElementById('no_dates_message');
+            
+            // Se il messaggio "nessuna data" è nascosto, significa che ci sono date disponibili
+            if (noDatesMessage.classList.contains('hidden')) {
+                // Ci sono date disponibili, quindi deve essere selezionata una
+                if (!deliveryDateSelect.value) {
+                    alert('Seleziona una data di consegna');
+                    deliveryDateSelect.focus();
+                    return false;
+                }
+            }
+            
+            // Prepare items JSON
+            const itemsForSubmit = cart.map(item => ({
+                book_id: item.book_id,
+                condition: item.condition
+            }));
+            
+            // Set the hidden input value
+            document.getElementById('cart_items_json').value = JSON.stringify(itemsForSubmit);
+            
+            // Submit the form
             this.submit();
         });
     </script>

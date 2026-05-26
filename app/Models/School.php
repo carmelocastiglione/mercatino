@@ -23,4 +23,12 @@ class School extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Get the delivery dates configured for the school.
+     */
+    public function deliveryDates(): HasMany
+    {
+        return $this->hasMany(SchoolDeliveryDate::class);
+    }
 }

@@ -76,6 +76,17 @@
                 <a href="{{ route('staff.reclaims.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/reclaims*')) bg-gray-100 text-gray-900 @endif">
                     Resi
                 </a>
+
+                <!-- Impostazioni -->
+                <div class="mt-4 pt-4 border-t border-gray-200 space-y-1">
+                    <div class="px-4 py-2 text-sm font-medium text-gray-700">
+                        Impostazioni
+                    </div>
+                    
+                    <a href="{{ route('staff.delivery-dates.index') }}" class="block px-4 py-2 pl-8 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/delivery-dates*')) bg-gray-100 text-gray-900 @endif">
+                        Date di consegna
+                    </a>
+                </div>
             </nav>
 
             <div class="p-6 border-t border-gray-200 bg-white">
