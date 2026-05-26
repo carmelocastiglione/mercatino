@@ -327,6 +327,7 @@
                             <div class="flex-1">
                                 <p class="font-medium text-gray-900 text-sm">${item.title}</p>
                                 <p class="text-xs text-gray-600">${item.author}</p>
+                                <p class="text-xs text-gray-500">ISBN: ${item.isbn}</p>
                                 <p class="text-xs text-gray-500 mt-1">
                                     <span class="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded">
                                         ${item.condition === 'like-new' ? 'Come Nuovo' : item.condition === 'good' ? 'Buona' : item.condition === 'fair' ? 'Discreta' : 'Scarsa'}
