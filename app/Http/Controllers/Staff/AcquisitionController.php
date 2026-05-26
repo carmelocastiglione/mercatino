@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\PriceHelper;
 use App\Models\Book;
 use App\Models\BookDelivery;
 use App\Models\Acquisition;
@@ -48,6 +49,8 @@ class AcquisitionController extends Controller
             return response()->json([]);
         }
 
+        $school = auth()->user()->school;
+
         $books = Book::bySchool(auth()->user()->school_id)
             ->where(function ($q) use ($query) {
                 $q->where('title', 'ilike', "%{$query}%")
@@ -56,7 +59,20 @@ class AcquisitionController extends Controller
             })
             ->select('id', 'title', 'author', 'isbn', 'original_price')
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($book) use ($school) {
+                $priceDetails = PriceHelper::calculatePrice($book->original_price, $school, true);
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'isbn' => $book->isbn,
+                    'original_price' => $priceDetails['original_price'],
+                    'marketplace_price' => $priceDetails['marketplace_price'],
+                    'fee' => $priceDetails['fee'],
+                    'price' => $priceDetails['total'],
+                ];
+            });
 
         return response()->json($books);
     }

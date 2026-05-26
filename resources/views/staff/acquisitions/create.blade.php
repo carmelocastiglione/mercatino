@@ -105,16 +105,49 @@
 
                 <!-- Price -->
                 <div class="mb-8">
-                    <label for="price" class="block text-sm font-semibold text-gray-900 mb-2">
+                    <label class="block text-sm font-semibold text-gray-900 mb-4">
                         Prezzo (€) <span class="text-red-600">*</span>
                     </label>
-                    <input type="number" name="price" id="price" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" value="">
+                    <div id="price_details_section" style="display: none;">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200 mb-4">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Prezzo copertina:</span>
+                                    <span class="font-medium text-gray-900" id="price_original">€0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Prezzo mercatino:</span>
+                                    <span class="font-medium text-gray-900" id="price_marketplace">€0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-2 border-t border-blue-200">
+                                    <span class="text-gray-600">Fee scuola:</span>
+                                    <span class="font-medium text-red-600" id="price_fee">-€0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Modifica al prezzo:</span>
+                                    <span class="font-medium" id="price_adjustment"><span id="price_adjustment_sign">+</span>€0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center pt-3 border-t-2 border-blue-300 mt-3">
+                                    <span class="font-bold text-gray-900">Prezzo finale:</span>
+                                    <span class="text-2xl font-bold text-blue-600" id="price_total">€0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <p class="text-sm font-semibold text-gray-700 mb-3">Modifica prezzo</p>
+                        <div class="flex gap-2 items-center">
+                            <button type="button" onclick="decreasePrice()" class="px-6 py-2 bg-red-100 text-red-700 font-bold rounded-lg hover:bg-red-200 transition text-lg">−</button>
+                            <input type="number" id="price_adjustment_amount" step="0.01" min="0" value="0.50" class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center" placeholder="0.50">
+                            <button type="button" onclick="increasePrice()" class="px-6 py-2 bg-green-100 text-green-700 font-bold rounded-lg hover:bg-green-200 transition text-lg">+</button>
+                            <input type="hidden" name="price" id="price" step="0.01" min="0" value="">
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="flex items-center space-x-4">
                     <button type="button" onclick="addToCart()" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                        ➕ Aggiungi Libro
+                        Aggiungi Libro
                     </button>
                     <a href="{{ route('staff.acquisitions.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
                         Annulla
@@ -307,6 +340,11 @@
         const selectedBookDiv = document.getElementById('selected_book');
         const selectedBookText = document.getElementById('selected_book_text');
         let debounceTimer;
+        let lastSearchBooks = []; // Memorizza i risultati della ricerca
+
+        // Variabile per tracciare la modifica al prezzo
+        let priceAdjustment = 0;
+        let basePrice = 0; // Prezzo calcolato dal sistema (marketplace - fee)
 
         // Ricerca libri mentre digita
         bookSearch.addEventListener('input', (e) => {
@@ -328,16 +366,15 @@
                             return;
                         }
 
-                        searchResults.innerHTML = books.map(book => `
-                            <div class="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition" onclick="selectBook(${book.id}, '${book.title.replace(/'/g, "\\'")} - ${book.author.replace(/'/g, "\\'")}', ${book.original_price})">
+                        lastSearchBooks = books; // Memorizza i risultati
+
+                        searchResults.innerHTML = books.map((book, index) => `
+                            <div class="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer transition" onclick="selectBookFromSearch(${index})">
                                 <p class="font-medium text-gray-900">${book.title}</p>
                                 <p class="text-sm text-gray-600">${book.author}</p>
                                 <div class="flex justify-between items-center mt-1">
                                     ${book.isbn ? `<p class="text-xs text-gray-500">ISBN: ${book.isbn}</p>` : ''}
-                                    <div class="text-right">
-                                        <p class="text-xs text-gray-500 line-through">Prezzo: €${parseFloat(book.original_price).toFixed(2)}</p>
-                                        <p class="text-sm font-semibold text-green-600">Acquisizione: €${Math.floor(book.original_price / 2).toFixed(2)}</p>
-                                    </div>
+                                    <p class="text-sm font-semibold text-green-600">€${parseFloat(book.original_price).toFixed(2)}</p>
                                 </div>
                             </div>
                         `).join('');
@@ -352,14 +389,28 @@
         });
 
         // Seleziona un libro
-        function selectBook(id, title, originalPrice) {
-            bookIdInput.value = id;
-            bookSearch.value = title;
-            // Prezzo = metà arrotondata all'intero inferiore
-            priceInput.value = Math.floor(originalPrice / 2);
+        // Seleziona il libro dal dropdown di ricerca
+        function selectBookFromSearch(index) {
+            const book = lastSearchBooks[index];
+            
+            bookIdInput.value = book.id;
+            bookSearch.value = book.title;
             searchResults.classList.add('hidden');
-            selectedBookText.textContent = title;
+            selectedBookText.textContent = book.title;
             selectedBookDiv.classList.remove('hidden');
+            
+            // Resetta la modifica al prezzo
+            priceAdjustment = 0;
+            basePrice = parseFloat(book.price);
+            
+            // Mostra i dettagli del prezzo
+            document.getElementById('price_original').textContent = '€' + parseFloat(book.original_price).toFixed(2);
+            document.getElementById('price_marketplace').textContent = '€' + parseFloat(book.marketplace_price).toFixed(2);
+            document.getElementById('price_fee').textContent = '-€' + parseFloat(book.fee).toFixed(2);
+            document.getElementById('price_adjustment').innerHTML = '<span id="price_adjustment_sign">+</span>€0.00';
+            document.getElementById('price_total').textContent = '€' + parseFloat(book.price).toFixed(2);
+            document.getElementById('price').value = parseFloat(book.price).toFixed(2);
+            document.getElementById('price_details_section').style.display = 'block';
         }
 
         // === SHOPPING CART MANAGEMENT ===
@@ -401,6 +452,29 @@
         window.addEventListener('load', () => {
             loadDeliveriesFromLocalStorage();
         });
+
+        function increasePrice() {
+            const adjustmentAmount = parseFloat(document.getElementById('price_adjustment_amount').value) || 0.50;
+            priceAdjustment += adjustmentAmount;
+            updateAdjustmentDisplay();
+        }
+
+        function decreasePrice() {
+            const adjustmentAmount = parseFloat(document.getElementById('price_adjustment_amount').value) || 0.50;
+            priceAdjustment -= adjustmentAmount;
+            updateAdjustmentDisplay();
+        }
+
+        function updateAdjustmentDisplay() {
+            const adjustmentSign = priceAdjustment >= 0 ? '+' : '-';
+            const adjustmentValue = Math.abs(priceAdjustment).toFixed(2);
+            document.getElementById('price_adjustment').innerHTML = '<span id="price_adjustment_sign">' + adjustmentSign + '</span>€' + adjustmentValue;
+            
+            // Ricalcola il prezzo finale
+            const finalPrice = basePrice + priceAdjustment;
+            document.getElementById('price_total').textContent = '€' + finalPrice.toFixed(2);
+            document.getElementById('price').value = finalPrice.toFixed(2);
+        }
 
         function addToCart() {
             // Validazione
@@ -522,6 +596,13 @@
             
             // Nasconde le credenziali (password box)
             document.getElementById('seller_password_box').classList.add('hidden');
+            
+            // Nascondi i dettagli del prezzo
+            document.getElementById('price_details_section').style.display = 'none';
+            
+            // Resetta la modifica al prezzo
+            priceAdjustment = 0;
+            basePrice = 0;
         }
 
         function showToast(message, type = 'info') {
