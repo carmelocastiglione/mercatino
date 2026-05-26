@@ -345,6 +345,10 @@
         // Variabile per tracciare la modifica al prezzo
         let priceAdjustment = 0;
         let basePrice = 0; // Prezzo calcolato dal sistema (marketplace - fee)
+        
+        // Variabili per autore e ISBN del libro selezionato
+        let currentBookAuthor = '';
+        let currentBookIsbn = '';
 
         // Ricerca libri mentre digita
         bookSearch.addEventListener('input', (e) => {
@@ -398,6 +402,10 @@
             searchResults.classList.add('hidden');
             selectedBookText.textContent = book.title;
             selectedBookDiv.classList.remove('hidden');
+            
+            // Memorizza autore e ISBN
+            currentBookAuthor = book.author;
+            currentBookIsbn = book.isbn;
             
             // Resetta la modifica al prezzo
             priceAdjustment = 0;
@@ -512,6 +520,8 @@
                 seller_name: sellerName,
                 book_id: parseInt(bookId),
                 book_title: bookTitle,
+                book_author: currentBookAuthor,
+                book_isbn: currentBookIsbn,
                 condition: condition.value,
                 condition_label: conditionLabel,
                 price: parseFloat(price)
@@ -570,7 +580,8 @@
                     <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 flex justify-between items-start">
                         <div class="flex-1">
                             <p class="font-medium text-gray-900 text-sm">${item.book_title}</p>
-                            <p class="text-xs text-gray-600 mt-1">Venditore: ${item.seller_name}</p>
+                            <p class="text-xs text-gray-600 mt-1">Autore: ${item.book_author}</p>
+                            <p class="text-xs text-gray-600">ISBN: ${item.book_isbn}</p>
                             <div class="flex gap-2 mt-2">
                                 <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${conditionColors[item.condition]}">${item.condition_label}</span>
                                 <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded">€${item.price.toFixed(2)}</span>
