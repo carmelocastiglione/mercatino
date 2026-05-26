@@ -126,6 +126,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Deliveries Management
     Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');
+    Route::get('/deliveries/student/{studentId}', [StaffDeliveryController::class, 'studentDeliveries'])->name('staff.deliveries.student');
     Route::get('/deliveries/{delivery}', [StaffDeliveryController::class, 'show'])->name('staff.deliveries.show');
     Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
     Route::get('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'rejectForm'])->name('staff.deliveries.reject-form');

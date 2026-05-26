@@ -26,7 +26,7 @@
                     type="text" 
                     id="student_search" 
                     placeholder="Cerca studente per nome, cognome, email o codice..." 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     autocomplete="off"
                 />
                 <input type="hidden" id="student_id" value="">
@@ -195,61 +195,8 @@
     });
 
     function selectStudent(id, name, code) {
-        studentIdInput.value = id;
-        studentSearch.value = name;
-        studentCode = code;  // Salva il code dello studente
-        currentStudentId = id;  // Salva l'ID dello studente
-        studentResults.classList.add('hidden');
-        clearStudentBtn.classList.remove('hidden');
-        
-        // Carica i pending deliveries dello studente
-        fetch(`{{ route('staff.acquisitions.student-deliveries') }}?student_id=${id}`)
-            .then(response => response.json())
-            .then(data => {
-                currentStudentDeliveries = data.deliveries.map(d => d.id);  // Save delivery IDs for bulk approval
-                deliveriesData = data.deliveries;  // Salva i dati completi delle consegne
-                deliveriesCount.textContent = data.deliveries.length;
-
-                if (data.deliveries.length === 0) {
-                    studentDeliveriesList.innerHTML = '<p class="text-gray-500 text-sm py-4">Questo studente non ha consegne pending</p>';
-                    studentDeliveriesBox.classList.remove('hidden');
-                    approveAllBtn.disabled = true;
-                    return;
-                }
-
-                studentDeliveriesList.innerHTML = data.deliveries.map((delivery, index) => {
-                    const conditionColors = {
-                        'like-new': 'bg-green-100 text-green-800',
-                        'good': 'bg-blue-100 text-blue-800',
-                        'fair': 'bg-yellow-100 text-yellow-800',
-                        'poor': 'bg-red-100 text-red-800'
-                    };
-
-                    return `
-                        <div class="p-4 flex justify-between items-start hover:bg-gray-50 transition">
-                            <div class="flex-1">
-                                <p class="font-medium text-gray-900">${delivery.book.title}</p>
-                                <p class="text-sm text-gray-600">${delivery.book.author || 'Autore sconosciuto'}</p>
-                                <div class="flex gap-2 mt-2">
-                                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${conditionColors[delivery.condition]}">${delivery.condition.replace('-', ' ')}</span>
-                                    <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded">€${parseFloat(delivery.price).toFixed(2)}</span>
-                                </div>
-                            </div>
-                            <button type="button" onclick="rejectDelivery(${delivery.id})" class="ml-4 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition whitespace-nowrap">
-                                ✕ Rifiuta
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-                
-                
-                studentDeliveriesBox.classList.remove('hidden');
-                approveAllBtn.disabled = currentStudentDeliveries.length === 0;
-            })
-            .catch(error => {
-                console.error('Errore nel caricamento delle consegne:', error);
-                showToast('Errore nel caricamento delle consegne', 'error');
-            });
+        // Reindirizza direttamente alla pagina dei libri dello studente
+        window.location.href = `/staff/deliveries/student/${id}`;
     }
 
     function rejectDelivery(deliveryId) {

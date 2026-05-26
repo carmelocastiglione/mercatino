@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\BookDelivery;
 use App\Models\BookListing;
+use App\Models\User;
+use App\Helpers\PriceHelper;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -145,6 +147,41 @@ class DeliveryController extends Controller
     }
 
     /**
+     * Display deliveries for a specific student (authorized by school)
+     */
+    public function studentDeliveries($studentId): View
+    {
+        $staffSchoolId = auth()->user()->school_id;
+        $student = User::findOrFail($studentId);
+
+        // Verifica che lo studente sia della stessa scuola
+        if ($student->school_id !== $staffSchoolId) {
+            abort(403, 'Non puoi accedere ai libri di questo studente');
+        }
+
+        $school = $student->school;
+        $deliveries = BookDelivery::where('user_id', $studentId)
+            ->where('status', 'pending')
+            ->with('book')
+            ->bySchool($staffSchoolId)
+            ->latest()
+            ->get();
+
+        // Calcola i prezzi per ogni delivery usando PriceHelper
+        $deliveriesWithPrices = $deliveries->map(function ($delivery) use ($school) {
+            $priceData = PriceHelper::calculatePrice($delivery->book->original_price, $school, true);
+            $delivery->price_data = $priceData;
+            return $delivery;
+        });
+
+        return view('staff.deliveries.student', [
+            'student' => $student,
+            'deliveries' => $deliveriesWithPrices,
+            'pendingCount' => $deliveriesWithPrices->count(),
+        ]);
+    }
+
+    /**
      * Reject a delivery (JSON API endpoint, authorized by school)
      */
     public function rejectDeliveryJson(Request $request)
@@ -180,6 +217,7 @@ class DeliveryController extends Controller
     public function approveBulk(Request $request)
     {
         $deliveryIds = $request->input('delivery_ids', []);
+        $modifiedDeliveries = $request->input('modified_deliveries', []);
 
         if (empty($deliveryIds)) {
             return response()->json(['success' => false, 'message' => 'Nessuna consegna specificata'], 400);
@@ -194,19 +232,36 @@ class DeliveryController extends Controller
             return response()->json(['success' => false, 'message' => 'Nessuna consegna pending trovata'], 404);
         }
 
+        // Crea una mappa dei dati modificati per accesso veloce
+        $modifiedMap = [];
+        foreach ($modifiedDeliveries as $mod) {
+            $modifiedMap[$mod['id']] = $mod;
+        }
+
         $approvedCount = 0;
         foreach ($deliveries as $delivery) {
+            // Applica le modifiche se esistono
+            $condition = $delivery->condition;
+            $price = $delivery->price;
+            
+            if (isset($modifiedMap[$delivery->id])) {
+                $condition = $modifiedMap[$delivery->id]['condition'] ?? $condition;
+                $price = $modifiedMap[$delivery->id]['price'] ?? $price;
+            }
+
             $delivery->update([
                 'status' => 'approved',
                 'approved_by' => auth()->id(),
+                'condition' => $condition,
+                'price' => $price,
             ]);
 
             // Crea una nuova BookListing dal BookDelivery
             BookListing::create([
                 'book_id' => $delivery->book_id,
                 'seller_id' => $delivery->user_id,
-                'condition' => $delivery->condition,
-                'price' => $delivery->price,
+                'condition' => $condition,
+                'price' => $price,
                 'status' => 'available',
             ]);
 
