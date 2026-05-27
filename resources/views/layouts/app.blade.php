@@ -8,13 +8,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700|inter:400,500,600" rel="stylesheet">
     
-    <!-- Favicon Links -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
-    
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -63,9 +58,9 @@
 
     @yield('content')
 
-    <footer class="bg-gray-900 text-gray-300 mt-0">
-        <div class="text-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <p>Made with ❤️ by <a href="https://carmelocastiglione.github.io">Carmelo Castiglione</a></p>
+    <footer class="bg-gray-900 text-gray-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-sm">
+            <p>Made with ❤️ by Carmelo Castiglione</p>
         </div>
     </footer>
 
