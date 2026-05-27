@@ -84,6 +84,14 @@
                 <a href="{{ route('student.withdrawals.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/withdrawals*')) bg-gray-100 text-gray-900 @endif">
                     Le mie riscossioni
                 </a>
+
+                <!-- Notifiche -->
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <a href="{{ route('student.notifications.index') }}" class="flex items-center justify-between px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/notifications*')) bg-gray-100 text-gray-900 @endif">
+                        <span>Notifiche</span>
+                        <span id="notification-badge" class="hidden flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 leading-none">0</span>
+                    </a>
+                </div>
             </nav>
 
             <div class="p-6 border-t border-gray-200 bg-white">
@@ -124,5 +132,31 @@
             </div>
         </main>
     </div>
+
+    <script>
+        // Load notification badge count
+        async function updateNotificationBadge() {
+            try {
+                const response = await fetch('{{ route("student.notifications.unread-count") }}');
+                const data = await response.json();
+                const badge = document.getElementById('notification-badge');
+                
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error fetching notification count:', error);
+            }
+        }
+
+        // Initial load
+        updateNotificationBadge();
+        
+        // Refresh every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+    </script>
 </body>
 </html>

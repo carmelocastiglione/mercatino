@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\BookSold;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +20,18 @@ class BookSale extends Model
         'buyer_id',
         'notes',
     ];
+
+    /**
+     * Boot method to dispatch events.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::created(function (self $sale) {
+            event(new BookSold($sale));
+        });
+    }
 
     /**
      * Scope to filter sales by school.

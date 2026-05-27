@@ -1,22 +1,25 @@
 # TODO
 
 ## Studente
-- Farsi approvare dai tecnici l'applicazione per il Google SSO
-- Testare il login via Google SSO
+- Farsi approvare dai tecnici Viganò l'applicazione da Google Cloud Console per poter utilizzare il login via Google SSO
+- Testare il login via Google SSO con studenti reali
 - Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
+- Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
 
 ## Staff
+- Nella pagina vendite, permettere anche la ricerca per venditore
+- Aggiungere data di consegna nella pagina delle consegne
 - Aggiungere riepilogo stampa vendite
 - Aggiungere consegna materiale scolastico (non libri)
-- Controllare che alla creazione degli studenti sia associata la scuola corretta
 - Export dati studenti, libri, vendite, consegne, etc
 - Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i libri al posto dello studente
-- Storico transazioni per studente (acquisti, vendite, consegne)
+- Controllare storico utente (potrebbero esserci errori)
 - Sezione economica
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
-- Permettere di impostare una data e ora per la riconsegna soldi e libri usati
-- Migliorare visualizzazione pagine di ogni categoria
-- Rivedere pagina riscossioni
+- Permettere di impostare una data e ora per la riconsegna soldi
+- Migliorare visualizzazione pagine di ogni categoria (rinominare le pagina iniziale in home, creare un index per la lista completa)
+- Rivedere pagina riscossioni (ricerca nella pagine principale)
+- Aggiungere filtri alle pagine
 
 ## Admin
 - Accesso ai log di sistema
@@ -25,7 +28,8 @@
 
 ## Miglioramenti Generali
 - Creare interfaccia comune per la stampa
-- Implementare notifiche (anche via email) per acquisti e consegne
+- Ampliare sistema di notifiche
+- Implementare notifiche via email 
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale)
 - Ogni libro dovrebbe essere associato ad un anno scolastico
 - Controllare che nella stampa ogni libro sia su una riga

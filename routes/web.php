@@ -8,6 +8,7 @@ use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController
 use App\Http\Controllers\Student\SalesController as StudentSalesController;
 use App\Http\Controllers\Student\PurchasesController as StudentPurchasesController;
 use App\Http\Controllers\Student\WithdrawalsController as StudentWithdrawalsController;
+use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\SchoolDeliveryDateController as StaffSchoolDeliveryDateController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Staff\ReclaimController as StaffReclaimController;
 use App\Http\Controllers\Staff\BookListingController as StaffBookListingController;
 use App\Http\Controllers\Staff\WithdrawalController as StaffWithdrawalController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
+use App\Http\Controllers\Staff\UserHistoryController as StaffUserHistoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -77,6 +79,13 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     
     Route::get('/withdrawals', [StudentWithdrawalsController::class, 'index'])->name('student.withdrawals.index');
     Route::get('/withdrawals/{withdrawal}', [StudentWithdrawalsController::class, 'show'])->name('student.withdrawals.show');
+    
+    Route::get('/notifications', [StudentNotificationController::class, 'index'])->name('student.notifications.index');
+    Route::get('/notifications/unread-count', [StudentNotificationController::class, 'getUnreadCount'])->name('student.notifications.unread-count');
+    Route::patch('/notifications/{notification}/read', [StudentNotificationController::class, 'markAsRead'])->name('student.notifications.mark-as-read');
+    Route::patch('/notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])->name('student.notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [StudentNotificationController::class, 'delete'])->name('student.notifications.delete');
+    Route::post('/notifications/delete-all-read', [StudentNotificationController::class, 'deleteAllRead'])->name('student.notifications.delete-all-read');
 });
 
 /**
@@ -191,4 +200,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // User Registration (for staff to register new sellers quickly)
     Route::post('/register-user', [StaffRegisterController::class, 'registerUser'])->name('staff.register-user');
+    
+    // User History - Storico utente
+    Route::get('/storico', [StaffUserHistoryController::class, 'index'])->name('staff.user-history.index');
+    Route::get('/storico/search', [StaffUserHistoryController::class, 'search'])->name('staff.user-history.search');
+    Route::get('/storico/user/{user}', [StaffUserHistoryController::class, 'show'])->name('staff.user-history.show');
 });

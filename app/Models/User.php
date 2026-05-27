@@ -123,6 +123,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the notifications for this user.
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
      * Get total amount from sales of books sold by this user (seller).
      */
     public function getTotalSalesAmount(): float
