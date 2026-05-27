@@ -33,6 +33,7 @@ return new class extends Migration
         Schema::table('books', function (Blueprint $table) {
             $table->foreignId('school_id')->after('id')->constrained('schools')->onDelete('cascade');
             $table->unique(['isbn', 'school_id'])->comment('ISBN unique per scuola');
+            $table->index('school_id');
         });
     }
 

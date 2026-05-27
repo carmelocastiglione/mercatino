@@ -88,7 +88,10 @@ class SaleController extends Controller
             ->where(function ($q) use ($query) {
                 $q->where('books.title', 'ilike', "%{$query}%")
                     ->orWhere('books.author', 'ilike', "%{$query}%")
-                    ->orWhere('books.isbn', 'ilike', "%{$query}%");
+                    ->orWhere('books.isbn', 'ilike', "%{$query}%")
+                    ->orWhere('users.name', 'ilike', "%{$query}%")
+                    ->orWhere('users.surname', 'ilike', "%{$query}%")
+                    ->orWhere('users.code', 'ilike', "%{$query}%");
             })
             ->select('book_listings.*', 'books.title', 'books.author', 'books.isbn', 'users.name as seller_name', 'users.surname as seller_surname', 'users.code as seller_code')
             ->limit(10)

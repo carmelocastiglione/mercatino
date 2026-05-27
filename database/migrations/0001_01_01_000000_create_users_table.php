@@ -28,6 +28,10 @@ return new class extends Migration
             $table->string('google_refresh_token')->nullable();
             
             $table->timestamps();
+            
+            // Indici per ricerca
+            $table->index('name');
+            $table->index('surname');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

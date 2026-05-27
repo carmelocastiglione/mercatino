@@ -7,7 +7,6 @@
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
 
 ## Staff
-- Nella pagina vendite, permettere anche la ricerca per venditore
 - Aggiungere data di consegna nella pagina delle consegne
 - Aggiungere riepilogo stampa vendite
 - Aggiungere consegna materiale scolastico (non libri)

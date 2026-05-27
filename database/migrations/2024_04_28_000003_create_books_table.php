@@ -46,6 +46,8 @@ return new class extends Migration
 
             // Indici
             $table->fullText('title', 'description');
+            $table->index('author');
+            $table->index('isbn');
         });
     }
 
