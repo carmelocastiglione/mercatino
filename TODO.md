@@ -13,13 +13,13 @@
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
 - Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i libri al posto dello studente
-- Controllare storico utente (potrebbero esserci errori)
 - Sezione economica
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Permettere di impostare una data e ora per la riconsegna soldi
 - Migliorare visualizzazione pagine di ogni categoria (rinominare le pagina iniziale in home, creare un index per la lista completa)
 - Rivedere pagina riscossioni (ricerca nella pagine principale)
 - Aggiungere filtri alle pagine
+- Controllare storico utente (potrebbero esserci errori)
 
 ## Admin
 - Accesso ai log di sistema
