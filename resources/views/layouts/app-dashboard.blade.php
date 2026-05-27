@@ -51,7 +51,7 @@
 
             <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
                 <!-- Dashboard -->
-                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin') && !request()->is('admin/schools*') && !request()->is('admin/users*') && !request()->is('admin/books*') && !request()->is('admin/listings*')) bg-gray-100 text-gray-900 @endif">
+                <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin') && !request()->is('admin/schools*') && !request()->is('admin/users*') && !request()->is('admin/books*') && !request()->is('admin/listings*') && !request()->is('log-viewer*')) bg-gray-100 text-gray-900 @endif">
                     Dashboard
                 </a>
 
@@ -73,6 +73,14 @@
                 <!-- Book Listings -->
                 <a href="{{ route('admin.listings.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin/listings*')) bg-gray-100 text-gray-900 @endif">
                     Gestione Annunci
+                </a>
+                
+                <!-- Separator -->
+                <div class="my-4 border-t border-gray-200"></div>
+                
+                <!-- Log Viewer -->
+                <a href="/log-viewer" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('log-viewer*')) bg-gray-100 text-gray-900 @endif">
+                    Visualizza log
                 </a>
             </nav>
 
