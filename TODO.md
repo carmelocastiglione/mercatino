@@ -21,7 +21,6 @@
 - Controllare storico utente (potrebbero esserci errori)
 
 ## Admin
-- Accesso ai log di sistema
 - Import dati da CSV (es. studenti, libri)
 - Gestione fee scuole
 

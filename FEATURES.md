@@ -1,6 +1,20 @@
 # Mercatino Libri - Caratteristiche Generali
 
-## 📚 Panoramica
+## Dati di Login
+
+| Email | Password | Ruolo | Scuola |
+|-------|----------|-------|--------|
+| studente@issvigano.org | mercatino | Studente | Viganò |
+| studente2@issvigano.org | mercatino | Studente | Viganò |
+| staff@issvigano.org | mercatino | Staff | Viganò |
+| studente@liceoagnesi.edu.it | mercatino | Studente | Agnesi |
+| studente2@liceoagnesi.edu.it | mercatino | Studente | Agnesi |
+| staff@liceoagnesi.edu.it | mercatino | Staff | Agnesi |
+| admin@issvigano.org | mercatino | Admin | - |
+
+---
+
+## Panoramica
 Mercatino Libri è una piattaforma web per la gestione di un mercato di libri usati scolastico, che consente agli studenti di consegnare, acquistare e vendere libri in modo semplice e organizzato. La piattaforma supporta molteplici ruoli (studenti, staff, admin) con funzionalità specializzate per ciascuno.
 
 ---
@@ -33,6 +47,7 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 - Gestione utenti della piattaforma
 - Gestione catalogo libri scolastici
 - Configurazione generale della piattaforma
+- Accesso ai log di sistema
 
 ---
 
