@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookDelivery;
+use App\Models\BookDeliveryBatch;
 use App\Models\BookListing;
 use App\Models\User;
 use App\Helpers\PriceHelper;
@@ -14,30 +15,30 @@ use Illuminate\Http\RedirectResponse;
 class DeliveryController extends Controller
 {
     /**
-     * Display a listing of pending deliveries (filtered by staff's school).
+     * Display a listing of pending delivery batches (filtered by staff's school).
      */
     public function index(): View
     {
-        $deliveries = BookDelivery::where('status', 'pending')
-            ->with('user', 'book')
+        $batches = BookDeliveryBatch::where('status', 'pending')
+            ->with('user', 'deliveries.book')
             ->bySchool(auth()->user()->school_id)
             ->latest()
             ->paginate(10);
 
-        $pendingCount = BookDelivery::where('status', 'pending')
+        $pendingCount = BookDeliveryBatch::where('status', 'pending')
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $approvedCount = BookDelivery::where('status', 'approved')
+        $approvedCount = BookDeliveryBatch::where('status', 'approved')
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $rejectedCount = BookDelivery::where('status', 'rejected')
+        $rejectedCount = BookDeliveryBatch::where('status', 'rejected')
             ->bySchool(auth()->user()->school_id)
             ->count();
 
         return view('staff.deliveries.index', [
-            'deliveries' => $deliveries,
+            'batches' => $batches,
             'pendingCount' => $pendingCount,
             'approvedCount' => $approvedCount,
             'rejectedCount' => $rejectedCount,

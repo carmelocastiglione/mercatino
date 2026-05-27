@@ -13,29 +13,24 @@ class SchoolDeliveryDateSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all schools
-        $schools = School::all();
+        // Get Viganò school only
+        $vigano = School::where('name', 'Viganò')->first();
 
-        foreach ($schools as $school) {
-            // Crea 3 date di consegna per ogni scuola
+        if ($vigano) {
+            // Crea 2 date di consegna per la scuola Viganò
             SchoolDeliveryDate::create([
-                'school_id' => $school->id,
-                'scheduled_date' => now()->addDays(7)->startOfDay(),
+                'school_id' => $vigano->id,
+                // Data di consegna principale: 16 Giugno 2026
+                'scheduled_date' => \Carbon\Carbon::create(2026, 6, 16)->startOfDay(),
                 'label' => 'Consegna principale',
                 'is_active' => true,
             ]);
 
             SchoolDeliveryDate::create([
-                'school_id' => $school->id,
-                'scheduled_date' => now()->addDays(14)->startOfDay(),
+                'school_id' => $vigano->id,
+                // Data di consegna secondaria: 16 Settembre 2026
+                'scheduled_date' => \Carbon\Carbon::create(2026, 9, 16)->startOfDay(),
                 'label' => 'Consegna secondaria',
-                'is_active' => true,
-            ]);
-
-            SchoolDeliveryDate::create([
-                'school_id' => $school->id,
-                'scheduled_date' => now()->addDays(21)->startOfDay(),
-                'label' => 'Consegna finale',
                 'is_active' => true,
             ]);
         }

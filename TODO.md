@@ -5,9 +5,9 @@
 - Testare il login via Google SSO con studenti reali
 - Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
+- Controllare la modifica del libro prenotato
 
 ## Staff
-- Aggiungere data di consegna nella pagina delle consegne
 - Aggiungere riepilogo stampa vendite
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc

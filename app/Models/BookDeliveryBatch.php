@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 
 class BookDeliveryBatch extends Model
 {
@@ -86,6 +87,14 @@ class BookDeliveryBatch extends Model
     public function getApprovedCountAttribute(): int
     {
         return $this->deliveries()->where('status', 'approved')->count();
+    }
+
+    /**
+     * Scope to filter batches by school.
+     */
+    public function scopeBySchool(Builder $query, ?int $schoolId): Builder
+    {
+        return $query->where('school_id', $schoolId);
     }
 }
 

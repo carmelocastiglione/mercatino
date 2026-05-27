@@ -53,24 +53,25 @@
 
     @if($deliveries->count() > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Condizioni</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Prezzo</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Richiesta</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Consegna</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200">
+                <tbody>
                     @foreach($deliveries as $delivery)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition border-b border-gray-200">
                             <td class="px-6 py-4">
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $delivery->book->title }}</p>
-                                    <p class="text-sm text-gray-600">{{ $delivery->book->author ?? 'Autore sconosciuto' }}</p>
+                                    <p class="text-sm text-gray-600">{{ $delivery->book->isbn ?? 'ISBN non disponibile' }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4">
@@ -107,15 +108,22 @@
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $delivery->created_at->format('d/m/Y H:i') }}
                             </td>
-                            <td class="px-6 py-4 text-sm space-x-2 flex">
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                @if($delivery->schoolDeliveryDate && $delivery->schoolDeliveryDate->scheduled_date)
+                                    {{ $delivery->schoolDeliveryDate->scheduled_date->format('d/m/Y') }}
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm space-x-2 flex border-b-0">
                                 @if($delivery->status === 'pending')
-                                    <a href="{{ route('student.deliveries.edit', $delivery) }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                    <a href="{{ route('student.deliveries.edit', $delivery) }}" class="text-blue-600 hover:text-blue-800 font-medium no-underline border-none">
                                         Modifica
                                     </a>
                                     <form action="{{ route('student.deliveries.delete', $delivery) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium" onclick="return confirm('Annullare questa consegna?')">
+                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium no-underline border-none" onclick="return confirm('Annullare questa consegna?')">
                                             Elimina
                                         </button>
                                     </form>
