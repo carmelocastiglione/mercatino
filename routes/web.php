@@ -27,6 +27,18 @@ use App\Http\Controllers\Admin\BookListingController;
 use App\Http\Controllers\Auth\GoogleController;
 
 /**
+ * Health Check Route
+ * Endpoint per monitoraggio e autoscaling su Laravel Cloud
+ */
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'timestamp' => now()->toIso8601String(),
+        'app' => config('app.name'),
+    ]);
+})->name('health');
+
+/**
  * Home Route
  * Visualizza la home page del mercatino di libri usati
  */
