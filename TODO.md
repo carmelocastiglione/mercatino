@@ -27,8 +27,8 @@
 ## Miglioramenti Generali
 - Creare interfaccia comune per la stampa
 - Ampliare sistema di notifiche
-- Implementare notifiche via email 
-- Per ogni libro, specificare il tipo (esempio: fisico, digitale)
+- Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
+- Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
 - Ogni libro dovrebbe essere associato ad un anno scolastico
 - Controllare che nella stampa ogni libro sia su una riga
 - Generare codici a barre univoci per ogni consegna / vendita / acquisto

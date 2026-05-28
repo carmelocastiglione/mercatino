@@ -10,6 +10,7 @@ use App\Http\Controllers\Student\PurchasesController as StudentPurchasesControll
 use App\Http\Controllers\Student\WithdrawalsController as StudentWithdrawalsController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\BookController as StaffBookController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\SchoolDeliveryDateController as StaffSchoolDeliveryDateController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
@@ -146,6 +147,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
  */
 Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+    
+    // Books Management - Catalog (RESTful)
+    Route::get('/books', [StaffBookController::class, 'index'])->name('staff.books.index');
+    Route::get('/books/create', [StaffBookController::class, 'create'])->name('staff.books.create');
+    Route::post('/books', [StaffBookController::class, 'store'])->name('staff.books.store');
+    Route::get('/books/{book}/edit', [StaffBookController::class, 'edit'])->name('staff.books.edit');
+    Route::put('/books/{book}', [StaffBookController::class, 'update'])->name('staff.books.update');
+    Route::delete('/books/{book}', [StaffBookController::class, 'destroy'])->name('staff.books.destroy');
     
     // Deliveries Management
     Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');

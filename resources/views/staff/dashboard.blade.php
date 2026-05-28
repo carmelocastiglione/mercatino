@@ -10,6 +10,16 @@
 
     <!-- Main Action Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <!-- Libri in catalogo -->
+        <x-dashboard-card 
+            href="{{ route('staff.books.index') }}"
+            title="Libri in catalogo"
+            description="Gestisci i libri del tuo catalogo scolastico"
+            count="{{ $totalBooks ?? 0 }}"
+            bgColor="teal"
+            label="IN CATALOGO"
+        />
+
         <!-- Prenotazioni online -->
         <x-dashboard-card 
             href="{{ route('staff.deliveries.index') }}"

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Models\Book;
 use App\Models\Acquisition;
 use App\Models\BookDelivery;
 use App\Models\BookListing;
@@ -21,6 +22,7 @@ class DashboardController extends Controller
         $schoolId = auth()->user()->school_id;
 
         return view('staff.dashboard', [
+            'totalBooks' => Book::bySchool($schoolId)->count(),
             'pendingDeliveries' => BookDelivery::where('status', 'pending')->bySchool($schoolId)->count(),
             'totalAcquisitions' => BookListing::bySchool($schoolId)->count(),
             'availableBooks' => BookListing::where('status', 'available')->bySchool($schoolId)->count(),

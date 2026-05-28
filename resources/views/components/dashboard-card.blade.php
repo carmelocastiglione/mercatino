@@ -9,6 +9,7 @@
         'red' => 'bg-red-600 text-red-100 text-red-200',
         'indigo' => 'bg-indigo-600 text-indigo-100 text-indigo-200',
         'orange' => 'bg-orange-600 text-orange-100 text-orange-200',
+        'teal' => 'bg-teal-600 text-teal-100 text-teal-200',
     ];
     
     [$bgClass, $textLightClass, $numberLightClass] = explode(' ', $colorMap[$bgColor]);
