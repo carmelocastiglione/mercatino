@@ -32,6 +32,7 @@
 - Ogni libro dovrebbe essere associato ad un anno scolastico
 - Controllare che nella stampa ogni libro sia su una riga
 - Generare codici a barre univoci per ogni consegna / vendita / acquisto
+- Controllare che la versione mobile non abbia problemi di visualizzazione
 
 ## Ulteriori miglioramenti anni successivi
 - Utilizzare un framework JS più robusto per la gestione del carrello (es. Vue o React)

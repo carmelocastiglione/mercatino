@@ -25,12 +25,55 @@
         .dashboard-card {
             @apply bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300;
         }
+
+        /* Mobile sidebar slide animation */
+        .sidebar {
+            transform: translateX(-100%) !important;
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+        
+        .sidebar.active {
+            transform: translateX(0) !important;
+        }
+        
+        .sidebar-overlay {
+            display: none !important;
+            pointer-events: none !important;
+        }
+        
+        .sidebar-overlay.active {
+            display: block !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            z-index: 30 !important;
+            pointer-events: auto !important;
+        }
     </style>
+
 </head>
 <body class="bg-gray-50">
+    <!-- Sidebar Overlay (Mobile Only) -->
+    <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-30" id="sidebarOverlay"></div>
+
     <div class="flex h-screen overflow-hidden">
+        <!-- Hamburger Menu Button (Mobile Only) -->
+        <button type="button" id="sidebarToggle" class="fixed lg:hidden top-4 left-4 z-50 p-2 bg-white text-gray-700 border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-50 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <aside class="sidebar fixed lg:relative left-0 top-0 h-screen lg:h-auto w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out z-40">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex items-center space-x-2">
                     <span class="text-3xl">📚</span>
@@ -119,7 +162,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-auto">
+        <main class="main-content flex-1 overflow-auto w-full lg:w-auto">
             <div class="p-8">
                 @if(session('success'))
                     <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
@@ -137,5 +180,47 @@
             </div>
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            if (!sidebarToggle || !sidebar || !sidebarOverlay) {
+                return;
+            }
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            // Toggle on hamburger click
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when overlay is clicked
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            // Close sidebar when a link is clicked
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        toggleSidebar();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

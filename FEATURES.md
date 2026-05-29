@@ -277,7 +277,6 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 - [ ] Statistiche avanzate e grafici
 - [ ] Prenotazione libri
 - [ ] Notifiche email automatiche
-- [ ] App mobile
 - [ ] Integrazione pagamenti online
 - [ ] QR code per libri
 - [ ] Review e rating libri
@@ -287,6 +286,7 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 ## Note Importanti
 
 - La piattaforma è multi-scuola (ogni scuola ha dati isolati)
+- Il sito è responsive (visualizzabile anche da smartphone) e accessibile
 - Lo staff è limitato ai dati della propria scuola
 - Gli admin hanno accesso globale
 - Il sistema è auditabile (tutti i movimenti sono tracciati)
