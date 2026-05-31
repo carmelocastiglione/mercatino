@@ -50,24 +50,29 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 
 ### Studenti
 - Prenotare consegne di libri tramite interfaccia dedicata
+- Prenotare libri per l'acquisto
+- Visualizzare lo stato delle proprie prenotazioni (in sospeso, approvate, rifiutate)
 - Visualizzare lo stato delle proprie consegne (in sospeso, approvate, rifiutate)
 - Acquistare libri disponibili nel mercatino
 - Vendere libri tramite il sistema
-- Riscuotere il denaro dalle vendite
-- Ricevere notifiche sui libri venduti
+- Ricevere notifiche sui libri venduti o prenotati
 - Visualizzare storico transazioni
 
 ### Staff
 - Dashboard con panoramica delle operazioni
 - Gestione prenotazioni online di consegne (approvazione/rifiuto)
+- Gestione prenotazioni online di acquisti (approvazione/rifiuto)
+- Gestione catalogo libri (inserimento, modifica, eliminazione)
+- Registrazione manuale di consegne, acquisizioni, vendite, riscossioni
 - Registro delle consegne acquisite dagli studenti
 - Registrazione vendite al mercatino
-- Gestione riscossioni (ritiri contanti e bonifici)
-- Gestione resi/reclami di libri
+- Gestione riscossioni (ritiri contanti)
+- Gestione resi di libri
 - Visualizzazione libri disponibili nel catalogo
 - Ricerca e storico completo degli utenti
 - Configurazione date di consegna per la scuola
 - Registrazione rapida di nuovi studenti
+- Registrazione rapida di nuovi libri
 
 ### Admin
 - Gestione scuole (creazione, modifica, eliminazione)
@@ -90,6 +95,12 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 2. Il sistema rende disponibili i libri per la vendita
 3. Studenti possono acquistare i libri disponibili
 
+## Ciclo Prenotazione Acquisti
+1. Studente prenota l'acquisto di uno o più libri disponibili
+2. Lo studente arriva a scuola con i libri prenotati
+3. Staff verifica i libri prenotati e approva o rifiuta la prenotazione
+4. Se approvata, lo studente acquista i libri e paga
+
 ### Ciclo Vendita
 1. Staff registra vendita libro
 2. Libro viene marcato come venduto
@@ -108,6 +119,12 @@ Mercatino Libri è una piattaforma web per la gestione di un mercato di libri us
 - Date di consegna configurabili per scuola
 - Stato consegne (in sospeso, approvate, rifiutate)
 - Visualizzazione dettagliata per consegna
+- Approvazione/rifiuto bulk e 
+
+## Gestione Prenotazioni Acquisti
+- Prenotazione acquisti in batch
+- Stato prenotazioni (in sospeso, approvate, rifiutate)
+- Visualizzazione dettagliata per prenotazione
 - Approvazione/rifiuto bulk e singolo
 
 ### Catalogo Libri
