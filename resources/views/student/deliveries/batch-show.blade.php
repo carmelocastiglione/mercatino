@@ -12,178 +12,31 @@
             </div>
             <div class="flex gap-2 print:hidden">
                 <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                    🖨️ Stampa
+                    Stampa
                 </button>
                 <a href="{{ route('student.deliveries.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition">
-                    ← Torna alle consegne
+                    Torna alle consegne
                 </a>
             </div>
         </div>
 
         <!-- Main Content -->
         <div class="space-y-8">
-            <!-- Student Information Card -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-                <!-- Batch ID - Large -->
-                <div class="mb-8 text-center">
-                    <p class="text-sm text-gray-600 mb-2">ID Prenotazione</p>
-                    <div class="inline-block bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg px-8 py-6">
-                        <p class="text-5xl font-bold text-blue-600 tracking-widest">#{{ $batch->id }}</p>
-                    </div>
-                </div>
+            <x-student-information-card :batch="$batch" />
 
-                <!-- Student Details -->
-                <div class="grid grid-cols-2 gap-8 mb-8">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-2">Nome Studente</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ $batch->user->name }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600 mb-2">Email</p>
-                        <p class="text-lg text-gray-900">{{ $batch->user->email }}</p>
-                    </div>
-                </div>
+            <x-book-table :batch="$batch" />
 
-                <div class="grid grid-cols-2 gap-8">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-2">Scuola</p>
-                        <p class="text-lg font-medium text-gray-900">{{ $batch->school->name }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-600 mb-2">Data Prenotazione</p>
-                        <p class="text-lg font-medium text-gray-900">{{ $batch->created_at->format('d/m/Y') }}</p>
-                    </div>
-                </div>
+            <x-summary-footer :batch="$batch" />
 
-                @if($batch->notes)
-                    <div class="mt-8">
-                        <p class="text-sm text-gray-600 mb-2">Note</p>
-                        <p class="text-lg text-gray-900">{{ $batch->notes }}</p>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Books Table -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-8 py-6 border-b border-gray-200 bg-gray-50">
-                    <h2 class="text-2xl font-bold text-gray-900">Libri Prenotati</h2>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">#</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Titolo</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Autore</th>
-                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Condizione</th>
-                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Prezzo</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @forelse($batch->deliveries as $index => $delivery)
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $index + 1 }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">
-                                        {{ $delivery->book->title }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">
-                                        {{ $delivery->book->author }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm">
-                                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                                            @switch($delivery->condition)
-                                                @case('like-new')
-                                                    bg-green-100 text-green-800
-                                                    @break
-                                                @case('good')
-                                                    bg-blue-100 text-blue-800
-                                                    @break
-                                                @case('fair')
-                                                    bg-yellow-100 text-yellow-800
-                                                    @break
-                                                @case('poor')
-                                                    bg-red-100 text-red-800
-                                                    @break
-                                            @endswitch
-                                        ">
-                                            @switch($delivery->condition)
-                                                @case('like-new')
-                                                    Come Nuovo
-                                                    @break
-                                                @case('good')
-                                                    Buona
-                                                    @break
-                                                @case('fair')
-                                                    Discreta
-                                                    @break
-                                                @case('poor')
-                                                    Scarsa
-                                                    @break
-                                            @endswitch
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                                        €{{ number_format($delivery->price, 2) }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                                        Nessun libro in questa prenotazione
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Summary Footer -->
-            <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-8">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <p class="text-sm text-gray-600 mb-2">Numero Libri</p>
-                        <p class="text-4xl font-bold text-gray-900">{{ $batch->deliveries()->count() }}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-600 mb-2">Totale Prenotazione</p>
-                        <p class="text-4xl font-bold text-blue-600">€{{ number_format($batch->deliveries()->sum('price'), 2) }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Status Summary -->
-            <div class="grid grid-cols-2 gap-6">
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <p class="text-sm text-gray-600 mb-2">Libri In Sospeso</p>
-                    <p class="text-3xl font-bold text-yellow-600">
-                        {{ $batch->deliveries->where('status', 'pending')->count() }}
-                    </p>
-                </div>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <p class="text-sm text-gray-600 mb-2">Libri Approvati</p>
-                    <p class="text-3xl font-bold text-green-600">
-                        {{ $batch->deliveries->where('status', 'approved')->count() }}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Information Note -->
-            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mt-8">
-                <p class="text-sm font-bold text-blue-900 mb-3">ℹ️ INFORMAZIONI PRENOTAZIONE</p>
-                <p class="text-sm text-blue-800 leading-relaxed">
-                    La tua prenotazione è stata registrata e sarà esaminata dallo staff della scuola. Riceverai una notifica quando lo stato dei tuoi libri cambierà. Grazie!
-                </p>
-            </div>
+            <x-information-note message="La tua prenotazione è stata registrata. Recati al mercatino il giorno stabilito con la stampa di questa ricevuta e con i libri per completare la consegna. Grazie per aver utilizzato il nostro servizio!" />
 
             <!-- Footer Actions -->
             <div class="flex gap-4 print:hidden">
                 <a href="{{ route('student.deliveries.index') }}" class="flex-1 px-6 py-4 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
-                    ← Torna alle consegne
+                    Torna alle consegne
                 </a>
                 <button onclick="handlePrint()" class="flex-1 px-6 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                    🖨️ Stampa Riepilogo
+                    Stampa Riepilogo
                 </button>
             </div>
         </div>

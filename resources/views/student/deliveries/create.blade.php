@@ -46,17 +46,49 @@
                             type="text" 
                             id="book_search" 
                             placeholder="Cerca per ISBN, titolo o autore..." 
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             autocomplete="off"
                         />
+                        <button
+                            type="button"
+                            id="clear_search_btn"
+                            onclick="clearSearch()"
+                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                         <input type="hidden" id="book_id" name="book_id" value="">
                         
                         <!-- Dropdown dei risultati -->
                         <div id="search_results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-64 overflow-y-auto hidden z-10"></div>
                     </div>
-                    <p id="selected_book" class="text-sm text-gray-600 mt-2 hidden">
-                        <span class="font-medium">Libro selezionato:</span> <span id="selected_book_text"></span>
-                    </p>
+                </div>
+
+                <!-- Dettagli Libro Selezionato -->
+                <div id="selected_book_box" class="hidden mb-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">Libro Selezionato</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-xs text-gray-600 font-medium">TITOLO</p>
+                            <p id="book_detail_title" class="text-base font-bold text-gray-900"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 font-medium">AUTORE</p>
+                            <p id="book_detail_author" class="text-sm text-gray-700"></p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-600 font-medium">ISBN</p>
+                                <p id="book_detail_isbn" class="text-sm font-mono text-gray-700"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600 font-medium">PREZZO COPERTINA</p>
+                                <p id="book_detail_cover_price" class="text-sm font-bold text-green-600"></p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Condizioni -->
@@ -90,7 +122,7 @@
                                 <span class="font-medium text-gray-900" id="price_marketplace">€0.00</span>
                             </div>
                             <div class="flex justify-between items-center pt-2 border-t border-blue-200">
-                                <span class="text-gray-600">Fee applicata:</span>
+                                <span class="text-gray-600">Commissione applicata:</span>
                                 <span class="font-medium text-red-600" id="price_fee">-€0.00</span>
                             </div>
                             <div class="flex justify-between items-center pt-3 border-t-2 border-blue-300 mt-3">
@@ -120,7 +152,7 @@
                 <!-- Aggiungi al carrello -->
                 <div class="flex items-center space-x-4">
                     <button type="button" onclick="addToCart()" class="flex-1 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
-                        ➕ Aggiungi Libro
+                        Aggiungi Libro
                     </button>
                     <a href="{{ route('student.deliveries.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
                         Annulla
@@ -137,7 +169,7 @@
 
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-bold text-gray-900">Riepilogo</h2>
-                    <span id="cart_counter" class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center">0</span>
+                    <span id="cart_counter" class="flex items-center justify-center bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 leading-none">0</span>
                 </div>
 
                 <!-- Data di consegna -->
@@ -153,7 +185,7 @@
                     </p>
                 </div>
 
-                <div id="cart_items" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
+                <div id="cart_items" class="space-y-3 mb-6">
                     <p class="text-gray-500 text-sm text-center py-8">Nessun libro aggiunto</p>
                 </div>
 
@@ -166,10 +198,10 @@
 
                 <div class="space-y-2">
                     <button type="submit" id="submit_btn" disabled class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                        ✓ Prenota Consegna
+                        Prenota Consegna
                     </button>
                     <button type="button" onclick="clearCart()" class="w-full px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition text-sm">
-                        🗑️ Cancella Tutto
+                        Cancella Tutto
                     </button>
                 </div>
             </form>
@@ -242,8 +274,26 @@
             errorBox.classList.add('hidden');
         }
 
+        // Clear search
+        function clearSearch() {
+            bookSearch.value = '';
+            bookIdInput.value = '';
+            document.getElementById('clear_search_btn').classList.add('hidden');
+            document.getElementById('selected_book_box').classList.add('hidden');
+            document.getElementById('price_details_section').style.display = 'none';
+            searchResults.classList.add('hidden');
+            bookSearch.focus();
+        }
+
         // Search functionality
         bookSearch.addEventListener('input', (e) => {
+            const clearBtn = document.getElementById('clear_search_btn');
+            if (e.target.value.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
             clearTimeout(debounceTimer);
             const query = e.target.value.trim();
             
@@ -282,8 +332,14 @@
             currentBook = book;
             bookIdInput.value = book.id;
             bookSearch.value = `${book.title} - ${book.author}`;
-            selectedBookText.textContent = `${book.title} by ${book.author}`;
-            selectedBookDisplay.classList.remove('hidden');
+            
+            // Update book details box
+            document.getElementById('book_detail_title').textContent = book.title;
+            document.getElementById('book_detail_author').textContent = book.author;
+            document.getElementById('book_detail_isbn').textContent = book.isbn;
+            document.getElementById('book_detail_cover_price').textContent = '€' + book.original_price.toFixed(2);
+            document.getElementById('selected_book_box').classList.remove('hidden');
+            
             searchResults.classList.add('hidden');
             
             // Calculate price
@@ -346,7 +402,7 @@
             // Reset form
             bookSearch.value = '';
             bookIdInput.value = '';
-            selectedBookDisplay.classList.add('hidden');
+            document.getElementById('selected_book_box').classList.add('hidden');
             document.querySelectorAll('input[name="condition"]').forEach(input => input.checked = false);
             document.getElementById('price_details_section').style.display = 'none';
             currentBook = null;

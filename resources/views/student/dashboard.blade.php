@@ -5,7 +5,7 @@
 @section('content')
     <div class="mb-12">
         <h1 class="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p class="text-gray-600">Gestisci le tue consegne di libri</p>
+        <p class="text-gray-600">Gestisci i tuoi libri consegnati e comprati al mercatino</p>
     </div>
 
     <!-- Stats Row -->
