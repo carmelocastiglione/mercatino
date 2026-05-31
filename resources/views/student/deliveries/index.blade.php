@@ -27,9 +27,9 @@
 
     <!-- Summary Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <!-- Consegne in Sospeso -->
+        <!-- Consegne in Attesa -->
         <a href="{{ route('student.deliveries.pending') }}" class="hover:shadow-md transition">
-            <x-stats-card label="In Sospeso" :value="$pendingDeliveries" color="yellow" />
+            <x-stats-card label="In Attesa" :value="$pendingDeliveries" color="yellow" />
         </a>
 
         <!-- Consegne Approvate -->
@@ -51,95 +51,16 @@
         </div>
     @endif
 
-    @if($deliveries->count() > 0)
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <table class="min-w-full">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Condizioni</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Prezzo</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Richiesta</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Consegna</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azioni</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($deliveries as $delivery)
-                        <tr class="hover:bg-gray-50 transition border-b border-gray-200">
-                            <td class="px-6 py-4">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ $delivery->book->title }}</p>
-                                    <p class="text-sm text-gray-600">{{ $delivery->book->isbn ?? 'ISBN non disponibile' }}</p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 rounded-full text-sm font-medium
-                                    @switch($delivery->condition)
-                                        @case('like-new') bg-green-100 text-green-800 @break
-                                        @case('good') bg-blue-100 text-blue-800 @break
-                                        @case('fair') bg-yellow-100 text-yellow-800 @break
-                                        @case('poor') bg-red-100 text-red-800 @break
-                                    @endswitch
-                                ">
-                                    {{ ucfirst(str_replace('-', ' ', $delivery->condition)) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($delivery->price, 2, ',', '.') }}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 rounded-full text-sm font-medium
-                                    @switch($delivery->status)
-                                        @case('pending') bg-yellow-100 text-yellow-800 @break
-                                        @case('approved') bg-green-100 text-green-800 @break
-                                        @case('rejected') bg-red-100 text-red-800 @break
-                                    @endswitch
-                                ">
-                                    @switch($delivery->status)
-                                        @case('pending') In Sospeso @break
-                                        @case('approved') Approvata @break
-                                        @case('rejected') Rifiutata @break
-                                    @endswitch
-                                </span>
-                                @if($delivery->status === 'rejected' && $delivery->rejection_reason)
-                                    <p class="text-sm text-red-600 mt-2">{{ $delivery->rejection_reason }}</p>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                {{ $delivery->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-600">
-                                @if($delivery->schoolDeliveryDate && $delivery->schoolDeliveryDate->scheduled_date)
-                                    {{ $delivery->schoolDeliveryDate->scheduled_date->format('d/m/Y') }}
-                                @else
-                                    <span class="text-gray-400">—</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 text-sm space-x-2 flex border-b-0">
-                                @if($delivery->status === 'pending')
-                                    <a href="{{ route('student.deliveries.edit', $delivery) }}" class="text-blue-600 hover:text-blue-800 font-medium no-underline border-none">
-                                        Modifica
-                                    </a>
-                                    <form action="{{ route('student.deliveries.delete', $delivery) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium no-underline border-none" onclick="return confirm('Annullare questa consegna?')">
-                                            Elimina
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="text-gray-500">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+    @if($batches->count() > 0)
+        <div class="space-y-6">
+            @foreach($batches as $batch)
+                <x-delivery-batch-card :batch="$batch" />
+            @endforeach
         </div>
 
         <!-- Pagination -->
         <div class="mt-6">
-            {{ $deliveries->links() }}
+            {{ $batches->links() }}
         </div>
     @else
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
@@ -150,7 +71,7 @@
                 @if(isset($statusFilter))
                     @switch($statusFilter)
                         @case('pending')
-                            Nessuna consegna prenotata
+                            Nessuna consegna in attesa
                         @break
                         @case('approved')
                             Nessuna consegna approvata

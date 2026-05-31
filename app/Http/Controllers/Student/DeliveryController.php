@@ -88,8 +88,8 @@ class DeliveryController extends Controller
     public function index(): View
     {
         $user = auth()->user();
-        $deliveries = $user->bookDeliveries()
-            ->with('book')
+        $batches = $user->deliveryBatches()
+            ->with('deliveries.book', 'scheduledDeliveryDate', 'school')
             ->latest()
             ->paginate(10);
 
@@ -98,7 +98,7 @@ class DeliveryController extends Controller
         $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
 
         return view('student.deliveries.index', [
-            'deliveries' => $deliveries,
+            'batches' => $batches,
             'pendingDeliveries' => $pendingDeliveries,
             'approvedDeliveries' => $approvedDeliveries,
             'rejectedDeliveries' => $rejectedDeliveries,
@@ -111,9 +111,13 @@ class DeliveryController extends Controller
     public function byStatus($status): View
     {
         $user = auth()->user();
-        $deliveries = $user->bookDeliveries()
-            ->where('status', $status)
-            ->with('book')
+        
+        // Get batches that contain deliveries with the specified status
+        $batches = $user->deliveryBatches()
+            ->with('deliveries.book', 'scheduledDeliveryDate', 'school')
+            ->whereHas('deliveries', function ($query) use ($status) {
+                $query->where('status', $status);
+            })
             ->latest()
             ->paginate(10);
 
@@ -128,7 +132,7 @@ class DeliveryController extends Controller
         $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
 
         return view('student.deliveries.index', [
-            'deliveries' => $deliveries,
+            'batches' => $batches,
             'statusFilter' => $status,
             'statusLabel' => $statusLabels[$status] ?? $status,
             'pendingDeliveries' => $pendingDeliveries,
@@ -328,69 +332,97 @@ class DeliveryController extends Controller
 
     /**
      * Show the form for editing the specified delivery.
+     * COMMENTED: Students can no longer edit individual deliveries
      */
-    public function edit(BookDelivery $delivery): View
-    {
-        $this->authorizeStudent($delivery);
+    // public function edit(BookDelivery $delivery): View
+    // {
+    //     $this->authorizeStudent($delivery);
 
-        return view('student.deliveries.edit', [
-            'delivery' => $delivery,
-        ]);
-    }
+    //     return view('student.deliveries.edit', [
+    //         'delivery' => $delivery,
+    //     ]);
+    // }
 
     /**
      * Update the specified delivery in storage.
+     * COMMENTED: Students can no longer edit individual deliveries
      */
-    public function update(Request $request, BookDelivery $delivery): RedirectResponse
-    {
-        $this->authorizeStudent($delivery);
+    // public function update(Request $request, BookDelivery $delivery): RedirectResponse
+    // {
+    //     $this->authorizeStudent($delivery);
 
-        // Solo le consegne pending possono essere modificate
-        if ($delivery->status !== 'pending') {
-            return back()->with('error', 'Puoi modificare solo le consegne in sospeso');
-        }
+    //     // Solo le consegne pending possono essere modificate
+    //     if ($delivery->status !== 'pending') {
+    //         return back()->with('error', 'Puoi modificare solo le consegne in sospeso');
+    //     }
 
-        $validated = $request->validate([
-            'book_id' => 'required|exists:books,id',
-            'condition' => 'required|in:like-new,good,fair,poor',
-        ], [
-            'book_id.required' => 'Seleziona un libro dal catalogo',
-            'book_id.exists' => 'Il libro selezionato non esiste',
-            'condition.required' => 'Specifica le condizioni del libro',
-            'condition.in' => 'Condizioni non valide',
-        ]);
+    //     $validated = $request->validate([
+    //         'book_id' => 'required|exists:books,id',
+    //         'condition' => 'required|in:like-new,good,fair,poor',
+    //     ], [
+    //         'book_id.required' => 'Seleziona un libro dal catalogo',
+    //         'book_id.exists' => 'Il libro selezionato non esiste',
+    //         'condition.required' => 'Specifica le condizioni del libro',
+    //         'condition.in' => 'Condizioni non valide',
+    //     ]);
 
-        // Verifica che il libro appartenga alla scuola dell'utente
-        $book = Book::find($validated['book_id']);
-        if ($book->school_id !== auth()->user()->school_id) {
-            return back()->with('error', 'Non puoi consegnare un libro che non appartiene alla tua scuola');
-        }
+    //     // Verifica che il libro appartenga alla scuola dell'utente
+    //     $book = Book::find($validated['book_id']);
+    //     if ($book->school_id !== auth()->user()->school_id) {
+    //         return back()->with('error', 'Non puoi consegnare un libro che non appartiene alla tua scuola');
+    //     }
 
-        // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
-        $validated['price'] = floor($book->original_price / 2);
+    //     // Calcola il prezzo come metà del prezzo originale, arrotondato per difetto all'intero
+    //     $validated['price'] = floor($book->original_price / 2);
 
-        $delivery->update($validated);
+    //     $delivery->update($validated);
 
-        return redirect()->route('student.deliveries.index')
-            ->with('success', 'Consegna aggiornata con successo!');
-    }
+    //     return redirect()->route('student.deliveries.index')
+    //         ->with('success', 'Consegna aggiornata con successo!');
+    // }
 
     /**
      * Remove the specified delivery from storage.
+     * COMMENTED: Students can no longer delete individual deliveries
      */
-    public function destroy(BookDelivery $delivery): RedirectResponse
-    {
-        $this->authorizeStudent($delivery);
+    // public function destroy(BookDelivery $delivery): RedirectResponse
+    // {
+    //     $this->authorizeStudent($delivery);
 
-        // Solo le consegne pending possono essere eliminate
-        if ($delivery->status !== 'pending') {
-            return back()->with('error', 'Puoi eliminare solo le consegne in sospeso');
+    //     // Solo le consegne pending possono essere eliminate
+    //     if ($delivery->status !== 'pending') {
+    //         return back()->with('error', 'Puoi eliminare solo le consegne in sospeso');
+    //     }
+
+    //     $delivery->delete();
+
+    //     return redirect()->route('student.deliveries.index')
+    //         ->with('success', 'Consegna annullata con successo!');
+    // }
+
+    /**
+     * Delete a delivery batch.
+     */
+    public function destroyBatch(BookDeliveryBatch $batch): RedirectResponse
+    {
+        // Authorize the user
+        if ($batch->user_id !== auth()->id()) {
+            abort(403, 'Non sei autorizzato ad accedere a questo batch');
         }
 
-        $delivery->delete();
+        // Only pending batches can be deleted
+        if ($batch->status !== 'pending') {
+            return back()->with('error', 'Puoi eliminare solo i batch in sospeso');
+        }
+
+        // Delete all associated deliveries
+        $batch->deliveries()->delete();
+
+        // Delete the batch
+        $batch->delete();
 
         return redirect()->route('student.deliveries.index')
-            ->with('success', 'Consegna annullata con successo!');
+            ->with('success', 'Batch annullato con successo!');
     }
 
     /**
