@@ -20,16 +20,6 @@
             label="IN CATALOGO"
         />
 
-        <!-- Prenotazioni online -->
-        <x-dashboard-card 
-            href="{{ route('staff.deliveries.index') }}"
-            title="Prenotazioni online"
-            description="Esamina e approva le prenotazioni degli studenti"
-            count="{{ $pendingDeliveries }}"
-            bgColor="yellow"
-            label="DA ESAMINARE"
-        />
-
         <!-- Libri disponibili -->
         <x-dashboard-card 
             href="{{ route('staff.book-listings.index') }}"
@@ -38,6 +28,26 @@
             count="{{ $availableBooks ?? 0 }}"
             bgColor="purple"
             label="IN CATALOGO"
+        />
+
+        <!-- Prenotazioni consegne -->
+        <x-dashboard-card 
+            href="{{ route('staff.deliveries.index') }}"
+            title="Prenotazioni consegne"
+            description="Esamina e approva le prenotazioni degli studenti"
+            count="{{ $pendingDeliveries }}"
+            bgColor="yellow"
+            label="DA ESAMINARE"
+        />
+
+        <!-- Prenotazioni Acquisti -->
+        <x-dashboard-card 
+            href="{{ route('staff.book-reservations.index') }}"
+            title="Prenotazioni acquisti"
+            description="Gestisci le prenotazioni dei libri acquisiti"
+            count="{{ $pendingReservations ?? 0 }}"
+            bgColor="pink"
+            label="DA ESAMINARE"
         />
 
         <!-- Acquisizioni -->
@@ -79,5 +89,6 @@
             bgColor="red"
             label="PENDENTI"
         />
+
     </div>
 @endsection

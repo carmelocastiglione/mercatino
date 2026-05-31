@@ -6,9 +6,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Student\SalesController as StudentSalesController;
+use App\Http\Controllers\Student\BookListingsController as StudentBookListingsController;
 use App\Http\Controllers\Student\PurchasesController as StudentPurchasesController;
 use App\Http\Controllers\Student\WithdrawalsController as StudentWithdrawalsController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
+use App\Http\Controllers\Student\BookReservationController as StudentBookReservationController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\BookController as StaffBookController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
@@ -20,6 +22,7 @@ use App\Http\Controllers\Staff\BookListingController as StaffBookListingControll
 use App\Http\Controllers\Staff\WithdrawalController as StaffWithdrawalController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Staff\UserHistoryController as StaffUserHistoryController;
+use App\Http\Controllers\Staff\BookReservationController as StaffBookReservationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -87,6 +90,8 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
     Route::get('/sales/{sale}', [StudentSalesController::class, 'show'])->name('student.sales.show');
     
+    Route::get('/book-listings', [StudentBookListingsController::class, 'index'])->name('student.book-listings.index');
+    
     Route::get('/purchases', [StudentPurchasesController::class, 'index'])->name('student.purchases.index');
     Route::get('/purchases/{purchase}', [StudentPurchasesController::class, 'show'])->name('student.purchases.show');
     
@@ -99,6 +104,15 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::patch('/notifications/read-all', [StudentNotificationController::class, 'markAllAsRead'])->name('student.notifications.mark-all-read');
     Route::delete('/notifications/{notification}', [StudentNotificationController::class, 'delete'])->name('student.notifications.delete');
     Route::post('/notifications/delete-all-read', [StudentNotificationController::class, 'deleteAllRead'])->name('student.notifications.delete-all-read');
+    
+    // Book Reservations Management - Prenotazioni libri
+    Route::get('/book-reservations', [StudentBookReservationController::class, 'index'])->name('student.book-reservations.index');
+    Route::get('/book-reservations/create', [StudentBookReservationController::class, 'create'])->name('student.book-reservations.create');
+    Route::get('/book-reservations/search-acquisition-books', [StudentBookReservationController::class, 'searchAcquisitionBooks'])->name('student.book-reservations.search-acquisition-books');
+    Route::post('/book-reservations/check-availability', [StudentBookReservationController::class, 'checkAvailability'])->name('student.book-reservations.check-availability');
+    Route::post('/book-reservations', [StudentBookReservationController::class, 'store'])->name('student.book-reservations.store');
+    Route::get('/book-reservations/{bookReservationBatch}', [StudentBookReservationController::class, 'show'])->name('student.book-reservations.show');
+    Route::delete('/book-reservations/{bookReservationBatch}', [StudentBookReservationController::class, 'destroy'])->name('student.book-reservations.destroy');
 });
 
 /**
@@ -226,4 +240,10 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/storico', [StaffUserHistoryController::class, 'index'])->name('staff.user-history.index');
     Route::get('/storico/search', [StaffUserHistoryController::class, 'search'])->name('staff.user-history.search');
     Route::get('/storico/user/{user}', [StaffUserHistoryController::class, 'show'])->name('staff.user-history.show');
+    
+    // Book Reservations Management - Prenotazioni libri
+    Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
+    Route::get('/book-reservations/{bookReservationBatch}', [StaffBookReservationController::class, 'show'])->name('staff.book-reservations.show');
+    Route::post('/book-reservations/{bookReservationBatch}/confirm', [StaffBookReservationController::class, 'confirm'])->name('staff.book-reservations.confirm');
+    Route::post('/book-reservations/{bookReservationBatch}/reject', [StaffBookReservationController::class, 'reject'])->name('staff.book-reservations.reject');
 });

@@ -188,13 +188,20 @@ class AcquisitionController extends Controller
                 'original_price' => $validated['original_price'],
             ]);
 
+            // Calcola i prezzi usando PriceHelper
+            $school = auth()->user()->school;
+            $priceDetails = PriceHelper::calculatePrice($book->original_price, $school, true);
+
             return response()->json([
                 'book' => [
                     'id' => $book->id,
                     'title' => $book->title,
                     'author' => $book->author,
                     'isbn' => $book->isbn,
-                    'original_price' => $book->original_price,
+                    'original_price' => $priceDetails['original_price'],
+                    'marketplace_price' => $priceDetails['marketplace_price'],
+                    'fee' => $priceDetails['fee'],
+                    'price' => $priceDetails['total'],
                 ]
             ], 200);
         } catch (\Illuminate\Validation\ValidationException $e) {

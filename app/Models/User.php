@@ -155,4 +155,12 @@ class User extends Authenticatable
     {
         return $this->getTotalSalesAmount() - $this->getTotalWithdrawnAmount();
     }
+
+    /**
+     * Get the book reservation batches for this user (student).
+     */
+    public function bookReservationBatches(): HasMany
+    {
+        return $this->hasMany(BookReservationBatch::class);
+    }
 }

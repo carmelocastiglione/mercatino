@@ -31,10 +31,30 @@
         <x-dashboard-card 
             href="{{ route('student.deliveries.index') }}"
             title="Le mie consegne"
-            description="Gestisci le consegne prenotate"
+            description="Prenota la consegna dei libri"
             count="{{ $totalDeliveries }}"
             bgColor="yellow"
             label="CONSEGNE"
+        />
+
+        <!-- Le Mie Prenotazioni -->
+        <x-dashboard-card 
+            href="{{ route('student.book-reservations.index') }}"
+            title="Le mie prenotazioni"
+            description="Prenota un libro da comprare"
+            count="{{ $totalReservations ?? 0 }}"
+            bgColor="pink"
+            label="PRENOTAZIONI"
+        />
+
+        <!-- I Miei Libri -->
+        <x-dashboard-card 
+            href="{{ route('student.book-listings.index') }}"
+            title="I miei libri"
+            description="Visualizza tutti i tuoi libri in vendita al mercatino"
+            count="{{ $totalBookListings ?? 0 }}"
+            bgColor="teal"
+            label="LIBRI"
         />
 
         <!-- Le Mie Vendite -->

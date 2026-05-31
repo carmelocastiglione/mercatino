@@ -20,6 +20,7 @@
         <div class="mb-6 flex gap-3">
             <form action="{{ route('student.notifications.mark-all-read') }}" method="POST">
                 @csrf
+                @method('PATCH')
                 <button type="submit" class="px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition">
                     Segna tutto come letto
                 </button>

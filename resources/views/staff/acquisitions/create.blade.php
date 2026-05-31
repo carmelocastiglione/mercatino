@@ -421,6 +421,28 @@
             document.getElementById('price_details_section').style.display = 'block';
         }
 
+        // Seleziona un libro creato dal modale
+        function selectBook(bookId, bookTitle, originalPrice, marketplacePrice, fee, totalPrice) {
+            bookIdInput.value = bookId;
+            bookSearch.value = bookTitle;
+            searchResults.classList.add('hidden');
+            selectedBookText.textContent = bookTitle;
+            selectedBookDiv.classList.remove('hidden');
+            
+            // Resetta la modifica al prezzo
+            priceAdjustment = 0;
+            basePrice = parseFloat(totalPrice);
+            
+            // Mostra i dettagli del prezzo
+            document.getElementById('price_original').textContent = '€' + parseFloat(originalPrice).toFixed(2);
+            document.getElementById('price_marketplace').textContent = '€' + parseFloat(marketplacePrice).toFixed(2);
+            document.getElementById('price_fee').textContent = '-€' + parseFloat(fee).toFixed(2);
+            document.getElementById('price_adjustment').innerHTML = '<span id="price_adjustment_sign">+</span>€0.00';
+            document.getElementById('price_total').textContent = '€' + parseFloat(totalPrice).toFixed(2);
+            document.getElementById('price').value = parseFloat(totalPrice).toFixed(2);
+            document.getElementById('price_details_section').style.display = 'block';
+        }
+
         // === SHOPPING CART MANAGEMENT ===
         let cart = [];
 
@@ -876,7 +898,7 @@
 
                 // Libro creato con successo
                 const newBook = data.book;
-                selectBook(newBook.id, newBook.title + ' - ' + newBook.author, newBook.original_price);
+                selectBook(newBook.id, newBook.title + ' - ' + newBook.author, newBook.original_price, newBook.marketplace_price, newBook.fee, newBook.price);
                 closeBookModal();
 
                 const msg = document.getElementById('book_message');

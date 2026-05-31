@@ -85,8 +85,13 @@
 
             <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
                 <!-- Prenota Consegna - Highlighted -->
-                <a href="{{ route('student.deliveries.create') }}" class="block mb-4 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition shadow-md">
+                <a href="{{ route('student.deliveries.create') }}" class="block mb-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition shadow-md">
                     ✨ Prenota consegna
+                </a>
+
+                <!-- Prenota Libro - Highlighted -->
+                <a href="{{ route('student.book-reservations.create') }}" class="block mb-4 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg hover:from-green-700 hover:to-green-800 transition shadow-md">
+                    📚 Prenota acquisto
                 </a>
                 
                 <!-- Dashboard -->
@@ -99,18 +104,15 @@
                     Le mie consegne
                 </a>
 
-                <!-- Sottomenu Consegne -->
-                <div class="ml-4 space-y-1">
-                    <a href="{{ route('student.deliveries.pending') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/pending')) bg-yellow-50 text-yellow-700 @endif">
-                        In sospeso
-                    </a>
-                    <a href="{{ route('student.deliveries.approved') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/approved')) bg-green-50 text-green-700 @endif">
-                        Approvate
-                    </a>
-                    <a href="{{ route('student.deliveries.rejected') }}" class="block px-3 py-2 text-xs font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/deliveries/status/rejected')) bg-red-50 text-red-700 @endif">
-                        Rifiutate
-                    </a>
-                </div>
+                <!-- Le Mie Prenotazioni -->
+                <a href="{{ route('student.book-reservations.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/book-reservations*')) bg-gray-100 text-gray-900 @endif">
+                    Le mie prenotazioni
+                </a>
+
+                <!-- I Miei Libri -->
+                <a href="{{ route('student.book-listings.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/book-listings*')) bg-gray-100 text-gray-900 @endif">
+                    I miei libri
+                </a>
 
                 <!-- Le Mie Vendite -->
                 <a href="{{ route('student.sales.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('student/sales*')) bg-gray-100 text-gray-900 @endif">

@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\Acquisition;
 use App\Models\BookDelivery;
 use App\Models\BookListing;
+use App\Models\BookReservationBatch;
 use App\Models\BookSale;
 use App\Models\Reclaim;
 use App\Models\Withdrawal;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
             'totalSales' => BookSale::bySchool($schoolId)->count(),
             'totalWithdrawals' => Withdrawal::bySchool($schoolId)->count(),
             'pendingReclaims' => Reclaim::where('status', 'pending')->bySchool($schoolId)->count(),
+            'pendingReservations' => BookReservationBatch::where('status', 'pending')->bySchool($schoolId)->count(),
         ]);
     }
 }

@@ -95,4 +95,12 @@ class BookListing extends Model
     {
         return $this->hasMany(Reclaim::class);
     }
+
+    /**
+     * Get the book reservations for this listing.
+     */
+    public function bookReservations(): HasMany
+    {
+        return $this->hasMany(BookReservation::class);
+    }
 }
