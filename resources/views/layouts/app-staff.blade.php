@@ -145,6 +145,11 @@
                         Date di consegna
                     </a>
                 </div>
+
+                <!-- Segnala Problema -->
+                <a href="{{ route('staff.problems.create') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition">
+                    Segnala problema
+                </a>
             </nav>
 
             <div class="p-6 border-t border-gray-200 bg-white">

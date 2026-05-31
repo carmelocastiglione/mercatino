@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ProblemController;
+use App\Http\Controllers\Student\ProblemController as StudentProblemController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Staff\ProblemController as StaffProblemController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Student\SalesController as StudentSalesController;
 use App\Http\Controllers\Student\BookListingsController as StudentBookListingsController;
@@ -251,4 +254,24 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/book-reservations/approve-single', [StaffBookReservationController::class, 'approveReservation'])->name('staff.book-reservations.approve-single');
     Route::put('/book-reservations/reject-single', [StaffBookReservationController::class, 'rejectReservation'])->name('staff.book-reservations.reject-single');
     Route::post('/book-reservations/create-sales', [StaffBookReservationController::class, 'createSalesBulk'])->name('staff.book-reservations.create-sales');
+});
+
+/**
+ * Problem Reporting Routes
+ * Segnalazione problemi per studenti, staff e gestione per admin
+ */
+Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
+    Route::get('/segnala-problema', [StudentProblemController::class, 'create'])->name('student.problems.create');
+    Route::post('/segnala-problema', [StudentProblemController::class, 'store'])->name('student.problems.store');
+});
+
+Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
+    Route::get('/segnala-problema', [StaffProblemController::class, 'create'])->name('staff.problems.create');
+    Route::post('/segnala-problema', [StaffProblemController::class, 'store'])->name('staff.problems.store');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/problemi', [ProblemController::class, 'adminIndex'])->name('admin.problems.index');
+    Route::put('/admin/problemi/{problem}/corretto', [ProblemController::class, 'resolve'])->name('admin.problems.resolve');
+    Route::put('/admin/problemi/{problem}/elimina', [ProblemController::class, 'delete'])->name('admin.problems.delete');
 });
