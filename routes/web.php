@@ -243,7 +243,12 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
+    Route::get('/book-reservations/student/{studentId}', [StaffBookReservationController::class, 'studentReservations'])->name('staff.book-reservations.student');
+    Route::get('/book-reservations/prepare-sales', [StaffBookReservationController::class, 'prepareSales'])->name('staff.book-reservations.prepare-sales');
     Route::get('/book-reservations/{bookReservationBatch}', [StaffBookReservationController::class, 'show'])->name('staff.book-reservations.show');
     Route::post('/book-reservations/{bookReservationBatch}/confirm', [StaffBookReservationController::class, 'confirm'])->name('staff.book-reservations.confirm');
     Route::post('/book-reservations/{bookReservationBatch}/reject', [StaffBookReservationController::class, 'reject'])->name('staff.book-reservations.reject');
+    Route::put('/book-reservations/approve-single', [StaffBookReservationController::class, 'approveReservation'])->name('staff.book-reservations.approve-single');
+    Route::put('/book-reservations/reject-single', [StaffBookReservationController::class, 'rejectReservation'])->name('staff.book-reservations.reject-single');
+    Route::post('/book-reservations/create-sales', [StaffBookReservationController::class, 'createSalesBulk'])->name('staff.book-reservations.create-sales');
 });

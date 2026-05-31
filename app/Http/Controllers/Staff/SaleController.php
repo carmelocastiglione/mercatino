@@ -40,17 +40,41 @@ class SaleController extends Controller
      */
     public function create(): View
     {
-        return view('staff.sales.create');
+        // Check if there are approved reservations from session
+        $approvedReservations = session('approved_reservations', []);
+        $studentId = session('student_id', null);
+
+        return view('staff.sales.create', [
+            'approvedReservations' => $approvedReservations,
+            'studentId' => $studentId,
+        ]);
     }
 
     /**
-     * Search for buyers by name, surname, or code (filtered by staff's school).
+     * Search for buyers by name, surname, code, email, or ID (filtered by staff's school).
      */
     public function searchBuyers(): JsonResponse
     {
         $query = request('q', '');
         $staffSchoolId = auth()->user()->school_id;
 
+        if (strlen($query) < 1) {
+            return response()->json([]);
+        }
+
+        // Check if query is a numeric ID
+        if (is_numeric($query)) {
+            $buyer = User::where('school_id', $staffSchoolId)
+                ->where('id', intval($query))
+                ->select('id', 'name', 'surname', 'code', 'email')
+                ->first();
+
+            if ($buyer) {
+                return response()->json([$buyer]);
+            }
+        }
+
+        // Search by text fields if query is at least 2 characters
         if (strlen($query) < 2) {
             return response()->json([]);
         }
@@ -130,11 +154,12 @@ class SaleController extends Controller
             $count = 0;
             $saleIds = [];
 
-            foreach ($validated['sales'] as $sale) {
+            foreach ($validated['sales'] as $index => $sale) {
                 // Verify book listing exists and is available
                 $listing = BookListing::findOrFail($sale['book_listing_id']);
-                
-                if ($listing->status !== 'available') {
+
+                // Accept both 'available' and 'reserved' statuses
+                if (!in_array($listing->status, ['available', 'reserved'])) {
                     continue;
                 }
 
@@ -160,12 +185,17 @@ class SaleController extends Controller
                 $count++;
             }
 
+            // Clear session data after processing
+            session()->forget(['approved_reservations', 'student_id']);
+
+            $redirectUrl = route('staff.sales.batch-summary', ['ids' => implode(',', $saleIds)]);
+
             return response()->json([
                 'success' => true,
                 'message' => $count . ' vendita/e registrata/e con successo',
                 'count' => $count,
                 'total' => $totalAmount,
-                'redirect' => route('staff.sales.batch-summary', ['ids' => implode(',', $saleIds)]),
+                'redirect' => $redirectUrl,
             ], 200);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -201,7 +231,7 @@ class SaleController extends Controller
     /**
      * Show batch sales summary (authorized by school).
      */
-    public function batchSummary(): View
+    public function batchSummary(): View|RedirectResponse
     {
         $ids = request()->query('ids', '');
         $saleIds = array_filter(explode(',', $ids));

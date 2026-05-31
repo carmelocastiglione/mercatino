@@ -13,6 +13,13 @@
         </a>
     </div>
 
+    {{-- Pre-populated message if coming from book reservations --}}
+    @if(!empty($approvedReservations) && count($approvedReservations) > 0)
+        <div class="mb-6 bg-green-50 border border-green-300 rounded-lg p-4">
+            <p class="text-green-800 font-medium">✓ {{ count($approvedReservations) }} libro/i caricato/i dalla prenotazione</p>
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Left Column: Form -->
         <div class="lg:col-span-2">
@@ -282,7 +289,6 @@
                 showToast(`✓ ${data.message}`, 'success');
                 window.location.href = data.redirect;
             } catch (error) {
-                console.error('Errore:', error);
                 showToast('Errore durante il salvataggio: ' + error.message, 'error');
             }
         }
@@ -336,10 +342,8 @@
                 try {
                     data = await response.json();
                 } catch (e) {
-                    const text = await response.text();
-                    console.error('Risposta non JSON:', text);
                     const msg = document.getElementById('register_message');
-                    msg.textContent = 'Errore del server. Controlla la console.';
+                    msg.textContent = 'Errore del server';
                     msg.className = 'text-center text-sm mt-2 text-red-600';
                     msg.classList.remove('hidden');
                     return;
@@ -378,7 +382,7 @@
                     setTimeout(() => msg.classList.add('hidden'), 3000);
                 }
             } catch (error) {
-                console.error('Errore:', error);
+
                 const msg = document.getElementById('register_message');
                 msg.textContent = 'Errore: ' + error.message;
                 msg.className = 'text-center text-sm mt-2 text-red-600';
@@ -420,7 +424,7 @@
                         }
                         resultsDiv.classList.remove('hidden');
                     })
-                    .catch(err => console.error('Errore ricerca:', err));
+                    .catch(err => {});
             }, 300);
         });
 
@@ -458,9 +462,41 @@
                         }
                         resultsDiv.classList.remove('hidden');
                     })
-                    .catch(err => console.error('Errore ricerca libri:', err));
+                    .catch(err => {});
             }, 300);
         });
+        });
+
+        // Load approved reservations from session if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const approvedReservations = {!! json_encode($approvedReservations ?? []) !!};
+            const studentId = {{ $studentId ?? 'null' }};
+
+            if (approvedReservations && approvedReservations.length > 0 && studentId) {
+                // Auto-select the student as buyer FIRST
+                fetch(`{{ route('staff.sales.search-buyers') }}?q=${studentId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const buyer = data[0];
+                            selectBuyer(buyer.id, buyer.name, buyer.surname, buyer.code, buyer.email);
+                            
+                            // THEN add approved reservations with buyer_id
+                            approvedReservations.forEach(reservation => {
+                                cart.push({
+                                    buyer_id: buyer.id,
+                                    book_listing_id: reservation.book_listing_id,
+                                    title: reservation.book_title,
+                                    price: parseFloat(reservation.book_price),
+                                });
+                            });
+                            
+                            updateCartDisplay();
+                            showToast(`✓ ${approvedReservations.length} libro/i caricato/i`, 'success');
+                        }
+                    })
+                    .catch(err => {});
+            }
         });
     </script>
 
