@@ -163,7 +163,7 @@ class DeliveryController extends Controller
         $school = $student->school;
         $deliveries = BookDelivery::where('user_id', $studentId)
             ->where('status', 'pending')
-            ->with('book')
+            ->with('book', 'batch.scheduledDeliveryDate')
             ->bySchool($staffSchoolId)
             ->latest()
             ->get();
@@ -175,8 +175,17 @@ class DeliveryController extends Controller
             return $delivery;
         });
 
+        // Raggruppa i deliveries per batch
+        $batches = $deliveriesWithPrices->groupBy('batch_id')->map(function ($deliveries) {
+            return [
+                'batch' => $deliveries->first()->batch,
+                'deliveries' => $deliveries,
+            ];
+        });
+
         return view('staff.deliveries.student', [
             'student' => $student,
+            'batches' => $batches,
             'deliveries' => $deliveriesWithPrices,
             'pendingCount' => $deliveriesWithPrices->count(),
         ]);
@@ -255,15 +264,6 @@ class DeliveryController extends Controller
                 'approved_by' => auth()->id(),
                 'condition' => $condition,
                 'price' => $price,
-            ]);
-
-            // Crea una nuova BookListing dal BookDelivery
-            BookListing::create([
-                'book_id' => $delivery->book_id,
-                'seller_id' => $delivery->user_id,
-                'condition' => $condition,
-                'price' => $price,
-                'status' => 'available',
             ]);
 
             $approvedCount++;

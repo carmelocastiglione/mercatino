@@ -18,8 +18,77 @@
                 <span class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full px-3 py-1">{{ $pendingCount }}</span>
             </div>
 
-            <div id="deliveries_list" class="divide-y divide-gray-200 mb-6">
-                @foreach($deliveries as $delivery)
+            <div id="deliveries_list" class="space-y-6 mb-6">
+                @foreach($batches as $batchData)
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <!-- Batch Header -->
+                        <div class="batch-header bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-blue-200 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition" data-batch-id="{{ $batchData['batch']->id }}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="grid grid-cols-6 gap-4 text-sm">
+                                        <div>
+                                            <p class="text-gray-600 font-medium">ID Prenotazione</p>
+                                            <p class="text-gray-900 font-mono text-lg">{{ $batchData['batch']->id }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium">N. Libri</p>
+                                            <p class="text-gray-900 font-bold text-lg">{{ $batchData['deliveries']->count() }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Totale</p>
+                                            <p class="text-blue-600 font-bold text-lg">€ {{ number_format($batchData['deliveries']->sum('price'), 2, ',', '.') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Data Richiesta</p>
+                                            <p class="text-gray-900 font-medium">{{ $batchData['batch']->created_at->format('d/m/Y') }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Data Consegna</p>
+                                            <p class="text-gray-900 font-medium">
+                                                @if($batchData['batch']->scheduledDeliveryDate)
+                                                    {{ $batchData['batch']->scheduledDeliveryDate->scheduled_date->format('d/m/Y') }}
+                                                @else
+                                                    <span class="text-gray-400 text-sm">Non disponibile</span>
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p class="text-gray-600 font-medium">Status</p>
+                                            <p class="mt-1">
+                                                @switch($batchData['batch']->status)
+                                                    @case('pending')
+                                                        <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-semibold">In attesa</span>
+                                                    @break
+                                                    @case('submitted')
+                                                        <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">Inviato</span>
+                                                    @break
+                                                    @case('approved')
+                                                        <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-semibold">Approvato</span>
+                                                    @break
+                                                    @case('rejected')
+                                                        <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-semibold">Rifiutato</span>
+                                                    @break
+                                                    @case('delivered')
+                                                        <span class="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-semibold">Consegnato</span>
+                                                    @break
+                                                    @default
+                                                        <span class="inline-block bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">{{ ucfirst($batchData['batch']->status) }}</span>
+                                                @endswitch
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="batch-toggle ml-4 flex-shrink-0">
+                                    <svg class="w-6 h-6 text-gray-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deliveries in this batch -->
+                        <div class="batch-content divide-y divide-gray-200">
+                            @foreach($batchData['deliveries'] as $delivery)
                     <div id="delivery_{{ $delivery->id }}" class="p-4 hover:bg-gray-50 transition delivery-item" data-delivery-id="{{ $delivery->id }}">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex-1">
@@ -93,6 +162,9 @@
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                            @endforeach
                         </div>
                     </div>
                 @endforeach
@@ -309,5 +381,30 @@
             window.location.href = '{{ route("staff.acquisitions.create") }}';
         }, 1000);
     }
+
+    // Batch Collapsible Functionality
+    document.querySelectorAll('.batch-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const content = this.closest('.border').querySelector('.batch-content');
+            const toggle = this.querySelector('.batch-toggle svg');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                toggle.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                toggle.style.transform = 'rotate(0deg)';
+            }
+        });
+    });
+
+    // Start with batches collapsed
+    document.querySelectorAll('.batch-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+
+    document.querySelectorAll('.batch-toggle svg').forEach(svg => {
+        svg.style.transform = 'rotate(0deg)';
+    });
 </script>
 @endsection

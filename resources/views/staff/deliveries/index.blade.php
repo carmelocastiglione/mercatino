@@ -78,13 +78,13 @@
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
                                 <div>
-                                    <p class="font-medium text-gray-900">{{ $batch->user->name }}</p>
+                                    <p class="font-medium text-gray-900">{{ $batch->user->name }} {{ $batch->user->surname }}</p>
                                     <p class="text-sm text-gray-600">{{ $batch->user->email }}</p>
                                     <p class="text-sm text-gray-500">{{ $batch->user->code }}</p>
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $batch->deliveries->count() }}</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($batch->deliveries->sum('price'), 0) }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($batch->deliveries->sum('price'), 2, ',', '.') }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $batch->created_at->format('d/m/Y H:i') }}
                             </td>

@@ -12,7 +12,6 @@
 - Testare il login via Google SSO con studenti reali
 - Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
-- Controllare la modifica del libro prenotato
 
 ## Staff
 - Aggiungere riepilogo stampa vendite
@@ -32,6 +31,7 @@
 - Gestione fee scuole
 
 ## Miglioramenti Generali
+- L'orario è quello del server, impostare fuso orario corretto
 - Creare interfaccia comune per la stampa
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
