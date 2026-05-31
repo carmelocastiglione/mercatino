@@ -225,6 +225,7 @@
         // Collect approved and rejected reservations
         const approvedReservations = [];
         const rejectedReservations = [];
+        const pendingReservations = [];
 
         reservationIds.forEach(reservationId => {
             const reservationElement = document.getElementById(`reservation_${reservationId}`);
@@ -235,8 +236,16 @@
                 approvedReservations.push(reservationId);
             } else if (!rejectedElement.classList.contains('hidden')) {
                 rejectedReservations.push(reservationId);
+            } else {
+                pendingReservations.push(reservationId);
             }
         });
+
+        // Check if there are pending reservations
+        if (pendingReservations.length > 0) {
+            showToast(`Ci sono ${pendingReservations.length} libri ancora in sospeso. Approva o rifiuta tutti i libri prima di continuare.`, 'error');
+            return;
+        }
 
         if (approvedReservations.length === 0 && rejectedReservations.length === 0) {
             showToast('Nessuna prenotazione è stata elaborata', 'error');
