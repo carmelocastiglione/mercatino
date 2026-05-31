@@ -24,9 +24,6 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
-        BookSold::class => [
-            SendNotifications::class,
-        ],
     ];
 
     /**
@@ -42,6 +39,12 @@ class EventServiceProvider extends ServiceProvider
      */
     private function registerBookReservationEvents(): void
     {
+        // Register BookSold listener manually to avoid duplicate registration
+        \Illuminate\Support\Facades\Event::listen(
+            BookSold::class,
+            SendNotifications::class
+        );
+
         \Illuminate\Support\Facades\Event::listen(
             BookReservationBatchCreated::class,
             [SendReservationNotifications::class, 'onBatchCreated']

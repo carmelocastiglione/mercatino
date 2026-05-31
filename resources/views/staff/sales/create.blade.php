@@ -143,6 +143,7 @@
         let cart = [];
         let selectedBuyer = null;
         let selectedBookPrice = 0;
+        let isSaving = false;
 
         // Global Functions (callable from onclick)
         function selectBuyer(id, name, surname, code, email, password) {
@@ -270,6 +271,18 @@
                 showToast('Aggiungi almeno un libro', 'error');
                 return;
             }
+            
+            // Prevent multiple submissions
+            if (isSaving) {
+                return;
+            }
+            
+            isSaving = true;
+            const saveButton = document.querySelector('button[onclick="finishSales()"]');
+            saveButton.disabled = true;
+            saveButton.style.opacity = '0.5';
+            saveButton.style.cursor = 'not-allowed';
+            
             try {
                 const response = await fetch('{{ route("staff.sales.store-batch") }}', {
                     method: 'POST',
@@ -284,12 +297,20 @@
                 const data = await response.json();
                 if (!response.ok) {
                     showToast('Errore: ' + (data.message || 'Errore durante il salvataggio'), 'error');
+                    isSaving = false;
+                    saveButton.disabled = false;
+                    saveButton.style.opacity = '1';
+                    saveButton.style.cursor = 'pointer';
                     return;
                 }
                 showToast(`✓ ${data.message}`, 'success');
                 window.location.href = data.redirect;
             } catch (error) {
                 showToast('Errore durante il salvataggio: ' + error.message, 'error');
+                isSaving = false;
+                saveButton.disabled = false;
+                saveButton.style.opacity = '1';
+                saveButton.style.cursor = 'pointer';
             }
         }
 
@@ -465,10 +486,8 @@
                     .catch(err => {});
             }, 300);
         });
-        });
 
-        // Load approved reservations from session if available
-        document.addEventListener('DOMContentLoaded', function() {
+            // Load approved reservations from session if available
             const approvedReservations = {!! json_encode($approvedReservations ?? []) !!};
             const studentId = {{ $studentId ?? 'null' }};
 

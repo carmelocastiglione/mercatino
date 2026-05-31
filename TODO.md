@@ -6,6 +6,7 @@
 # TODO
 
 ## Studente
+- C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
 - Farsi approvare dai tecnici Viganò l'applicazione da Google Cloud Console per poter utilizzare il login via Google SSO
 - Testare il login via Google SSO con studenti reali
 - Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
