@@ -100,9 +100,9 @@
                     Libri disponibili
                 </a>
 
-                <!-- Prenotazioni online -->
+                <!-- Prenotazioni consegne -->
                 <a href="{{ route('staff.deliveries.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/deliveries*')) bg-gray-100 text-gray-900 @endif">
-                    Prenotazioni online
+                    Prenotazioni consegne
                 </a>  
                 
                 <!-- Prenotazioni Acquisti -->

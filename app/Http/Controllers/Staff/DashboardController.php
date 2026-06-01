@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Acquisition;
 use App\Models\BookDelivery;
+use App\Models\BookDeliveryBatch;
 use App\Models\BookListing;
 use App\Models\BookReservationBatch;
 use App\Models\BookSale;
@@ -25,6 +26,7 @@ class DashboardController extends Controller
         return view('staff.dashboard', [
             'totalBooks' => Book::bySchool($schoolId)->count(),
             'pendingDeliveries' => BookDelivery::where('status', 'pending')->bySchool($schoolId)->count(),
+            'pendingDeliveryBatches' => BookDeliveryBatch::where('status', 'pending')->bySchool($schoolId)->count(),
             'totalAcquisitions' => BookListing::bySchool($schoolId)->count(),
             'availableBooks' => BookListing::where('status', 'available')->bySchool($schoolId)->count(),
             'totalSales' => BookSale::bySchool($schoolId)->count(),

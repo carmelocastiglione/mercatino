@@ -180,6 +180,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/deliveries/{delivery}/reject', [StaffDeliveryController::class, 'reject'])->name('staff.deliveries.reject');
     Route::put('/deliveries/reject-single', [StaffDeliveryController::class, 'rejectDeliveryJson'])->name('staff.deliveries.reject-json');
     Route::put('/deliveries/approve-bulk', [StaffDeliveryController::class, 'approveBulk'])->name('staff.deliveries.approve-bulk');
+    Route::put('/deliveries/update-batch-status', [StaffDeliveryController::class, 'updateBatchStatus'])->name('staff.deliveries.update-batch-status');
     
     // Delivery Dates Management - Date di consegna
     Route::get('/delivery-dates', [StaffSchoolDeliveryDateController::class, 'index'])->name('staff.delivery-dates.index');

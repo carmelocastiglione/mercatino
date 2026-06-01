@@ -165,6 +165,9 @@ class DeliveryController extends Controller
             ->where('status', 'pending')
             ->with('book', 'batch.scheduledDeliveryDate')
             ->bySchool($staffSchoolId)
+            ->whereHas('batch', function ($query) {
+                $query->where('status', 'pending');
+            })
             ->latest()
             ->get();
 
@@ -183,9 +186,22 @@ class DeliveryController extends Controller
             ];
         });
 
+        // Prepara i dati per il JavaScript (array puro, non oggetti Eloquent)
+        $batchesForJson = $batches->map(function ($batchData) {
+            return [
+                'batch' => [
+                    'id' => $batchData['batch']->id,
+                ],
+                'deliveries' => $batchData['deliveries']->map(function ($delivery) {
+                    return ['id' => $delivery->id];
+                })->values()->toArray(),
+            ];
+        })->values()->toArray();
+
         return view('staff.deliveries.student', [
             'student' => $student,
             'batches' => $batches,
+            'batchesForJson' => $batchesForJson,
             'deliveries' => $deliveriesWithPrices,
             'pendingCount' => $deliveriesWithPrices->count(),
         ]);
@@ -273,6 +289,56 @@ class DeliveryController extends Controller
             'success' => true,
             'message' => "$approvedCount consegne approvate",
             'approved_count' => $approvedCount
+        ]);
+    }
+
+    /**
+     * Update batch status (JSON API endpoint, filtered by staff's school)
+     */
+    public function updateBatchStatus(Request $request)
+    {
+        $batchIds = $request->input('batch_ids', []);
+        $status = $request->input('status', 'submitted');
+
+        if (empty($batchIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessun batch specificato'], 400);
+        }
+
+        // Valida lo stato
+        $allowedStatuses = ['submitted', 'approved', 'rejected', 'delivered', 'pending'];
+        if (!in_array($status, $allowedStatuses)) {
+            return response()->json(['success' => false, 'message' => 'Stato non valido'], 400);
+        }
+
+        $batches = BookDeliveryBatch::whereIn('id', $batchIds)
+            ->with('deliveries.book')
+            ->get();
+
+        if ($batches->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Nessun batch trovato'], 404);
+        }
+
+        $staffSchoolId = auth()->user()->school_id;
+        $updatedCount = 0;
+
+        foreach ($batches as $batch) {
+            // Verifica che tutti i deliveries del batch appartengano alla scuola dello staff
+            $isAuthorized = $batch->deliveries->every(function ($delivery) use ($staffSchoolId) {
+                return $delivery->book->school_id === $staffSchoolId;
+            });
+
+            if (!$isAuthorized) {
+                return response()->json(['success' => false, 'message' => 'Non autorizzato ad aggiornare questo batch'], 403);
+            }
+
+            $batch->update(['status' => $status]);
+            $updatedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "$updatedCount batch aggiornati a '$status'",
+            'updated_count' => $updatedCount
         ]);
     }
 }

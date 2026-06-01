@@ -12,7 +12,14 @@
     </div>
 
     @if($pendingCount > 0)
+        <div id="error_container" class="hidden mb-6"></div>
+
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <x-info-box
+                type="info"
+                title="Procedura di approvazione delle consegne"
+                message="Per continuare è necessario che tutti i libri di una singola consegna siano stati approvati o rifiutati. Puoi modificare il prezzo e la condizione di ogni libro prima di approvarlo. Una volta approvati, i libri saranno aggiunti al carrello per la creazione dell'acquisizione."
+            />
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-lg font-bold text-gray-900">Libri in Consegna</h2>
                 <span class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full px-3 py-1">{{ $pendingCount }}</span>
@@ -208,6 +215,32 @@
         }, 3000);
     }
 
+    function showError(message) {
+        const errorContainer = document.getElementById('error_container');
+        const errorHtml = `
+            <div class="p-4 bg-red-50 border border-red-300 rounded-lg">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-red-700">${message}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        errorContainer.innerHTML = errorHtml;
+        errorContainer.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideError() {
+        const errorContainer = document.getElementById('error_container');
+        errorContainer.classList.add('hidden');
+    }
+
     function approveDelivery(deliveryId) {
         const deliveryElement = document.getElementById(`delivery_${deliveryId}`);
         const detailsElements = deliveryElement.querySelectorAll('.delivery-details');
@@ -233,42 +266,93 @@
 
     function continueProcess() {
         const deliveryIds = {!! json_encode($deliveries->pluck('id')->toArray()) !!};
+        const batchesData = {!! json_encode($batchesForJson) !!};
 
         if (deliveryIds.length === 0) {
-            showToast('Nessuna consegna da elaborare', 'error');
+            showError('Nessuna consegna da elaborare');
             return;
         }
 
-        // Raccogli i valori modificati e lo stato di approvazione/rifiuto
+        // Nascondi errore precedente
+        hideError();
+
+        // Raccogli i valori modificati e lo stato di approvazione/rifiuto per ogni consegna
         const approvedDeliveries = [];
         const rejectedIds = [];
+        const deliveriesByBatch = {};
 
-        deliveryIds.forEach(deliveryId => {
-            const deliveryElement = document.getElementById(`delivery_${deliveryId}`);
-            const approvedElement = deliveryElement.querySelector('.delivery-approved');
-            const rejectedElement = deliveryElement.querySelector('.delivery-rejected');
-            const conditionSelect = document.querySelector(`.delivery-condition[data-delivery-id="${deliveryId}"]`);
-            const priceInput = document.querySelector(`.delivery-price[data-delivery-id="${deliveryId}"]`);
+        // Raggruppa i deliveries per batch
+        batchesData.forEach(batchData => {
+            const batchId = batchData.batch.id;
+            deliveriesByBatch[batchId] = {
+                batchId: batchId,
+                approved: [],
+                rejected: [],
+                unapproved: []
+            };
 
-            if (!approvedElement.classList.contains('hidden')) {
-                // È approvato
-                approvedDeliveries.push({
-                    id: deliveryId,
-                    condition: conditionSelect ? conditionSelect.value : null,
-                    price: priceInput ? parseFloat(priceInput.value) : null
-                });
-            } else if (!rejectedElement.classList.contains('hidden')) {
-                // È rifiutato
-                rejectedIds.push(deliveryId);
-            }
+            batchData.deliveries.forEach(delivery => {
+                const deliveryElement = document.getElementById(`delivery_${delivery.id}`);
+                if (!deliveryElement) return;
+
+                const approvedElement = deliveryElement.querySelector('.delivery-approved');
+                const rejectedElement = deliveryElement.querySelector('.delivery-rejected');
+
+                if (!approvedElement.classList.contains('hidden')) {
+                    // È approvato
+                    const conditionSelect = document.querySelector(`.delivery-condition[data-delivery-id="${delivery.id}"]`);
+                    const priceInput = document.querySelector(`.delivery-price[data-delivery-id="${delivery.id}"]`);
+                    const approvedData = {
+                        id: delivery.id,
+                        condition: conditionSelect ? conditionSelect.value : null,
+                        price: priceInput ? parseFloat(priceInput.value) : null
+                    };
+                    deliveriesByBatch[batchId].approved.push(approvedData);
+                    approvedDeliveries.push(approvedData);
+                } else if (!rejectedElement.classList.contains('hidden')) {
+                    // È rifiutato
+                    deliveriesByBatch[batchId].rejected.push(delivery.id);
+                    rejectedIds.push(delivery.id);
+                } else {
+                    // Non è stato elaborato
+                    deliveriesByBatch[batchId].unapproved.push(delivery.id);
+                }
+            });
         });
 
-        if (approvedDeliveries.length === 0 && rejectedIds.length === 0) {
-            showToast('Nessuna consegna è stata elaborata', 'error');
+        // Valida che per ogni batch, o tutti i libri sono elaborati, o nessuno
+        const batchesToSubmit = [];
+        let hasErrors = false;
+        let errorMessages = [];
+
+        for (const batchId in deliveriesByBatch) {
+            const batch = deliveriesByBatch[batchId];
+            const totalDeliveries = batch.approved.length + batch.rejected.length + batch.unapproved.length;
+            const elaboratedDeliveries = batch.approved.length + batch.rejected.length;
+
+            if (elaboratedDeliveries > 0 && elaboratedDeliveries < totalDeliveries) {
+                // C'è incoerenza: alcuni libri sono elaborati, altri no
+                hasErrors = true;
+                errorMessages.push(`Consegna ${batchId}: tutti i ${totalDeliveries} libri devono essere approvati o rifiutati. Attualmente: ${elaboratedDeliveries} elaborati, ${batch.unapproved.length} non elaborati.`);
+            } else if (elaboratedDeliveries === totalDeliveries && elaboratedDeliveries > 0) {
+                // Tutti i libri sono stati elaborati: il batch passa a "submitted"
+                batchesToSubmit.push(batchId);
+            }
+        }
+
+        // Se ci sono errori, mostrali e interrompi
+        if (hasErrors) {
+            const errorText = errorMessages.join(' ');
+            showError(errorText);
             return;
         }
 
-        // Innanzitutto approva i libri selezionati
+        if (approvedDeliveries.length === 0 && rejectedIds.length === 0) {
+            showError('Nessuna consegna è stata elaborata. Approva o rifiuta almeno una consegna per continuare.');
+            return;
+        }
+
+        // Procedi con l'approvazione/rifiuto e l'aggiornamento dei batch
         if (approvedDeliveries.length > 0) {
             fetch(`{{ route('staff.deliveries.approve-bulk') }}`, {
                 method: 'PUT',
@@ -286,26 +370,26 @@
                 if (data.success) {
                     // Poi rifiuta i libri marcati come rifiutati
                     if (rejectedIds.length > 0) {
-                        rejectMultiple(rejectedIds, approvedDeliveries);
+                        rejectMultiple(rejectedIds, approvedDeliveries, batchesToSubmit);
                     } else {
-                        // Se non ci sono rifiuti, procedi direttamente ad acquisizioni
-                        saveAndRedirect(approvedDeliveries);
+                        // Se non ci sono rifiuti, procedi direttamente
+                        submitBatchesAndRedirect(batchesToSubmit, approvedDeliveries);
                     }
                 } else {
-                    showToast('Errore nell\'approvazione', 'error');
+                    showError('Errore nell\'approvazione');
                 }
             })
             .catch(error => {
                 console.error('Errore:', error);
-                showToast('Errore nell\'approvazione', 'error');
+                showError('Errore nell\'approvazione');
             });
         } else {
             // Se solo rifiuti, esegui solo i rifiuti
-            rejectMultiple(rejectedIds, []);
+            rejectMultiple(rejectedIds, [], batchesToSubmit);
         }
     }
 
-    function rejectMultiple(rejectedIds, approvedDeliveries) {
+    function rejectMultiple(rejectedIds, approvedDeliveries, batchesToSubmit) {
         const promises = rejectedIds.map(deliveryId => 
             fetch(`{{ route('staff.deliveries.reject-json') }}?delivery_id=${deliveryId}`, {
                 method: 'PUT',
@@ -322,22 +406,46 @@
                 const allSuccessful = results.every(r => r.success);
                 if (allSuccessful) {
                     showToast(`✓ ${rejectedIds.length} consegne rifiutate!`, 'success');
-                    if (approvedDeliveries.length > 0) {
-                        saveAndRedirect(approvedDeliveries);
-                    } else {
-                        // Se solo rifiuti, ricarica la pagina
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
-                    }
+                    submitBatchesAndRedirect(batchesToSubmit, approvedDeliveries);
                 } else {
-                    showToast('Errore nel rifiuto di alcune consegne', 'error');
+                    showError('Errore nel rifiuto di alcune consegne');
                 }
             })
             .catch(error => {
                 console.error('Errore:', error);
-                showToast('Errore nel rifiuto delle consegne', 'error');
+                showError('Errore nel rifiuto delle consegne');
             });
+    }
+
+    function submitBatchesAndRedirect(batchesToSubmit, approvedDeliveries) {
+        // Aggiorna lo stato dei batch a "submitted"
+        if (batchesToSubmit.length > 0) {
+            fetch(`{{ route('staff.deliveries.update-batch-status') }}`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    batch_ids: batchesToSubmit,
+                    status: 'submitted'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    saveAndRedirect(approvedDeliveries);
+                } else {
+                    showError('Errore nell\'aggiornamento dello stato dei batch');
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+                showError('Errore nell\'aggiornamento dello stato dei batch');
+            });
+        } else {
+            saveAndRedirect(approvedDeliveries);
+        }
     }
 
     function saveAndRedirect(approvedDeliveries) {

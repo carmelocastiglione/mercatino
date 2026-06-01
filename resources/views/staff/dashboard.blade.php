@@ -35,7 +35,7 @@
             href="{{ route('staff.deliveries.index') }}"
             title="Prenotazioni consegne"
             description="Esamina e approva le prenotazioni degli studenti"
-            count="{{ $pendingDeliveries }}"
+            count="{{ $pendingDeliveryBatches ?? 0 }}"
             bgColor="yellow"
             label="DA ESAMINARE"
         />
