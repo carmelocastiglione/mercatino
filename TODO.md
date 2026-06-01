@@ -10,16 +10,20 @@
 ## Stampa ricevute da controllare:
 - Prenotazione consegna (studente)
 - Prenotazione vendita (studente)
-- Acquisizione (staff)
+- Acquisizione (staff) + delega
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
 - Farsi approvare dai tecnici Viganò l'applicazione da Google Cloud Console per poter utilizzare il login via Google SSO
 - Testare il login via Google SSO con studenti reali
-- Migliorare la pagina di riepilogo e di stampa con informazioni più chiare e un layout più ordinato
+- Controllare le pagine libri, vendite, acquisti e riscossioni
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
 
 ## Staff
+- Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
+- Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i soldi al posto dello studente
+- Ridimensionare tutte le stampe
+- Togliere informazioni sulla ricevuta e mettere il discaimer della scuola (acquisizioni)
 - Aggiungere riepilogo stampa vendite
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
