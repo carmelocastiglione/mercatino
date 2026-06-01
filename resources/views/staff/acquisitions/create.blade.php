@@ -32,6 +32,13 @@
             <form id="acquisition_form" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                 @csrf
 
+                <!-- Info Box: Multiple Books Selection -->
+                <x-info-box
+                    type="info"
+                    title="Selezione di più libri"
+                    message="Puoi selezionare uno o più libri da aggiungere al catalogo libri disponibili da questo modulo. Aggiungi ogni libro utilizzando il modulo sottostante e al termine inviali insieme per un'unica acquisizione."
+                />
+
                 <!-- Seller Selection -->
                 <div class="mb-8">
                     <label for="seller_search" class="block text-sm font-semibold text-gray-900 mb-2">
@@ -167,7 +174,7 @@
 
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-lg font-bold text-gray-900">Riepilogo</h2>
-                    <span id="cart_counter" class="inline-block bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center">0</span>
+                    <span id="cart_counter" class="inline-flex items-center justify-center bg-blue-600 text-white text-xs font-bold rounded-full w-8 h-8 leading-none">0</span>
                 </div>
 
                 <div id="cart_items" class="space-y-3 mb-6 max-h-96 overflow-y-auto">
@@ -188,10 +195,10 @@
 
                 <div class="space-y-2">
                     <button type="button" onclick="finishAcquisitions()" class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
-                        ✓ Salva Acquisizione
+                        Salva Acquisizione
                     </button>
                     <button type="button" onclick="clearCart()" class="w-full px-4 py-2 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition text-sm">
-                        🗑️ Cancella Tutto
+                        Cancella Tutto
                     </button>
                 </div>
             </div>

@@ -1,10 +1,16 @@
 # CHANGELOG
+- 2026-06-01: Miglioramenti per la visualizzazione delle ricevute
 - 2026-05-31: Aggiunta possibilità di segnalare problemi tecnici tramite un form dedicato. 
 - 2026-05-30: Aggiunta gestione prenotazioni libri (sia lato studente che staff). Aggiunta notifiche per prenotazioni. Aggiornamento dashboard con nuove statistiche.
 - 2026-05-30: Miglioramenti alla versione mobile
 - 2026-05-27: Versione iniziale con funzionalità base per gestione libri, consegne, acquisizioni, vendite, riscossioni, e storico utente. Implementazione autenticazione e autorizzazione. Creazione dashboard personalizzate per studenti e staff.
 
 # TODO
+
+## Stampa ricevute da controllare:
+- Prenotazione consegna
+- Prenotazione vendita
+- Acquisizione
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
@@ -21,7 +27,7 @@
 - Sezione economica
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Permettere di impostare una data e ora per la riconsegna soldi
-- Migliorare visualizzazione pagine di ogni categoria (rinominare le pagina iniziale in home, creare un index per la lista completa)
+- Migliorare visualizzazione pagine di ogni categoria
 - Rivedere pagina riscossioni (ricerca nella pagine principale)
 - Aggiungere filtri alle pagine
 - Controllare storico utente (potrebbero esserci errori)
