@@ -15,9 +15,9 @@
 
     <!-- Summary Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <!-- Prenotazioni in Sospeso -->
+        <!-- Prenotazioni in Attesa -->
         <div class="hover:shadow-md transition">
-            <x-stats-card label="In Sospeso" :value="$batches->where('status', 'pending')->count()" color="yellow" />
+            <x-stats-card label="In attesa" :value="$batches->where('status', 'pending')->count()" color="yellow" />
         </div>
 
         <!-- Prenotazioni Confermate -->
@@ -27,7 +27,7 @@
 
         <!-- Prenotazioni Rifiutate/Cancellate -->
         <div class="hover:shadow-md transition">
-            <x-stats-card label="Rifiutate" :value="$batches->where('status', 'rejected')->count() + $batches->where('status', 'cancelled')->count()" color="red" />
+            <x-stats-card label="Rifiutate" :value="$batches->where('status', 'rejected')->count()" color="red" />
         </div>
     </div>
 
@@ -59,7 +59,7 @@
                         <div class="flex items-center space-x-3">
                             @if ($batch->isPending())
                                 <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
-                                    In Sospeso
+                                    In Attesa
                                 </span>
                             @elseif ($batch->isConfirmed())
                                 <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
@@ -79,28 +79,71 @@
 
                     <!-- Books Summary -->
                     <div class="mb-4">
-                        <div class="text-sm text-gray-600 mb-2">{{ $batch->total_items }} {{ $batch->total_items === 1 ? 'libro' : 'libri' }}</div>
-                        <div class="space-y-1">
-                            @foreach ($batch->bookReservations->take(3) as $reservation)
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-900">
-                                        {{ $reservation->bookListing->book->title }}
-                                    </span>
-                                    <span class="font-semibold text-gray-900">€{{ $reservation->bookListing->price }}</span>
-                                </div>
-                            @endforeach
-                            @if ($batch->bookReservations->count() > 3)
-                                <div class="text-sm text-gray-600 mt-2">
-                                    ... e {{ $batch->bookReservations->count() - 3 }} altri
-                                </div>
-                            @endif
+                        <div class="text-sm text-gray-600 mb-3">{{ $batch->total_items }} {{ $batch->total_items === 1 ? 'libro' : 'libri' }}</div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-100 border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Titolo</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">ISBN</th>
+                                        <th class="px-3 py-2 text-left font-semibold text-gray-700">Condizione</th>
+                                        <th class="px-3 py-2 text-right font-semibold text-gray-700">Prezzo</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    @forelse($batch->bookReservations as $reservation)
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-3 py-2 text-gray-900">{{ $reservation->bookListing->book->title }}</td>
+                                            <td class="px-3 py-2 text-gray-600 font-mono text-xs">{{ $reservation->bookListing->book->isbn ?? 'N/A' }}</td>
+                                            <td class="px-3 py-2">
+                                                <span class="px-2 py-0.5 rounded text-xs font-semibold
+                                                    @switch($reservation->bookListing->condition)
+                                                        @case('like-new')
+                                                            bg-green-100 text-green-800
+                                                            @break
+                                                        @case('good')
+                                                            bg-blue-100 text-blue-800
+                                                            @break
+                                                        @case('fair')
+                                                            bg-yellow-100 text-yellow-800
+                                                            @break
+                                                        @case('poor')
+                                                            bg-red-100 text-red-800
+                                                            @break
+                                                    @endswitch
+                                                ">
+                                                    @switch($reservation->bookListing->condition)
+                                                        @case('like-new')
+                                                            Come Nuovo
+                                                            @break
+                                                        @case('good')
+                                                            Buona
+                                                            @break
+                                                        @case('fair')
+                                                            Discreta
+                                                            @break
+                                                        @case('poor')
+                                                            Scarsa
+                                                            @break
+                                                    @endswitch
+                                                </span>
+                                            </td>
+                                            <td class="px-3 py-2 text-right font-semibold text-gray-900">€{{ number_format($reservation->bookListing->price, 2) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-3 py-4 text-center text-gray-500">Nessun libro</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
                     <!-- Totale -->
                     <div class="flex justify-between items-center pt-4 border-t border-gray-200 mb-4">
                         <span class="font-bold text-gray-900">Totale:</span>
-                        <span class="text-2xl font-bold text-blue-600">€{{ $batch->getTotalPrice() }}</span>
+                        <span class="text-2xl font-bold text-blue-600">€{{ number_format($batch->getTotalPrice(), 2) }}</span>
                     </div>
 
                     <!-- Actions -->

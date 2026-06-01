@@ -8,9 +8,9 @@
 # TODO
 
 ## Stampa ricevute da controllare:
-- Prenotazione consegna
-- Prenotazione vendita
-- Acquisizione
+- Prenotazione consegna (studente)
+- Prenotazione vendita (studente)
+- Acquisizione (staff)
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere

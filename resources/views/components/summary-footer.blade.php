@@ -1,10 +1,14 @@
-@props(['batch' => null, 'acquisition' => null])
+@props(['batch' => null, 'acquisition' => null, 'type' => null])
 
 @php
     if ($acquisition) {
         $count = $acquisition->bookListings->count();
         $total = $acquisition->total_price;
         $label = 'Totale Acquisizione';
+    } elseif ($type === 'book-reservation' && $batch) {
+        $count = $batch->bookReservations()->count();
+        $total = $batch->bookReservations->sum(fn($r) => $r->bookListing->price);
+        $label = 'Totale Prenotazione';
     } else {
         $count = $batch->deliveries()->count();
         $total = $batch->deliveries()->sum('price');

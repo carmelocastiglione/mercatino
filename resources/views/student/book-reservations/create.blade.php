@@ -8,12 +8,13 @@
             ← Torna alle prenotazioni
         </a>
         <h1 class="text-4xl font-bold text-gray-900">Prenota Libri Acquisiti</h1>
-        <p class="text-gray-600 mt-2">Seleziona uno o più libri dai nostri acquisiti. I libri verranno messi in sospeso per la conferma dello staff.</p>
+        <p class="text-gray-600 mt-2">Seleziona uno o più libri tra quelli disponibili. Ti verranno consegnati direttamente al mercatino.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- LEFT SIDE: FORM -->
         <div class="lg:col-span-2">
+            
             <form id="reservation_form" method="POST" action="{{ route('student.book-reservations.store') }}" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8" onsubmit="return handleFormSubmit(event)">
                 @csrf
 
@@ -50,6 +51,13 @@
                         </div>
                     </div>
                 @endif
+
+                <!-- Info Box: Multiple Books Selection -->
+                <x-info-box
+                    type="info"
+                    title="Selezione di più libri"
+                    message="Puoi selezionare uno o più libri da ritirare al mercatino da questo modulo. Aggiungi ogni libro utilizzando il modulo sottostante e al termine inviali insieme per un'unica prenotazione."
+                />
 
                 <!-- Ricerca Libri -->
                 <div class="mb-8">
@@ -128,12 +136,6 @@
                         <span class="text-gray-600">Prezzo totale:</span>
                         <span id="summary_price" class="font-bold text-2xl text-blue-600">€0.00</span>
                     </div>
-                </div>
-
-                <div class="mt-6 p-4 bg-blue-100 border border-blue-300 rounded-lg">
-                    <p class="text-sm text-blue-900">
-                        <strong>Nota:</strong> La tua prenotazione verrà messa in sospeso. Lo staff esaminerà la richiesta e la confermerà o rifiuterà.
-                    </p>
                 </div>
             </div>
         </div>
