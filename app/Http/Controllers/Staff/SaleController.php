@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookSale;
+use App\Models\BookSaleBatch;
 use App\Models\BookListing;
 use App\Models\User;
 use Illuminate\View\View;
@@ -13,24 +14,23 @@ use Illuminate\Http\RedirectResponse;
 class SaleController extends Controller
 {
     /**
-     * Display the list of sold books (filtered by staff's school).
+     * Display the list of sale batches (filtered by staff's school).
      */
     public function index(): View
     {
-        $sales = BookSale::with('bookListing.book', 'soldBy')
+        $batches = BookSaleBatch::with(['creator', 'buyer', 'sales'])
             ->bySchool(auth()->user()->school_id)
             ->latest('created_at')
             ->paginate(15);
 
-        $totalSalesCount = BookSale::bySchool(auth()->user()->school_id)->count();
+        $totalBatchesCount = BookSaleBatch::bySchool(auth()->user()->school_id)->count();
         
-        $totalRevenue = BookSale::bySchool(auth()->user()->school_id)
-            ->join('book_listings', 'book_sales.book_listing_id', '=', 'book_listings.id')
-            ->sum('book_listings.price');
+        $totalRevenue = BookSaleBatch::bySchool(auth()->user()->school_id)
+            ->sum('total_price');
 
         return view('staff.sales.index', [
-            'sales' => $sales,
-            'totalSalesCount' => $totalSalesCount,
+            'batches' => $batches,
+            'totalBatchesCount' => $totalBatchesCount,
             'totalRevenue' => $totalRevenue,
         ]);
     }
@@ -94,31 +94,41 @@ class SaleController extends Controller
     }
 
     /**
-     * Search for available book listings (filtered by staff's school).
+     * Search for available book listings with separate filters (filtered by staff's school).
      */
     public function searchListings(): JsonResponse
     {
-        $query = request('q', '');
+        $titleQuery = request('title', '');
+        $sellerCodeQuery = request('seller_code', '');
         $staffSchoolId = auth()->user()->school_id;
 
-        if (strlen($query) < 2) {
+        // If both are empty, return empty
+        if (strlen($titleQuery) < 1 && strlen($sellerCodeQuery) < 1) {
             return response()->json([]);
         }
 
         $listings = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')
             ->join('users', 'book_listings.seller_id', '=', 'users.id')
             ->where('book_listings.status', '=', 'available')
-            ->where('books.school_id', $staffSchoolId)
-            ->where(function ($q) use ($query) {
-                $q->where('books.title', 'ilike', "%{$query}%")
-                    ->orWhere('books.author', 'ilike', "%{$query}%")
-                    ->orWhere('books.isbn', 'ilike', "%{$query}%")
-                    ->orWhere('users.name', 'ilike', "%{$query}%")
-                    ->orWhere('users.surname', 'ilike', "%{$query}%")
-                    ->orWhere('users.code', 'ilike', "%{$query}%");
-            })
+            ->where('books.school_id', $staffSchoolId);
+
+        // Apply title filter if provided (searches title, author, isbn)
+        if (strlen($titleQuery) >= 1) {
+            $listings->where(function ($q) use ($titleQuery) {
+                $q->where('books.title', 'ilike', "%{$titleQuery}%")
+                    ->orWhere('books.author', 'ilike', "%{$titleQuery}%")
+                    ->orWhere('books.isbn', 'ilike', "%{$titleQuery}%");
+            });
+        }
+
+        // Apply seller code filter if provided
+        if (strlen($sellerCodeQuery) >= 1) {
+            $listings->where('users.code', 'ilike', "%{$sellerCodeQuery}%");
+        }
+
+        $results = $listings
             ->select('book_listings.*', 'books.title', 'books.author', 'books.isbn', 'users.name as seller_name', 'users.surname as seller_surname', 'users.code as seller_code')
-            ->limit(10)
+            ->limit(50)
             ->get()
             ->map(fn($listing) => [
                 'id' => $listing->id,
@@ -130,10 +140,9 @@ class SaleController extends Controller
                 'seller_name' => $listing->seller_name,
                 'seller_surname' => $listing->seller_surname,
                 'seller_code' => $listing->seller_code,
-                'display' => "{$listing->title} - {$listing->author}",
             ]);
 
-        return response()->json($listings);
+        return response()->json($results);
     }
 
     /**
@@ -150,9 +159,19 @@ class SaleController extends Controller
                 'sales.*.book_listing_id' => ['required', 'exists:book_listings,id'],
             ]);
 
+            // Get buyer_id from first sale (all sales should have same buyer)
+            $buyerId = $validated['sales'][0]['buyer_id'];
+
+            // Create the batch first
+            $batch = BookSaleBatch::create([
+                'school_id' => $staffSchoolId,
+                'created_by' => auth()->id(),
+                'buyer_id' => $buyerId,
+                'total_price' => 0, // Will be updated after calculating total
+            ]);
+
             $totalAmount = 0;
             $count = 0;
-            $saleIds = [];
 
             foreach ($validated['sales'] as $index => $sale) {
                 // Verify book listing exists and is available
@@ -174,9 +193,8 @@ class SaleController extends Controller
                     'book_listing_id' => $listing->id,
                     'sold_by' => auth()->id(),
                     'buyer_id' => $sale['buyer_id'],
+                    'book_sale_batch_id' => $batch->id,
                 ]);
-
-                $saleIds[] = $bookSale->id;
 
                 // Update listing status
                 $listing->update(['status' => 'sold']);
@@ -185,10 +203,13 @@ class SaleController extends Controller
                 $count++;
             }
 
+            // Update batch with total price
+            $batch->update(['total_price' => $totalAmount]);
+
             // Clear session data after processing
             session()->forget(['approved_reservations', 'student_id']);
 
-            $redirectUrl = route('staff.sales.batch-summary', ['ids' => implode(',', $saleIds)]);
+            $redirectUrl = route('staff.sales.show', ['batch' => $batch->id]);
 
             return response()->json([
                 'success' => true,
@@ -211,45 +232,21 @@ class SaleController extends Controller
     }
 
     /**
-     * Show sale summary/receipt (authorized by school).
-     */
-    public function show($saleId): View
-    {
-        $staffSchoolId = auth()->user()->school_id;
-        $sale = BookSale::with('bookListing.book', 'soldBy', 'buyer')
-            ->findOrFail($saleId);
-        
-        if ($sale->bookListing->book->school_id !== $staffSchoolId) {
-            abort(403, 'Non autorizzato');
-        }
-
-        return view('staff.sales.show', [
-            'sale' => $sale,
-        ]);
-    }
-
-    /**
      * Show batch sales summary (authorized by school).
      */
-    public function batchSummary(): View|RedirectResponse
+    public function show($batchId): View|RedirectResponse
     {
-        $ids = request()->query('ids', '');
-        $saleIds = array_filter(explode(',', $ids));
-
-        if (empty($saleIds)) {
-            return redirect()->route('staff.sales.create');
-        }
-
-        $sales = BookSale::with('bookListing.book', 'soldBy', 'buyer')
-            ->whereIn('id', $saleIds)
-            ->bySchool(auth()->user()->school_id)
-            ->get();
+        $batch = BookSaleBatch::with(['sales.bookListing.book', 'sales.buyer', 'creator', 'buyer'])
+            ->where('school_id', auth()->user()->school_id)
+            ->findOrFail($batchId);
 
         return view('staff.sales.show', [
-            'sales' => $sales,
-            'isBatch' => true,
+            'batch' => $batch,
+            'sales' => $batch->sales,
         ]);
     }
+
+
 
     /**
      * Store a newly created sale in storage (legacy, authorized by school).

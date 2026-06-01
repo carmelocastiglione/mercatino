@@ -18,6 +18,7 @@ class BookSale extends Model
         'book_listing_id',
         'sold_by',
         'buyer_id',
+        'book_sale_batch_id',
         'notes',
     ];
 
@@ -63,5 +64,13 @@ class BookSale extends Model
     public function buyer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    /**
+     * Get the batch this sale belongs to.
+     */
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(BookSaleBatch::class, 'book_sale_batch_id');
     }
 }

@@ -3,14 +3,14 @@
 @section('title', 'Nuova Vendita')
 
 @section('content')
-    <div class="mb-8 flex items-center justify-between">
-        <div>
-            <h1 class="text-4xl font-bold text-gray-900">Registra Vendite</h1>
-            <p class="text-gray-600 mt-2">Vendi più libri in una sola operazione</p>
+
+
+    <div class="mb-8">
+        <div class="flex items-center space-x-4 mb-6">
+            <a href="{{ route('staff.sales.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">← Torna alle vendite</a>
         </div>
-        <a href="{{ route('staff.sales.index') }}" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium">
-            ← Torna alle vendite
-        </a>
+        <h1 class="text-4xl font-bold text-gray-900">Nuova Vendita</h1>
+        <p class="text-gray-600 mt-2">Aggiungi uno o più libri per creare una nuova vendita</p>
     </div>
 
     {{-- Pre-populated message if coming from book reservations --}}
@@ -38,6 +38,13 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Info Box: Multiple Books Selection -->
+                <x-info-box
+                    type="info"
+                    title="Selezione di più libri"
+                    message="Puoi selezionare uno o più libri da vendere da questo modulo. Aggiungi ogni libro utilizzando il modulo sottostante e al termine inviali insieme per un'unica vendita."
+                />
 
                 <!-- Buyer Selection -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -71,26 +78,76 @@
 
                 <!-- Book Search & Selection -->
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <label for="book_search" class="block text-sm font-semibold text-gray-900 mb-2">
-                        Libro <span class="text-red-600">*</span>
-                    </label>
-                    <div class="relative">
-                        <input 
-                            type="text" 
-                            id="book_search" 
-                            placeholder="Cerca titolo, autore, ISBN, nome, cognome o codice venditore..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            autocomplete="off"
-                        >
-                        <div id="book_results" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-64 overflow-y-auto z-10"></div>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-4">Ricerca Libri</h3>
+                    
+                    <!-- Two-column search filters -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="book_title_search" class="block text-sm font-medium text-gray-700 mb-2">
+                                Libro
+                            </label>
+                            <input 
+                                type="text" 
+                                id="book_title_search" 
+                                placeholder="Cerca titolo, autore o ISBN..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                autocomplete="off"
+                            >
+                        </div>
+                        <div>
+                            <label for="seller_code_search" class="block text-sm font-medium text-gray-700 mb-2">
+                                Venditore
+                            </label>
+                            <input 
+                                type="text" 
+                                id="seller_code_search" 
+                                placeholder="Cerca codice venditore..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                autocomplete="off"
+                            >
+                        </div>
                     </div>
+
+                    <!-- Results Table -->
+                    <div id="book_results_container" class="hidden">
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Titolo</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-700">ISBN</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Venditore</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-gray-700">Condizione</th>
+                                        <th class="px-4 py-3 text-right font-semibold text-gray-700">Prezzo</th>
+                                        <th class="px-4 py-3 text-center font-semibold text-gray-700">Azione</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="book_results_table" class="divide-y divide-gray-200">
+                                    <!-- Results will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- No results message -->
+                    <div id="book_no_results" class="hidden text-center py-6">
+                        <p class="text-gray-500">Nessun libro trovato. Prova a modificare i filtri di ricerca.</p>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="book_search_empty" class="text-center py-6">
+                        <p class="text-gray-500">Inserisci i criteri di ricerca per visualizzare i libri disponibili.</p>
+                    </div>
+
                     <input type="hidden" id="book_listing_id" value="">
                 </div>
 
-                <!-- Add to Cart Button -->
-                <button type="button" onclick="addToCart()" class="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
-                    ➕ Aggiungi Libro
-                </button>
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-4">
+                    <a href="{{ route('staff.sales.index') }}" class="px-6 py-3 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition">
+                        Annulla
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -107,9 +164,9 @@
                 </div>
 
                 <!-- Cart Summary Header -->
-                <div class="mb-4">
+                <div class="mb-4 flex items-center justify-between">
                     <h2 class="text-lg font-bold text-gray-900">Riepilogo</h2>
-                    <span id="cart_count" class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold mt-2">0</span>
+                    <span id="cart_count" class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">0</span>
                 </div>
 
                 <!-- Cart Items -->
@@ -126,10 +183,10 @@
                 <!-- Action Buttons -->
                 <div class="space-y-3">
                     <button type="button" onclick="finishSales()" class="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
-                        ✓ Salva Vendite
+                        Salva Vendite
                     </button>
                     <button type="button" onclick="clearCart()" class="w-full px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
-                        🗑️ Cancella Tutto
+                        Cancella Tutto
                     </button>
                 </div>
             </div>
@@ -173,11 +230,37 @@
             }
         }
 
-        function selectBook(id, title, author, price, condition) {
-            document.getElementById('book_listing_id').value = id;
-            document.getElementById('book_search').value = `${title} - ${author}`;
-            document.getElementById('book_results').classList.add('hidden');
-            selectedBookPrice = parseFloat(price);
+        function selectBook(id, title, isbn, price, condition, sellerCode) {
+            const buyerId = document.getElementById('buyer_id').value;
+
+            if (!buyerId) {
+                showToast('Seleziona prima un acquirente', 'error');
+                return;
+            }
+
+            // Add directly to cart
+            cart.push({
+                buyer_id: parseInt(buyerId),
+                book_listing_id: parseInt(id),
+                title: title,
+                isbn: isbn,
+                condition: condition,
+                price: parseFloat(price),
+                seller_code: sellerCode,
+            });
+
+            updateCartDisplay();
+            resetForm();
+            showToast(`✓ ${title} aggiunto al carrello`, 'success');
+        }
+
+        function clearBookSelection() {
+            document.getElementById('book_listing_id').value = '';
+            document.getElementById('book_title_search').value = '';
+            document.getElementById('seller_code_search').value = '';
+            document.getElementById('book_results_container').classList.add('hidden');
+            document.getElementById('book_no_results').classList.add('hidden');
+            document.getElementById('book_search_empty').classList.remove('hidden');
         }
 
         function addToCart() {
@@ -229,6 +312,13 @@
             const itemsDiv = document.getElementById('cart_items');
             const totalDiv = document.getElementById('cart_total');
 
+            const conditionLabels = {
+                'like-new': 'Come Nuovo',
+                'good': 'Buona',
+                'fair': 'Discreta',
+                'poor': 'Scarsa'
+            };
+
             counter.textContent = cart.length;
 
             if (cart.length === 0) {
@@ -241,8 +331,14 @@
                 <div class="flex items-start justify-between p-3 bg-gray-50 rounded-lg">
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900">${item.title}</p>
+                        <p class="text-xs text-gray-600">ISBN: <span class="font-mono">${item.isbn || 'N/A'}</span></p>
+                        <p class="text-xs text-gray-600 mt-1">Venditore: <span class="font-bold">${item.seller_code || 'N/A'}</span></p>
+                        <p class="text-xs text-gray-600">Condizione: <span class="font-normal">${conditionLabels[item.condition] || item.condition || 'N/A'}</span></p>
                     </div>
-                    <button onclick="removeFromCart(${index})" class="text-red-600 hover:text-red-800 font-bold text-lg ml-2">×</button>
+                    <div class="flex flex-col items-end gap-2 ml-2">
+                        <p class="text-base font-bold text-green-600">€${parseFloat(item.price).toFixed(2)}</p>
+                        <button onclick="removeFromCart(${index})" class="text-red-600 hover:text-red-800 font-bold text-lg">×</button>
+                    </div>
                 </div>
             `).join('');
 
@@ -250,8 +346,12 @@
         }
 
         function resetForm() {
-            document.getElementById('book_search').value = '';
+            document.getElementById('book_title_search').value = '';
+            document.getElementById('seller_code_search').value = '';
             document.getElementById('book_listing_id').value = '';
+            document.getElementById('book_results_container').classList.add('hidden');
+            document.getElementById('book_no_results').classList.add('hidden');
+            document.getElementById('book_search_empty').classList.remove('hidden');
         }
 
         function showToast(message, type = 'info') {
@@ -449,42 +549,101 @@
             }, 300);
         });
 
-        // Book Search with Debounce
-        let bookDebounce;
-        document.getElementById('book_search').addEventListener('input', function(e) {
-            clearTimeout(bookDebounce);
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                document.getElementById('book_results').classList.add('hidden');
+        // Book Search with two filters
+        let bookSearchDebounce;
+        let bookTitleValue = '';
+        let sellerCodeValue = '';
+
+        function performBookSearch() {
+            const title = bookTitleValue.trim();
+            const sellerCode = sellerCodeValue.trim();
+
+            // Show empty state if both fields are empty
+            if (!title && !sellerCode) {
+                document.getElementById('book_results_container').classList.add('hidden');
+                document.getElementById('book_no_results').classList.add('hidden');
+                document.getElementById('book_search_empty').classList.remove('hidden');
                 return;
             }
 
-            bookDebounce = setTimeout(() => {
-                fetch(`{{ route('staff.sales.search-listings') }}?q=${encodeURIComponent(query)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        const resultsDiv = document.getElementById('book_results');
-                        const cartListingIds = cart.map(item => item.book_listing_id);
-                        const availableBooks = data.filter(book => !cartListingIds.includes(book.id));
-                        
-                        if (availableBooks.length === 0) {
-                            resultsDiv.innerHTML = '<div class="p-3 text-gray-500 text-sm">Nessun libro disponibile</div>';
-                        } else {
-                            resultsDiv.innerHTML = availableBooks.map(book => `
-                                <div class="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0" onclick="selectBook(${book.id}, '${book.title}', '${book.author}', ${book.price}, '${book.condition}')">
-                                    <p class="font-medium text-sm text-gray-900">${book.title}</p>
-                                    <p class="text-xs text-gray-600">${book.author}</p>
-                                    <p class="text-xs text-gray-600 mt-1">Condizione: <span class="font-semibold">${book.condition}</span></p>
-                                    <p class="text-xs text-gray-600">Venditore: <span class="font-semibold">${book.seller_name} ${book.seller_surname}</span> (${book.seller_code})</p>
-                                    <p class="text-xs text-green-600 font-semibold mt-1">€${parseFloat(book.price).toFixed(2)}</p>
-                                </div>
-                            `).join('');
-                        }
-                        resultsDiv.classList.remove('hidden');
-                    })
-                    .catch(err => {});
-            }, 300);
+            // Show loading state
+            document.getElementById('book_search_empty').classList.add('hidden');
+            document.getElementById('book_results_container').classList.add('hidden');
+            document.getElementById('book_no_results').classList.add('hidden');
+
+            const params = new URLSearchParams();
+            if (title) params.append('title', title);
+            if (sellerCode) params.append('seller_code', sellerCode);
+
+            fetch(`{{ route('staff.sales.search-listings') }}?${params.toString()}`)
+                .then(r => r.json())
+                .then(data => {
+                    const resultsTable = document.getElementById('book_results_table');
+                    const resultsContainer = document.getElementById('book_results_container');
+                    const noResults = document.getElementById('book_no_results');
+                    const cartListingIds = cart.map(item => item.book_listing_id);
+                    const availableBooks = data.filter(book => !cartListingIds.includes(book.id));
+
+                    if (availableBooks.length === 0) {
+                        resultsContainer.classList.add('hidden');
+                        noResults.classList.remove('hidden');
+                    } else {
+                        // Condition color mapping
+                        const conditionColors = {
+                            'like-new': 'bg-green-100 text-green-800',
+                            'good': 'bg-blue-100 text-blue-800',
+                            'fair': 'bg-yellow-100 text-yellow-800',
+                            'poor': 'bg-red-100 text-red-800'
+                        };
+
+                        const conditionLabels = {
+                            'like-new': 'Come Nuovo',
+                            'good': 'Buona',
+                            'fair': 'Discreta',
+                            'poor': 'Scarsa'
+                        };
+
+                        resultsTable.innerHTML = availableBooks.map(book => `
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-4 py-3 font-medium text-gray-900">${book.title}</td>
+                                <td class="px-4 py-3 font-mono text-xs text-gray-600">${book.isbn || 'N/A'}</td>
+                                <td class="px-4 py-3 text-gray-600">
+                                    <div>${book.seller_name} ${book.seller_surname}</div>
+                                    <div class="text-xs font-semibold text-gray-700">${book.seller_code}</div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 rounded text-xs font-semibold ${conditionColors[book.condition] || 'bg-gray-100 text-gray-800'}">
+                                        ${conditionLabels[book.condition] || book.condition}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 text-right font-semibold text-gray-900">€${parseFloat(book.price).toFixed(2)}</td>
+                                <td class="px-4 py-3 text-center">
+                                    <button type="button" onclick="selectBook(${book.id}, '${book.title.replace(/'/g, "\\'")}', '${book.isbn || ''}', ${book.price}, '${book.condition}', '${book.seller_code}')" class="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700 transition">
+                                        Seleziona
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('');
+                        resultsContainer.classList.remove('hidden');
+                        noResults.classList.add('hidden');
+                    }
+                })
+                .catch(err => {
+                    console.error('Errore nella ricerca:', err);
+                    document.getElementById('book_no_results').classList.remove('hidden');
+                });
+        }
+
+        document.getElementById('book_title_search').addEventListener('input', function(e) {
+            bookTitleValue = e.target.value;
+            clearTimeout(bookSearchDebounce);
+            bookSearchDebounce = setTimeout(performBookSearch, 300);
+        });
+
+        document.getElementById('seller_code_search').addEventListener('input', function(e) {
+            sellerCodeValue = e.target.value;
+            clearTimeout(bookSearchDebounce);
+            bookSearchDebounce = setTimeout(performBookSearch, 300);
         });
 
             // Load approved reservations from session if available

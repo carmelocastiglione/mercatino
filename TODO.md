@@ -1,4 +1,6 @@
 # CHANGELOG
+- 2026-06-01: Nella pagina di vendite, sono visualizzate le vendite per "sessione" come per acquisizioni ed è possibile accedere ai dettagli della singola vendita. Nella pagina di creazione è stato inserito un doppio filtro libro / codice venditore e adesso si può scegliere da una lista con più informazioni. Tolta la colonna pagamento.
+- 2026-06-01: Nella pagina acquisizioni, di default il libro è impostato come "come nuovo" per semplificare l'inserimento. 
 - 2026-06-01: Miglioramenti per la visualizzazione delle ricevute
 - 2026-05-31: Aggiunta possibilità di segnalare problemi tecnici tramite un form dedicato. 
 - 2026-05-30: Aggiunta gestione prenotazioni libri (sia lato studente che staff). Aggiunta notifiche per prenotazioni. Aggiornamento dashboard con nuove statistiche.
@@ -11,6 +13,7 @@
 - Prenotazione consegna (studente)
 - Prenotazione vendita (studente)
 - Acquisizione (staff) + delega
+- Vendita (staff)
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
