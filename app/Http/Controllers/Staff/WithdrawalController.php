@@ -52,17 +52,28 @@ class WithdrawalController extends Controller
             ->sum('book_listings.price');
 
         // Calculate progress: users who have withdrawn vs users who have sold books
-        $usersWithSoldBooks = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')
+        $usersWithSoldBooks = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+            ->join('books', 'book_listings.book_id', '=', 'books.id')
             ->where('books.school_id', $schoolId)
-            ->where('book_listings.status', 'sold')
             ->distinct('book_listings.seller_id')
             ->count('book_listings.seller_id');
 
-        $usersWithdrawn = Withdrawal::whereHas('user', function ($query) use ($schoolId) {
-                $query->where('school_id', $schoolId);
+        // Users who have withdrawn money for ALL their sold books
+        $usersWithdrawn = User::where('school_id', $schoolId)
+            ->get()
+            ->filter(function($user) use ($schoolId) {
+                // Count sold books for this user in this school
+                $soldCount = BookListing::where('seller_id', $user->id)
+                    ->bySchool($schoolId)
+                    ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+                    ->count();
+                
+                // Count withdrawals for this user
+                $withdrawnCount = Withdrawal::where('user_id', $user->id)->count();
+                
+                return $soldCount > 0 && $soldCount === $withdrawnCount;
             })
-            ->distinct('user_id')
-            ->count('user_id');
+            ->count();
 
         $withdrawalProgress = $usersWithSoldBooks > 0 ? ($usersWithdrawn / $usersWithSoldBooks) * 100 : 0;
 

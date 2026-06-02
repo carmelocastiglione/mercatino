@@ -11,7 +11,7 @@
                 </h1>
                 <p class="text-gray-600 text-sm mt-1">{{ $seller->email }} ({{ $seller->code }})</p>
             </div>
-            <a href="{{ route('staff.withdrawals.create') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded">
+            <a href="{{ route('staff.withdrawals.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded">
                 ← Torna alla lista
             </a>
         </div>

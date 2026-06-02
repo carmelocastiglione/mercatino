@@ -33,6 +33,7 @@
 ## Staff
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
 - Aggiungere filtri in libri disponibili (es: libro, venditore)
+- Aggiungere filtri in riscossioni
 - Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
 - Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i soldi al posto dello studente
 - Ridimensionare tutte le stampe
@@ -57,6 +58,7 @@
 ## Miglioramenti Generali
 - L'orario è quello del server, impostare fuso orario corretto
 - Creare interfaccia comune per la stampa
+- Controllare tutte le pagination
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
