@@ -33,10 +33,11 @@ class WithdrawalController extends Controller
             ->latest('updated_at')
             ->paginate(15);
 
-        // Calculate total amounts - Totale Ricavi Vendite (sum of price_sell for sold books)
+        // Calculate total amounts - Totale Ricavi Vendite (sum of price_sell for sold books, excluding reclaimed)
         $totalEarned = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
             ->join('books', 'book_listings.book_id', '=', 'books.id')
             ->where('books.school_id', $schoolId)
+            ->whereNull('book_sales.reclaim_id')  // Escludere i libri resi
             ->sum('book_listings.price_sell');
 
         // Calculate total amounts - Totale Riscosso (sum of amounts from withdrawals)
@@ -45,10 +46,11 @@ class WithdrawalController extends Controller
             })
             ->sum('amount');
 
-        // Calculate total amounts - Totale Da Riscuotere (sum of price for sold books)
+        // Calculate total amounts - Totale Da Riscuotere (sum of price for sold books, excluding reclaimed)
         $totalAvailable = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
             ->join('books', 'book_listings.book_id', '=', 'books.id')
             ->where('books.school_id', $schoolId)
+            ->whereNull('book_sales.reclaim_id')  // Escludere i libri resi
             ->sum('book_listings.price');
 
         // Calculate progress: users who have withdrawn vs users who have sold books
@@ -239,11 +241,13 @@ class WithdrawalController extends Controller
         ]);
 
         // Create reclaim record (legacy, for backward compatibility)
+        /*
         Reclaim::create([
             'user_id' => $seller->id,
             'book_listing_id' => $listing->id,
             'notes' => "Libro non venduto ritirato: {$bookTitle}",
         ]);
+        */
         
         // Mark the listing as reclaimed
         $listing->update(['status' => 'reclaim']);
@@ -331,11 +335,13 @@ class WithdrawalController extends Controller
             ]);
 
             // Create reclaim record (legacy, for backward compatibility)
+            /*
             Reclaim::create([
                 'user_id' => $user->id,
                 'book_listing_id' => $listing->id,
                 'notes' => "Ritiro massivo libri non venduti: {$listing->book->title}",
             ]);
+            */
             
             // Mark the listing as reclaimed
             $listing->update(['status' => 'reclaim']);

@@ -1,122 +1,172 @@
 @extends('layouts.app-staff')
 
+@section('title', 'Dettagli Reso')
+
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-        <a href="{{ route('staff.reclaims.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">← Torna ai resi</a>
-        <h1 class="text-4xl font-bold text-gray-900 mt-4">{{ $title }}</h1>
-    </div>
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8 flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-900">Dettagli Reso</h1>
+                <p class="text-gray-600 mt-2">Data: {{ $reclaim->created_at->format('d/m/Y H:i') }}</p>
+            </div>
+            <div class="flex gap-2 print:hidden">
+                <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                    Stampa
+                </button>
+                <a href="{{ route('staff.reclaims.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition">
+                    Torna ai resi
+                </a>
+            </div>
+        </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Dettagli del libro -->
-        <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Informazioni Libro</h2>
+        <!-- Main Content -->
+        <div class="space-y-8">
+            <x-reclaim-information-card :reclaim="$reclaim" />
+
+            <x-reclaim-book-card :reclaim="$reclaim" />
+
+            <x-reclaim-summary-card :reclaim="$reclaim" />
+
+            <x-information-note message="Se approvi il reso, il libro sarà rimesso in vendita e il compratore riceverà la conferma. Se rifiuti, libro e vendita restano invariati." />
+
+            <div class="flex gap-4 print:hidden">
+                <a href="{{ route('staff.reclaims.index') }}" class="flex-1 px-6 py-4 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
+                    Torna ai resi
+                </a>
+                <button onclick="handlePrint()" class="flex-1 px-6 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                    Stampa Riepilogo
+                </button>
+            </div>
+        </div>
+
+        <!-- Print Styles -->
+        <style media="print">
+            @page {
+                margin: 0.5cm;
+                size: A4;
+            }
+
+            html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            body {
+                overflow: visible !important;
+            }
+
+            nav,
+            aside,
+            [class*="sidebar"],
+            [class*="navbar"],
+            [class*="header"],
+            [class*="fixed"],
+            [style*="fixed"],
+            [style*="position: fixed"],
+            .print\:hidden {
+                display: none !important;
+            }
+
+            body > * {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            main {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+
+            .max-w-4xl {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            table {
+                page-break-inside: avoid;
+                width: 100%;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+
+            * {
+                color: black !important;
+                background: white !important;
+                box-shadow: none !important;
+                border-color: black !important;
+            }
+
+            a {
+                text-decoration: none !important;
+                color: black !important;
+            }
+        </style>
+
+        <script>
+            function handlePrint() {
+                const printWindow = window.open('', '_blank');
+                const content = document.querySelector('.max-w-4xl').innerHTML;
                 
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Titolo</label>
-                        <p class="text-gray-900 text-lg mt-1">{{ $reclaim->bookListing->book->title }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Autore</label>
-                        <p class="text-gray-900 mt-1">{{ $reclaim->bookListing->book->author }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Condizione</label>
-                        <div class="mt-1">
-                            @php
-                                $conditionColors = [
-                                    'like-new' => 'bg-green-100 text-green-800',
-                                    'good' => 'bg-blue-100 text-blue-800',
-                                    'fair' => 'bg-yellow-100 text-yellow-800',
-                                    'poor' => 'bg-red-100 text-red-800'
-                                ];
-                            @endphp
-                            <span class="inline-block px-3 py-1 text-sm font-semibold rounded {{ $conditionColors[$reclaim->bookListing->condition] ?? 'bg-gray-100' }}">
-                                {{ str_replace('-', ' ', $reclaim->bookListing->condition) }}
-                            </span>
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Dettagli Reso</title>
+                        <script src="https://cdn.tailwindcss.com"><\/script>
+                        <style>
+                            body {
+                                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                                padding: 40px;
+                                background: white;
+                            }
+                            .print-content {
+                                max-width: 900px;
+                                margin: 0 auto;
+                            }
+                            @media print {
+                                body {
+                                    padding: 0;
+                                }
+                                @page {
+                                    margin: 0.5cm;
+                                    size: A4;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="print-content">
+                            ${content}
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Prezzo</label>
-                        <p class="text-gray-900 text-lg mt-1">€{{ number_format($reclaim->bookListing->price, 2) }}</p>
-                    </div>
-                </div>
-            </div>
+                        <script>
+                            setTimeout(() => {
+                                const header = document.querySelector('.mb-8.flex');
+                                if (header) {
+                                    header.style.display = 'none';
+                                }
+                                window.print();
+                            }, 500);
 
-            <!-- Dettagli del reso -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Dettagli Reso</h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Data Reso</label>
-                        <p class="text-gray-900 mt-1">{{ $reclaim->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Note Venditore</label>
-                        <p class="text-gray-700 mt-1 bg-gray-50 p-3 rounded">{{ $reclaim->notes ?? 'Nessuna nota' }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Dettagli Venditore e Azioni -->
-        <div>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Venditore</h2>
-                
-                <div class="space-y-3">
-                    <div>
-                        <p class="text-sm font-medium text-gray-700">Nome</p>
-                        <p class="text-gray-900">{{ $reclaim->user->name }} {{ $reclaim->user->surname }}</p>
-                    </div>
-                    
-                    <div>
-                        <p class="text-sm font-medium text-gray-700">Email</p>
-                        <p class="text-gray-900">{{ $reclaim->user->email }}</p>
-                    </div>
-                    
-                    <div>
-                        <p class="text-sm font-medium text-gray-700">Codice</p>
-                        <p class="text-gray-900">{{ $reclaim->user->code }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Azioni -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Status Reso</h2>
-                
-                <div>
-                    @if ($reclaim->status === 'approved')
-                        <span class="inline-block px-3 py-2 bg-green-100 text-green-800 text-sm font-semibold rounded">
-                            ✓ Approvato
-                        </span>
-                    @elseif ($reclaim->status === 'rejected')
-                        <span class="inline-block px-3 py-2 bg-red-100 text-red-800 text-sm font-semibold rounded">
-                            ✕ Rifiutato
-                        </span>
-                    @else
-                        <span class="inline-block px-3 py-2 bg-yellow-100 text-yellow-800 text-sm font-semibold rounded">
-                            ⏳ In sospeso
-                        </span>
-                    @endif
-                </div>
-
-                @if ($reclaim->status === 'rejected' && $reclaim->rejection_reason)
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Motivo Rifiuto</label>
-                        <p class="text-gray-700 bg-gray-50 p-3 rounded">{{ $reclaim->rejection_reason }}</p>
-                    </div>
-                @endif
-            </div>
-        </div>
+                            window.addEventListener('afterprint', () => {
+                                window.close();
+                            });
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+        </script>
     </div>
-</div>
 @endsection

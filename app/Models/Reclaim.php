@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Builder;
 
 class Reclaim extends Model
@@ -13,6 +14,7 @@ class Reclaim extends Model
      */
     protected $fillable = [
         'user_id',
+        'buyer_id',
         'book_listing_id',
         'notes',
         'status',
@@ -49,5 +51,21 @@ class Reclaim extends Model
     public function bookListing(): BelongsTo
     {
         return $this->belongsTo(BookListing::class);
+    }
+
+    /**
+     * Get the buyer (customer who purchased the book).
+     */
+    public function buyer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'buyer_id');
+    }
+
+    /**
+     * Get the book sale associated with this reclaim.
+     */
+    public function bookSale(): BelongsTo
+    {
+        return $this->belongsTo(BookSale::class);
     }
 }

@@ -1,10 +1,23 @@
 @extends('layouts.app-staff')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
     <div class="mb-8">
         <h1 class="text-4xl font-bold text-gray-900">{{ $title }}</h1>
         <p class="text-gray-600 mt-2">{{ $description }}</p>
+    </div>
+
+    <!-- Statistiche Resi -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <x-stats-card
+            label="Numero di Resi Approvati"
+            :value="$totalReclaims"
+            color="red"
+        />
+        <x-stats-card
+            label="Importo Restituito"
+            :value="'€' . number_format($totalReclaimedAmount, 2, ',', '.')"
+            color="red"
+        />
     </div>
 
     <!-- Form di ricerca acquirente -->
@@ -39,11 +52,11 @@
         </div>
     </div>
 
-    <!-- Lista libri acquistati -->
+    <!-- Lista libri elegibili per restituzione -->
     <div id="buyer_books_box" class="hidden">
         <div class="mb-6">
             <h2 class="text-2xl font-bold text-gray-900">
-                Libri Acquistati <span id="books_count" class="ml-2 inline-block bg-purple-600 text-white text-sm font-bold rounded-full px-3 py-1">0</span>
+                Libri Elegibili per Restituzione <span id="books_count" class="ml-2 inline-block bg-purple-600 text-white text-sm font-bold rounded-full px-3 py-1">0</span>
             </h2>
         </div>
 
@@ -54,9 +67,86 @@
 
     <!-- Messaggio iniziale -->
     <div id="initial_message" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-        <p class="text-gray-500 text-lg">Cerca un acquirente per visualizzare i libri acquistati</p>
+        <p class="text-gray-500 text-lg">Cerca un acquirente per visualizzare i libri acquistati.</p>
+        <p class="text-gray-500 text-lg">E' possibile restituire solamente un libro per cui non è stato ancora riscosso l'importo dal venditore.</p>
     </div>
-</div>
+
+    <!-- Lista di tutti i resi -->
+    <div class="mt-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            Tutti i Resi
+        </h2>
+
+        @if($reclaims->isEmpty())
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <p class="text-gray-500 text-lg">Nessun reso al momento.</p>
+            </div>
+        @else
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acquirente</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Venditore</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach($reclaims as $reclaim)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $reclaim->bookListing->book->title }}</p>
+                                        <p class="text-sm text-gray-600 font-mono">{{ $reclaim->bookListing->book->isbn ?? 'N/A' }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $reclaim->buyer->name ?? 'N/A' }} {{ $reclaim->buyer->surname ?? '' }}</p>
+                                        <p class="text-sm text-gray-600">{{ $reclaim->buyer->code ?? 'N/A' }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $reclaim->user->name ?? 'N/A' }} {{ $reclaim->user->surname ?? '' }}</p>
+                                        <p class="text-sm text-gray-600">{{ $reclaim->user->code ?? 'N/A' }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <p class="text-sm text-gray-600">{{ $reclaim->created_at->format('d/m/Y H:i') }}</p>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $statusColors = [
+                                            'approved' => 'bg-green-100 text-green-800',
+                                            'rejected' => 'bg-red-100 text-red-800',
+                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                        ];
+                                        $statusLabels = [
+                                            'approved' => 'Approvato',
+                                            'rejected' => 'Rifiutato',
+                                            'pending' => 'In Sospeso',
+                                        ];
+                                    @endphp
+                                    <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full {{ $statusColors[$reclaim->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $statusLabels[$reclaim->status] ?? ucfirst($reclaim->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('staff.reclaims.show', $reclaim->id) }}" class="inline-block px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition">
+                                        Visualizza
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </div>
 
 <script>
     let buyerDebounceTimer;
@@ -129,7 +219,7 @@
                 booksCount.textContent = buyerBooks.length;
 
                 if (buyerBooks.length === 0) {
-                    buyerBooksList.innerHTML = '<div class="p-8 text-center text-gray-500">Questo acquirente non ha libri acquistati</div>';
+                    buyerBooksList.innerHTML = '<div class="p-8 text-center text-gray-500">Questo acquirente non ha libri che possono essere restituiti</div>';
                     buyerBooksBox.classList.remove('hidden');
                     return;
                 }
@@ -141,23 +231,29 @@
                     'poor': 'bg-red-100 text-red-800'
                 };
 
+                const conditionLabels = {
+                    'like-new': 'Come Nuovo',
+                    'good': 'Buono',
+                    'fair': 'Discreto',
+                    'poor': 'Scadente'
+                };
+
                 buyerBooksList.innerHTML = buyerBooks.map((book) => {
-                    const hasReclaim = data.reclaims && data.reclaims.some(r => r.book_listing_id === book.id);
                     return `
                         <div class="p-4 bg-white hover:bg-gray-50 transition border-b border-gray-100">
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <p class="font-medium text-gray-900">${book.title}</p>
                                     <p class="text-sm text-gray-600">${book.author || 'Autore sconosciuto'}</p>
+                                    ${book.isbn ? `<p class="text-sm text-gray-500">ISBN: ${book.isbn}</p>` : ''}
                                     <div class="flex gap-2 mt-2">
-                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${conditionColors[book.condition] || 'bg-gray-100'}">${book.condition.replace('-', ' ')}</span>
-                                        <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded">€${parseFloat(book.price).toFixed(2)}</span>
-                                        ${hasReclaim ? '<span class="inline-block px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-800 rounded">IN RESO</span>' : ''}
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded ${conditionColors[book.condition] || 'bg-gray-100'}">${conditionLabels[book.condition] || book.condition}</span>
+                                        <span class="inline-block px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded">€${book.price_sell ? parseFloat(book.price_sell).toFixed(2) : '0.00'}</span>
                                     </div>
                                 </div>
-                                ${!hasReclaim ? `<button type="button" onclick="createReclaim(${book.id})" class="ml-4 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition whitespace-nowrap">
-                                    + Reso
-                                </button>` : '<span class="ml-4 px-3 py-1 bg-gray-300 text-gray-700 text-sm font-medium rounded whitespace-nowrap">In Reso</span>'}
+                                <button type="button" onclick="createReclaim(${book.id})" class="ml-4 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition whitespace-nowrap">
+                                    Inizia Reso
+                                </button>
                             </div>
                         </div>
                     `;

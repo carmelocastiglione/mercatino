@@ -21,35 +21,56 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Dettagli Libro -->
         <div class="lg:col-span-2">
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Dettagli Libro</h2>
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md border border-blue-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-2">
+                    Dettagli Libro
+                </h2>
 
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Titolo</p>
-                        <p class="text-lg font-bold text-gray-900">{{ $bookListing->book->title }}</p>
+                <div class="space-y-6">
+                    <!-- Titolo e Autore -->
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Titolo</p>
+                        <p class="text-xl font-bold text-gray-900">{{ $bookListing->book->title }}</p>
+                        <p class="text-sm text-gray-600 mt-2">{{ $bookListing->book->author }}</p>
                     </div>
 
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Autore</p>
-                        <p class="text-gray-700">{{ $bookListing->book->author }}</p>
+                    <!-- ISBN -->
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">ISBN</p>
+                        <p class="text-gray-800 font-mono text-lg">{{ $bookListing->book->isbn ?? '—' }}</p>
                     </div>
 
+                    <!-- Condizione e Prezzo -->
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Condizione</p>
-                            <p class="text-gray-700 capitalize">{{ $bookListing->condition }}</p>
+                        <div class="bg-white rounded-lg p-4 border border-blue-100">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Condizione</p>
+                            @php
+                                $conditions = [
+                                    'like-new' => ['Come Nuovo', 'bg-green-100', 'text-green-800'],
+                                    'good' => ['Buono', 'bg-blue-100', 'text-blue-800'],
+                                    'fair' => ['Discreto', 'bg-yellow-100', 'text-yellow-800'],
+                                    'poor' => ['Scadente', 'bg-red-100', 'text-red-800']
+                                ];
+                                $condData = $conditions[$bookListing->condition] ?? ['Sconosciuto', 'bg-gray-100', 'text-gray-800'];
+                            @endphp
+                            <span class="inline-block px-3 py-1 text-sm font-semibold rounded-full {{ $condData[1] }} {{ $condData[2] }}">
+                                {{ $condData[0] }}
+                            </span>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-500">Prezzo</p>
-                            <p class="text-gray-700">€{{ $bookListing->price }}</p>
+                        <div class="bg-white rounded-lg p-4 border border-blue-100">
+                            <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Prezzo Vendita</p>
+                            <p class="text-2xl font-bold text-green-600">€{{ number_format($bookListing->price_sell, 2, ',', '.') }}</p>
                         </div>
                     </div>
 
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Venditore</p>
-                        <p class="text-gray-700">{{ $bookListing->seller->name }} {{ $bookListing->seller->surname }}</p>
-                        <p class="text-xs text-gray-500">{{ $bookListing->seller->email }}</p>
+                    <!-- Venditore -->
+                    <div class="bg-white rounded-lg p-4 border border-blue-100">
+                        <p class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Venditore</p>
+                        <div class="space-y-2">
+                            <p class="text-lg font-bold text-gray-900">{{ $bookListing->seller->name }} {{ $bookListing->seller->surname }}</p>
+                            <p class="text-sm text-gray-600">{{ $bookListing->seller->email }}</p>
+                            <p class="text-sm text-gray-600">Codice: <span class="font-mono font-semibold text-gray-900">{{ $bookListing->seller->code }}</span></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -88,7 +109,7 @@
                         value="approve"
                         class="w-full px-4 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
                     >
-                        ✓ Approva Reso
+                        Approva Reso
                     </button>
 
                     <button 
@@ -97,7 +118,7 @@
                         value="reject"
                         class="w-full px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition"
                     >
-                        ✕ Rifiuta Reso
+                        Rifiuta Reso
                     </button>
 
                     <a 

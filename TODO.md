@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-02: Miglioramenti alla pagina resi
 - 2026-06-02: Fix dashboard pagina riscossioni
 - 2026-06-02: Migliorato la riscossione dei libri non venduti. Viene adesso generata la ricevuta
 - 2026-06-02: Migliorato la riscossione dei soldi per i libri non venduti. Inserito un riepilogo e la stampa della ricevuta
@@ -22,6 +23,7 @@
 - Vendita (staff)
 - Riscossione soldi (staff)
 - Riscossione libri non venduti (staff)
+- Resi (staff)
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere

@@ -25,6 +25,13 @@
         </div>
     @endif
 
+    <!-- Info Box: Multiple Books Selection -->
+    <x-info-box
+        type="info"
+        title="Avviso conteggio vendite"
+        message="Questa pagina registra le vendite senza tener conto dei resi. Se un libro è stato venduto e poi restituito, la vendita originale rimarrà registrata qui. Le vendite totali e l'incasso totale sono conteggiati senza tener conto delle vendite. Per una gestione accurata dei resi, consulta la sezione 'Resi' dedicata. Per controllare l'incasso effettivo comprensivo di resi, consulta la sezione 'Riscossioni'."
+    />
+
     @if($batches->count() > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">

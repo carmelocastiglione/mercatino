@@ -16,9 +16,24 @@ class ReclaimController extends Controller
      */
     public function index()
     {
+        $staffSchoolId = auth()->user()->school_id;
+        
+        $reclaims = Reclaim::bySchool($staffSchoolId)
+            ->with(['user', 'bookListing.book', 'bookListing.seller', 'buyer'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Calcola statistiche (solo per resi approvati)
+        $approvedReclaims = $reclaims->where('status', 'approved');
+        $totalReclaims = $approvedReclaims->count();
+        $totalReclaimedAmount = $approvedReclaims->sum(fn($r) => $r->bookListing->price_sell ?? 0);
+        
         return view('staff.reclaims.index', [
             'title' => 'Gestione Resi',
             'description' => 'Gestisci i resi dei libri venduti',
+            'reclaims' => $reclaims,
+            'totalReclaims' => $totalReclaims,
+            'totalReclaimedAmount' => $totalReclaimedAmount,
         ]);
     }
 
@@ -76,8 +91,10 @@ class ReclaimController extends Controller
                     'id' => $b->id,
                     'title' => $b->book->title,
                     'author' => $b->book->author,
+                    'isbn' => $b->book->isbn,
                     'condition' => $b->condition,
                     'price' => $b->price,
+                    'price_sell' => $b->price_sell,
                     'status' => $b->status,
                 ];
             }),
@@ -127,17 +144,33 @@ class ReclaimController extends Controller
                 return back()->with('error', 'Non autorizzato');
             }
 
+            // Get buyer_id from BookSale before deleting it
+            $bookSale = BookSale::where('book_listing_id', $bookListingId)->first();
+            $buyerId = $bookSale?->buyer_id;
+
             if ($action === 'approve') {
+                // Get BookSale details before updating
+                $bookSale = BookSale::where('book_listing_id', $bookListingId)->first();
+                $batchId = $bookSale?->book_sale_batch_id;
+
                 // Crea e approva il reso
                 $reclaim = Reclaim::create([
                     'user_id' => $bookListing->seller_id,
+                    'buyer_id' => $buyerId,
                     'book_listing_id' => $bookListingId,
                     'status' => 'approved',
                 ]);
 
+                // Aggiorna il BookSale con reclaim_id e reclaimed_at
+                if ($bookSale) {
+                    $bookSale->update([
+                        'reclaim_id' => $reclaim->id,
+                        'reclaimed_at' => now(),
+                    ]);
+                }
+
                 // Ripristina il libro a available
                 $bookListing->update(['status' => 'available']);
-                BookSale::where('book_listing_id', $bookListing->id)->delete();
 
                 return redirect()->route('staff.reclaims.show', $reclaim->id)
                     ->with('success', 'Reso approvato! Il libro è stato rimesso in vendita.');
@@ -148,6 +181,7 @@ class ReclaimController extends Controller
 
                 $reclaim = Reclaim::create([
                     'user_id' => $bookListing->seller_id,
+                    'buyer_id' => $buyerId,
                     'book_listing_id' => $bookListingId,
                     'status' => 'rejected',
                     'rejection_reason' => $rejection_reason,
@@ -206,7 +240,7 @@ class ReclaimController extends Controller
     public function show(Reclaim $reclaim)
     {
         $staffSchoolId = auth()->user()->school_id;
-        $reclaim->load(['user', 'bookListing.book', 'bookListing.seller']);
+        $reclaim->load(['user', 'bookListing.book', 'bookListing.seller', 'buyer']);
 
         if ($reclaim->bookListing->book->school_id !== $staffSchoolId) {
             abort(403, 'Non autorizzato');
@@ -216,6 +250,96 @@ class ReclaimController extends Controller
             'reclaim' => $reclaim,
             'title' => 'Dettagli Reso',
         ]);
+    }
+
+    /**
+     * Approve the specified reclaim (authorized by school).
+     */
+    public function approve(Reclaim $reclaim)
+    {
+        $staffSchoolId = auth()->user()->school_id;
+        $reclaim->load('bookListing.book');
+
+        if ($reclaim->bookListing->book->school_id !== $staffSchoolId) {
+            return back()->with('error', 'Non puoi accedere a questo reso');
+        }
+
+        if ($reclaim->status !== 'pending') {
+            return back()->with('error', 'Puoi approvare solo resi in sospeso');
+        }
+
+        // Aggiorna il Reclaim a approved
+        $reclaim->update(['status' => 'approved']);
+
+        // Aggiorna il BookSale con reclaim_id e reclaimed_at
+        $bookSale = BookSale::where('book_listing_id', $reclaim->book_listing_id)->first();
+        if ($bookSale) {
+            $bookSale->update([
+                'reclaim_id' => $reclaim->id,
+                'reclaimed_at' => now(),
+            ]);
+        }
+
+        // Ripristina il libro a available
+        $reclaim->bookListing->update(['status' => 'available']);
+
+        return redirect()->route('staff.reclaims.show', $reclaim->id)
+            ->with('success', 'Reso approvato! Il libro è stato rimesso in vendita.');
+    }
+
+    /**
+     * Show the form for rejecting a reclaim (authorized by school).
+     */
+    public function rejectForm(Reclaim $reclaim)
+    {
+        $staffSchoolId = auth()->user()->school_id;
+        $reclaim->load('bookListing.book', 'buyer', 'user');
+
+        if ($reclaim->bookListing->book->school_id !== $staffSchoolId) {
+            abort(403, 'Non puoi accedere a questo reso');
+        }
+
+        if ($reclaim->status !== 'pending') {
+            return back()->with('error', 'Puoi rifiutare solo resi in sospeso');
+        }
+
+        return view('staff.reclaims.reject', [
+            'reclaim' => $reclaim,
+        ]);
+    }
+
+    /**
+     * Reject the specified reclaim (authorized by school).
+     * IMPORTANTE: Non modifica book_listings nè book_sales, solo il Reclaim.
+     */
+    public function reject(Request $request, Reclaim $reclaim)
+    {
+        $staffSchoolId = auth()->user()->school_id;
+        $reclaim->load('bookListing.book');
+
+        if ($reclaim->bookListing->book->school_id !== $staffSchoolId) {
+            return back()->with('error', 'Non puoi accedere a questo reso');
+        }
+
+        if ($reclaim->status !== 'pending') {
+            return back()->with('error', 'Puoi rifiutare solo resi in sospeso');
+        }
+
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ], [
+            'rejection_reason.required' => 'Specifica il motivo del rifiuto',
+            'rejection_reason.max' => 'Il motivo non può superare 500 caratteri',
+        ]);
+
+        // Aggiorna SOLO il Reclaim - NON modifica book_listings nè book_sales
+        $reclaim->update([
+            'status' => 'rejected',
+            'rejection_reason' => $validated['rejection_reason'],
+        ]);
+
+        return redirect()->route('staff.reclaims.show', $reclaim->id)
+            ->with('success', 'Reso rifiutato correttamente.');
     }
 
     /**

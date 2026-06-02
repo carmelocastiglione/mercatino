@@ -222,6 +222,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/reclaims/create', [StaffReclaimController::class, 'create'])->name('staff.reclaims.create');
     Route::post('/reclaims', [StaffReclaimController::class, 'store'])->name('staff.reclaims.store');
     Route::get('/reclaims/{reclaim}', [StaffReclaimController::class, 'show'])->name('staff.reclaims.show');
+    Route::put('/reclaims/{reclaim}/approve', [StaffReclaimController::class, 'approve'])->name('staff.reclaims.approve');
+    Route::get('/reclaims/{reclaim}/reject-form', [StaffReclaimController::class, 'rejectForm'])->name('staff.reclaims.reject-form');
+    Route::put('/reclaims/{reclaim}/reject', [StaffReclaimController::class, 'reject'])->name('staff.reclaims.reject');
     Route::delete('/reclaims/{reclaim}', [StaffReclaimController::class, 'destroy'])->name('staff.reclaims.destroy');
     
     // Withdrawals Management - Riscossioni

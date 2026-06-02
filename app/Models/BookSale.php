@@ -20,6 +20,8 @@ class BookSale extends Model
         'buyer_id',
         'book_sale_batch_id',
         'notes',
+        'reclaim_id',
+        'reclaimed_at',
     ];
 
     /**
@@ -33,6 +35,13 @@ class BookSale extends Model
             event(new BookSold($sale));
         });
     }
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected $casts = [
+        'reclaimed_at' => 'datetime',
+    ];
 
     /**
      * Scope to filter sales by school.
@@ -72,5 +81,13 @@ class BookSale extends Model
     public function batch(): BelongsTo
     {
         return $this->belongsTo(BookSaleBatch::class, 'book_sale_batch_id');
+    }
+
+    /**
+     * Get the reclaim associated with this sale (if reclaimed).
+     */
+    public function reclaim(): BelongsTo
+    {
+        return $this->belongsTo(Reclaim::class);
     }
 }
