@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-02: Aggiunto prezzo di vendita nella pagina dei libri disponibili
 - 2026-06-02: Corretto l'errore nel prezzo di vendita
 - 2026-06-01: Nella pagina di vendite, sono visualizzate le vendite per "sessione" come per acquisizioni ed è possibile accedere ai dettagli della singola vendita. Nella pagina di creazione è stato inserito un doppio filtro libro / codice venditore e adesso si può scegliere da una lista con più informazioni. Tolta la colonna pagamento.
 - 2026-06-01: Nella pagina acquisizioni, di default il libro è impostato come "come nuovo" per semplificare l'inserimento. 
@@ -25,6 +26,7 @@
 
 ## Staff
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
+- Aggiungere filtri in libri disponibili (es: libro, venditore)
 - Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
 - Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i soldi al posto dello studente
 - Ridimensionare tutte le stampe

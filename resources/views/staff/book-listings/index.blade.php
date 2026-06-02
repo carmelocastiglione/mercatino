@@ -10,9 +10,10 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <x-stats-card label="Libri Disponibili" :value="$totalAvailableBooks" color="purple" />
-        <x-stats-card label="Valore Totale" :value="$totalAvailableAmount" color="purple" formatted />
+        <x-stats-card label="Valore di Acquisizione" :value="$totalAcquisitionAmount" color="blue" formatted />
+        <x-stats-card label="Valore di Vendita" :value="$totalSalesAmount" color="green" formatted />
     </div>
 
     <!-- Listings Table -->
@@ -24,7 +25,9 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Libro</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Venditore</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Condizione</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo Acq.</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo Vend.</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Data Acquisizione</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -50,10 +53,12 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm font-semibold text-gray-900">€ {{ number_format($listing->price, 2, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-sm font-semibold text-green-600">{{ $listing->price_sell ? '€ ' . number_format($listing->price_sell, 2, ',', '.') : '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">{{ $listing->created_at->format('d/m/Y H:i') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <p class="text-lg">Nessun libro disponibile</p>
                             </td>
                         </tr>

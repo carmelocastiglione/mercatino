@@ -23,14 +23,19 @@ class BookListingController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $totalAvailableAmount = BookListing::where('status', 'available')
+        $totalAcquisitionAmount = BookListing::where('status', 'available')
             ->bySchool(auth()->user()->school_id)
             ->sum('price');
+
+        $totalSalesAmount = BookListing::where('status', 'available')
+            ->bySchool(auth()->user()->school_id)
+            ->sum('price_sell');
 
         return view('staff.book-listings.index', [
             'listings' => $listings,
             'totalAvailableBooks' => $totalAvailableBooks,
-            'totalAvailableAmount' => $totalAvailableAmount,
+            'totalAcquisitionAmount' => $totalAcquisitionAmount,
+            'totalSalesAmount' => $totalSalesAmount,
         ]);
     }
 }
