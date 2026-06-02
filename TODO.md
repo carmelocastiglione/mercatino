@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-02: Migliorato la riscossione dei soldi per i libri non venduti. Inserito un riepilogo e la stampa della ricevuta
 - 2026-06-02: Corretta la funzione di ritiro libri non venduti. Aggiunta lista libri ritirati
 - 2026-06-02: Aggiunto prezzo di vendita nella pagina dei libri disponibili
 - 2026-06-02: Corretto l'errore nel prezzo di vendita
@@ -17,6 +18,8 @@
 - Prenotazione vendita (studente)
 - Acquisizione (staff) + delega
 - Vendita (staff)
+- Riscossione soldi (staff)
+- Riscossione libri non venduti (staff)
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere

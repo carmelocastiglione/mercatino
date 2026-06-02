@@ -131,12 +131,19 @@ class WithdrawalController extends Controller
         $reclaimedBooks = $bookListings->where('status', 'reclaim')->values();
         $archivedBooks = $bookListings->where('status', 'archived')->values();
 
+        // Get all withdrawal batches with their withdrawals
+        $withdrawalBatches = WithdrawalBatch::where('user_id', $user->id)
+            ->with(['withdrawals.bookListing.book'])
+            ->latest()
+            ->get();
+
         return view('staff.withdrawals.manage-seller', [
             'seller' => $user,
             'soldBooks' => $soldBooks,
             'unsoldBooks' => $unsoldBooks,
             'reclaimedBooks' => $reclaimedBooks,
             'archivedBooks' => $archivedBooks,
+            'withdrawalBatches' => $withdrawalBatches,
         ]);
     }
 
@@ -178,8 +185,7 @@ class WithdrawalController extends Controller
         // Mark the listing as withdrawn (payment collected)
         $listing->update(['status' => 'withdrawn']);
 
-        return redirect()->route('staff.withdrawals.process-seller', $seller->id)
-            ->with('success', "Riscosso {$amount}€ per il libro \"{$listing->book->title}\"");
+        return redirect()->route('staff.withdrawals.show-batch', $batch->id);
     }
 
     /**
@@ -346,8 +352,7 @@ class WithdrawalController extends Controller
         // Update batch total amount
         $batch->update(['total_amount' => $totalAmount]);
 
-        return redirect()->back()
-            ->with('success', "{$withdrawCount} libro(i) venduto(i) - Soldi ritirati");
+        return redirect()->route('staff.withdrawals.show-batch', $batch->id);
     }
 
     /**
@@ -401,6 +406,26 @@ class WithdrawalController extends Controller
 
         return view('staff.withdrawals.show', [
             'withdrawal' => $withdrawal,
+        ]);
+    }
+
+    /**
+     * Display withdrawal batch summary (authorized by school).
+     */
+    public function showBatch(WithdrawalBatch $withdrawalBatch): View
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($withdrawalBatch->user->school_id !== $staffSchoolId) {
+            abort(403, 'Non autorizzato');
+        }
+
+        // Load withdrawals with book listings
+        $withdrawalBatch->load(['withdrawals.bookListing.book', 'user']);
+
+        return view('staff.withdrawals.batch-summary', [
+            'batch' => $withdrawalBatch,
         ]);
     }
 

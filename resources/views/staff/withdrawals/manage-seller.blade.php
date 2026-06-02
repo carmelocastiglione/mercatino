@@ -23,6 +23,36 @@
             <x-stats-card label="Da Riscuotere" :value="$seller->getAvailableBalance()" color="blue" formatted />
         </div>
 
+        <!-- Navigation Links -->
+        <div class="grid grid-cols-5 gap-3 mb-8">
+            <a href="#libri-venduti" class="flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
+                <span>Libri Venduti</span>
+                @if(count($soldBooks) > 0)
+                    <span class="flex items-center justify-center w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full">
+                        {{ count($soldBooks) }}
+                    </span>
+                @endif
+            </a>
+            <a href="#storico-riscossioni" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
+                Storico Riscossioni
+            </a>
+            <a href="#libri-non-venduti" class="flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
+                <span>Libri Non Venduti</span>
+                @if(count($unsoldBooks) > 0)
+                    <span class="flex items-center justify-center w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full">
+                        {{ count($unsoldBooks) }}
+                    </span>
+                @endif
+            </a>
+            </a>
+            <a href="#libri-ritirati" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
+                Libri Ritirati
+            </a>
+            <a href="#libri-archiviati" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
+                Libri Archiviati
+            </a>
+        </div>
+
         <!-- Messages -->
         @if($errors->any())
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700">
@@ -31,7 +61,7 @@
         @endif
 
         <!-- Books Venduti Section -->
-        <div class="bg-white shadow-md rounded-lg mb-8">
+        <div id="libri-venduti" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
             <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-gray-900">
                     Libri Venduti <span class="text-sm text-gray-500 font-normal">({{ count($soldBooks) }})</span>
@@ -93,8 +123,94 @@
             @endif
         </div>
 
+        <!-- Storico Riscossioni / Withdrawal Batches -->
+        <div id="storico-riscossioni" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    Storico Riscossioni
+                </h2>
+            </div>
+            
+            @if(count($withdrawalBatches) > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Numero Libri</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Totale</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($withdrawalBatches as $batch)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-6 py-4 text-sm text-center text-gray-900 font-semibold">{{ $batch->withdrawals->count() }}</td>
+                                    <td class="px-6 py-4 text-sm text-right text-gray-900 font-semibold">€{{ number_format($batch->total_amount, 2, ',', '.') }}</td>
+                                    <td class="px-6 py-4 text-center text-sm">
+                                        <div class="flex gap-2 justify-center">
+                                            <button onclick="toggleDetails({{ $batch->id }})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-colors">
+                                                Dettagli
+                                            </button>
+                                            <a href="{{ route('staff.withdrawals.show-batch', $batch->id) }}" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded transition-colors">
+                                                Riepilogo
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="details-{{ $batch->id }}" class="hidden">
+                                    <td colspan="4" class="px-6 py-4">
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-xs">
+                                                    <thead class="bg-gray-200">
+                                                        <tr>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">#</th>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">Libro</th>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">ISBN</th>
+                                                            <th class="px-3 py-2 text-right font-semibold text-gray-900">Importo</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-300">
+                                                        @foreach($batch->withdrawals as $index => $withdrawal)
+                                                            <tr class="hover:bg-gray-100">
+                                                                <td class="px-3 py-2 text-gray-900">{{ $index + 1 }}</td>
+                                                                <td class="px-3 py-2 text-gray-900 font-medium">{{ $withdrawal->bookListing->book->title }}</td>
+                                                                <td class="px-3 py-2 text-gray-600">{{ $withdrawal->bookListing->book->isbn ?? '-' }}</td>
+                                                                <td class="px-3 py-2 text-right text-gray-900 font-semibold">€{{ number_format($withdrawal->amount, 2, ',', '.') }}</td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-8 text-center text-gray-500">
+                    <p class="text-lg">Nessun ritiro registrato</p>
+                </div>
+            @endif
+        </div>
+
+        <script>
+            function toggleDetails(batchId) {
+                const detailsRow = document.getElementById('details-' + batchId);
+                if (detailsRow.classList.contains('hidden')) {
+                    detailsRow.classList.remove('hidden');
+                } else {
+                    detailsRow.classList.add('hidden');
+                }
+            }
+        </script>
+
         <!-- Books Non Venduti Section -->
-        <div class="bg-white shadow-md rounded-lg mb-8">
+        <div id="libri-non-venduti" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
             <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-gray-900">
                     Libri Non Venduti <span class="text-sm text-gray-500 font-normal">({{ count($unsoldBooks) }})</span>
@@ -181,7 +297,7 @@
         </div>
 
         <!-- Books Ritirati Section -->
-        <div class="bg-white shadow-md rounded-lg mb-8">
+        <div id="libri-ritirati" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
             <div class="border-b border-gray-200 px-6 py-4">
                 <h2 class="text-xl font-bold text-gray-900">
                     Libri Ritirati <span class="text-sm text-gray-500 font-normal">({{ count($reclaimedBooks) }})</span>
@@ -229,7 +345,7 @@
         </div>
 
         <!-- Books Archiviati Section -->
-        <div class="bg-white shadow-md rounded-lg mb-8">
+        <div id="libri-archiviati" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
             <div class="border-b border-gray-200 px-6 py-4">
                 <h2 class="text-xl font-bold text-gray-900">
                     Libri Archiviati <span class="text-sm text-gray-500 font-normal">({{ count($archivedBooks) }})</span>
@@ -276,38 +392,6 @@
             @endif
         </div>
 
-        <!-- Withdrawal History -->
-        @if($seller->withdrawals()->exists())
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Storico Ritiri</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
-                                <th class="px-4 py-3 text-right text-sm font-semibold text-gray-900">Importo</th>
-                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Note</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @foreach($seller->withdrawals()->latest()->limit(10)->get() as $withdrawal)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-sm text-gray-900">
-                                        {{ $withdrawal->created_at->format('d/m/Y H:i') }}
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-sm text-gray-900 font-semibold">
-                                        €{{ number_format($withdrawal->amount, 2, ',', '.') }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-600">
-                                        {{ $withdrawal->notes ?? '-' }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
     </div>
 </div>
 @endsection
