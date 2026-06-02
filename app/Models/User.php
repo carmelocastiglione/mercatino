@@ -123,6 +123,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the pickups for this user.
+     */
+    public function pickups(): HasMany
+    {
+        return $this->hasMany(Pickup::class);
+    }
+
+    /**
+     * Get the pickup batches for this user.
+     */
+    public function pickupBatches(): HasMany
+    {
+        return $this->hasMany(PickupBatch::class);
+    }
+
+    /**
      * Get the reclaimed books for this user.
      */
     public function reclaims(): HasMany

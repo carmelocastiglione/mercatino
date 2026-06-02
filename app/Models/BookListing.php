@@ -99,6 +99,14 @@ class BookListing extends Model
     }
 
     /**
+     * Get the pickup record if this book was picked up (reclaimed or archived).
+     */
+    public function pickups(): HasMany
+    {
+        return $this->hasMany(Pickup::class);
+    }
+
+    /**
      * Get the book reservations for this listing.
      */
     public function bookReservations(): HasMany

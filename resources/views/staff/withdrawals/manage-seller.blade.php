@@ -24,7 +24,7 @@
         </div>
 
         <!-- Navigation Links -->
-        <div class="grid grid-cols-5 gap-3 mb-8">
+        <div class="grid grid-cols-4 gap-3 mb-8">
             <a href="#libri-venduti" class="flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200">
                 <span>Libri Venduti</span>
                 @if(count($soldBooks) > 0)
@@ -44,12 +44,8 @@
                     </span>
                 @endif
             </a>
-            </a>
-            <a href="#libri-ritirati" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
-                Libri Ritirati
-            </a>
-            <a href="#libri-archiviati" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
-                Libri Archiviati
+            <a href="#storico-invenduti" class="px-4 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 text-center">
+                Storico Invenduti
             </a>
         </div>
 
@@ -296,42 +292,73 @@
             @endif
         </div>
 
-        <!-- Books Ritirati Section -->
-        <div id="libri-ritirati" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
+        <!-- Storico Invenduti / Pickup Batches -->
+        <div id="storico-invenduti" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
             <div class="border-b border-gray-200 px-6 py-4">
                 <h2 class="text-xl font-bold text-gray-900">
-                    Libri Ritirati <span class="text-sm text-gray-500 font-normal">({{ count($reclaimedBooks) }})</span>
+                    Storico Invenduti
                 </h2>
             </div>
             
-            @if(count($reclaimedBooks) > 0)
+            @if(count($pickupBatches) > 0)
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Numero Libri</th>
+                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            @foreach($reclaimedBooks as $book)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-center text-sm">
-                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold bg-red-600">Ritirato</span>
+                            @foreach($pickupBatches as $batch)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="px-6 py-4 text-sm text-center text-gray-900 font-semibold">{{ $batch->pickups->count() }}</td>
+                                    <td class="px-6 py-4 text-center text-sm space-x-2">
+                                        <button onclick="togglePickupDetails({{ $batch->id }})" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-colors">
+                                            Dettagli
+                                        </button>
+                                        <a href="{{ route('staff.withdrawals.pickup-summary', $batch->id) }}" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded transition-colors inline-block">
+                                            Riepilogo
+                                        </a>
                                     </td>
-                                    <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
-                                        €{{ number_format($book->price, 2, ',', '.') }}
+                                </tr>
+                                <tr id="pickup-details-{{ $batch->id }}" class="hidden">
+                                    <td colspan="3" class="px-6 py-4">
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <div class="overflow-x-auto">
+                                                <table class="w-full text-xs">
+                                                    <thead class="bg-gray-200">
+                                                        <tr>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">#</th>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">Libro</th>
+                                                            <th class="px-3 py-2 text-left font-semibold text-gray-900">ISBN</th>
+                                                            <th class="px-3 py-2 text-center font-semibold text-gray-900">Stato</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-300">
+                                                        @foreach($batch->pickups as $index => $pickup)
+                                                            <tr class="hover:bg-gray-100">
+                                                                <td class="px-3 py-2 text-gray-900">{{ $index + 1 }}</td>
+                                                                <td class="px-3 py-2 text-gray-900 font-medium">{{ $pickup->bookListing->book->title }}</td>
+                                                                <td class="px-3 py-2 text-gray-600">{{ $pickup->bookListing->book->isbn ?? '-' }}</td>
+                                                                <td class="px-3 py-2 text-center">
+                                                                    <span class="px-2 py-1 rounded text-white text-xs font-semibold @if($pickup->leave) bg-gray-600 @else bg-red-600 @endif">
+                                                                        @if($pickup->leave)
+                                                                            Archiviato
+                                                                        @else
+                                                                            Ritirato
+                                                                        @endif
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
-                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->updated_at->format('d/m/Y H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -339,58 +366,30 @@
                 </div>
             @else
                 <div class="p-8 text-center text-gray-500">
-                    <p class="text-lg">Nessun libro ritirato</p>
+                    <p class="text-lg">Nessun pickup registrato</p>
                 </div>
             @endif
         </div>
 
-        <!-- Books Archiviati Section -->
-        <div id="libri-archiviati" class="bg-white shadow-md rounded-lg mb-8 scroll-mt-20">
-            <div class="border-b border-gray-200 px-6 py-4">
-                <h2 class="text-xl font-bold text-gray-900">
-                    Libri Archiviati <span class="text-sm text-gray-500 font-normal">({{ count($archivedBooks) }})</span>
-                </h2>
-            </div>
-            
-            @if(count($archivedBooks) > 0)
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Archiviazione</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            @foreach($archivedBooks as $book)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-center text-sm">
-                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold bg-gray-600">Archiviato</span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
-                                        €{{ number_format($book->price, 2, ',', '.') }}
-                                    </td>
-                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
-                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->updated_at->format('d/m/Y H:i') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @else
-                <div class="p-8 text-center text-gray-500">
-                    <p class="text-lg">Nessun libro archiviato</p>
-                </div>
-            @endif
-        </div>
+        <script>
+            function toggleDetails(batchId) {
+                const detailsRow = document.getElementById('details-' + batchId);
+                if (detailsRow.classList.contains('hidden')) {
+                    detailsRow.classList.remove('hidden');
+                } else {
+                    detailsRow.classList.add('hidden');
+                }
+            }
+
+            function togglePickupDetails(batchId) {
+                const detailsRow = document.getElementById('pickup-details-' + batchId);
+                if (detailsRow.classList.contains('hidden')) {
+                    detailsRow.classList.remove('hidden');
+                } else {
+                    detailsRow.classList.add('hidden');
+                }
+            }
+        </script>
 
     </div>
 </div>

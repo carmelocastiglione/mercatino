@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookListing;
+use App\Models\Pickup;
+use App\Models\PickupBatch;
 use App\Models\Reclaim;
 use App\Models\User;
 use App\Models\Withdrawal;
@@ -128,8 +130,6 @@ class WithdrawalController extends Controller
         // Group by status
         $soldBooks = $bookListings->where('status', 'sold')->values();
         $unsoldBooks = $bookListings->whereIn('status', ['available', 'reserved'])->values();
-        $reclaimedBooks = $bookListings->where('status', 'reclaim')->values();
-        $archivedBooks = $bookListings->where('status', 'archived')->values();
 
         // Get all withdrawal batches with their withdrawals
         $withdrawalBatches = WithdrawalBatch::where('user_id', $user->id)
@@ -137,13 +137,18 @@ class WithdrawalController extends Controller
             ->latest()
             ->get();
 
+        // Get all pickup batches with their pickups
+        $pickupBatches = PickupBatch::where('user_id', $user->id)
+            ->with(['pickups.bookListing.book'])
+            ->latest()
+            ->get();
+
         return view('staff.withdrawals.manage-seller', [
             'seller' => $user,
             'soldBooks' => $soldBooks,
             'unsoldBooks' => $unsoldBooks,
-            'reclaimedBooks' => $reclaimedBooks,
-            'archivedBooks' => $archivedBooks,
             'withdrawalBatches' => $withdrawalBatches,
+            'pickupBatches' => $pickupBatches,
         ]);
     }
 
@@ -208,7 +213,20 @@ class WithdrawalController extends Controller
         $bookTitle = $listing->book->title;
         $seller = $listing->seller;
         
-        // Create reclaim record
+        // Create pickup batch for single book
+        $batch = PickupBatch::create([
+            'user_id' => $seller->id,
+        ]);
+
+        // Create pickup record (leave = false for reclaim)
+        Pickup::create([
+            'user_id' => $seller->id,
+            'book_listing_id' => $listing->id,
+            'pickup_batch_id' => $batch->id,
+            'leave' => false,
+        ]);
+
+        // Create reclaim record (legacy, for backward compatibility)
         Reclaim::create([
             'user_id' => $seller->id,
             'book_listing_id' => $listing->id,
@@ -218,7 +236,7 @@ class WithdrawalController extends Controller
         // Mark the listing as reclaimed
         $listing->update(['status' => 'reclaim']);
 
-        return redirect()->back()
+        return redirect()->route('staff.withdrawals.pickup-summary', $batch)
             ->with('success', "Libro \"{$bookTitle}\" ritirato dalla vendita");
     }
 
@@ -244,11 +262,25 @@ class WithdrawalController extends Controller
         }
 
         $bookTitle = $listing->book->title;
+        $seller = $listing->seller;
+
+        // Create pickup batch for single book
+        $batch = PickupBatch::create([
+            'user_id' => $seller->id,
+        ]);
+
+        // Create pickup record (leave = true for archive)
+        Pickup::create([
+            'user_id' => $seller->id,
+            'book_listing_id' => $listing->id,
+            'pickup_batch_id' => $batch->id,
+            'leave' => true,
+        ]);
 
         // Mark the listing as archived
         $listing->update(['status' => 'archived']);
 
-        return redirect()->back()
+        return redirect()->route('staff.withdrawals.pickup-summary', $batch)
             ->with('success', "Libro \"{$bookTitle}\" archiviato");
     }
 
@@ -264,6 +296,11 @@ class WithdrawalController extends Controller
             return redirect()->back()->with('error', 'Non autorizzato');
         }
 
+        // Create a single pickup batch for all operations
+        $batch = PickupBatch::create([
+            'user_id' => $user->id,
+        ]);
+
         // Get all books to withdraw (available/reserved and leave = false)
         $booksToWithdraw = BookListing::where('seller_id', $user->id)
             ->bySchool($staffSchoolId)
@@ -273,7 +310,15 @@ class WithdrawalController extends Controller
 
         $withdrawCount = 0;
         foreach ($booksToWithdraw as $listing) {
-            // Create reclaim record
+            // Create pickup record (leave = false for reclaim)
+            Pickup::create([
+                'user_id' => $user->id,
+                'book_listing_id' => $listing->id,
+                'pickup_batch_id' => $batch->id,
+                'leave' => false,
+            ]);
+
+            // Create reclaim record (legacy, for backward compatibility)
             Reclaim::create([
                 'user_id' => $user->id,
                 'book_listing_id' => $listing->id,
@@ -294,6 +339,14 @@ class WithdrawalController extends Controller
 
         $archiveCount = 0;
         foreach ($booksToArchive as $listing) {
+            // Create pickup record (leave = true for archive)
+            Pickup::create([
+                'user_id' => $user->id,
+                'book_listing_id' => $listing->id,
+                'pickup_batch_id' => $batch->id,
+                'leave' => true,
+            ]);
+
             $listing->update(['status' => 'archived']);
             $archiveCount++;
         }
@@ -303,7 +356,7 @@ class WithdrawalController extends Controller
             $message .= ", {$archiveCount} archiviato(i)";
         }
 
-        return redirect()->back()
+        return redirect()->route('staff.withdrawals.pickup-summary', $batch)
             ->with('success', $message);
     }
 
@@ -426,6 +479,26 @@ class WithdrawalController extends Controller
 
         return view('staff.withdrawals.batch-summary', [
             'batch' => $withdrawalBatch,
+        ]);
+    }
+
+    /**
+     * Show pickup batch summary (riepilogo ritiri/archiviazioni)
+     */
+    public function showPickupBatch(PickupBatch $pickupBatch): View
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($pickupBatch->user->school_id !== $staffSchoolId) {
+            abort(403, 'Non autorizzato');
+        }
+
+        // Load pickups with relationships
+        $pickupBatch->load(['pickups.bookListing.book', 'user']);
+
+        return view('staff.withdrawals.pickup-summary', [
+            'batch' => $pickupBatch,
         ]);
     }
 
