@@ -16,9 +16,9 @@
 
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <x-stats-card label="Totale Incassato" :value="$totalEarned" color="blue" formatted />
-            <x-stats-card label="Totale Riscosso" :value="$totalWithdrawn" color="blue" formatted />
+            <x-stats-card label="Totale Ricavi Vendite" :value="$totalEarned" color="green" formatted />
             <x-stats-card label="Totale Da Riscuotere" :value="$totalAvailable" color="blue" formatted />
+            <x-stats-card label="Totale Riscosso" :value="$totalWithdrawn" color="red" formatted />
         </div>
 
         <!-- Progress Bar -->

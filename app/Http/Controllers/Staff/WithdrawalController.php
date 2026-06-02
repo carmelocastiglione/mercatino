@@ -33,22 +33,23 @@ class WithdrawalController extends Controller
             ->latest('updated_at')
             ->paginate(15);
 
-        // Calculate total amounts
-        $totalEarned = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
-                $query->bySchool($schoolId);
-            })
-            ->where('school_id', $schoolId)
-            ->get()
-            ->sum(fn($user) => $user->getTotalSalesAmount());
+        // Calculate total amounts - Totale Ricavi Vendite (sum of price_sell for sold books)
+        $totalEarned = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+            ->join('books', 'book_listings.book_id', '=', 'books.id')
+            ->where('books.school_id', $schoolId)
+            ->sum('book_listings.price_sell');
 
-        $totalWithdrawn = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
-                $query->bySchool($schoolId);
+        // Calculate total amounts - Totale Riscosso (sum of amounts from withdrawals)
+        $totalWithdrawn = Withdrawal::whereHas('user', function ($query) use ($schoolId) {
+                $query->where('school_id', $schoolId);
             })
-            ->where('school_id', $schoolId)
-            ->get()
-            ->sum(fn($user) => $user->getTotalWithdrawnAmount());
+            ->sum('amount');
 
-        $totalAvailable = $totalEarned - $totalWithdrawn;
+        // Calculate total amounts - Totale Da Riscuotere (sum of price for sold books)
+        $totalAvailable = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+            ->join('books', 'book_listings.book_id', '=', 'books.id')
+            ->where('books.school_id', $schoolId)
+            ->sum('book_listings.price');
 
         // Calculate progress: users who have withdrawn vs users who have sold books
         $usersWithSoldBooks = BookListing::join('books', 'book_listings.book_id', '=', 'books.id')

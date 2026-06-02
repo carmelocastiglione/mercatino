@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-02: Fix dashboard pagina riscossioni
 - 2026-06-02: Migliorato la riscossione dei libri non venduti. Viene adesso generata la ricevuta
 - 2026-06-02: Migliorato la riscossione dei soldi per i libri non venduti. Inserito un riepilogo e la stampa della ricevuta
 - 2026-06-02: Corretta la funzione di ritiro libri non venduti. Aggiunta lista libri ritirati
