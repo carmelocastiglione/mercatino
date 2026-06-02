@@ -231,6 +231,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/withdrawals/{user}/process', [StaffWithdrawalController::class, 'processSeller'])->name('staff.withdrawals.process-seller');
     Route::post('/withdrawals/{listing}/withdraw-money', [StaffWithdrawalController::class, 'withdrawMoney'])->name('staff.withdrawals.withdraw-money');
     Route::post('/withdrawals/{listing}/withdraw-book', [StaffWithdrawalController::class, 'withdrawBook'])->name('staff.withdrawals.withdraw-book');
+    Route::post('/withdrawals/{listing}/archive-book', [StaffWithdrawalController::class, 'archiveBook'])->name('staff.withdrawals.archive-book');
+    Route::post('/withdrawals/{user}/withdraw-all-books', [StaffWithdrawalController::class, 'withdrawAllBooks'])->name('staff.withdrawals.withdraw-all-books');
+    Route::post('/withdrawals/{user}/withdraw-all-sold-books', [StaffWithdrawalController::class, 'withdrawAllSoldBooks'])->name('staff.withdrawals.withdraw-all-sold-books');
     Route::get('/withdrawals/{withdrawal}/show', [StaffWithdrawalController::class, 'show'])->name('staff.withdrawals.show');
     Route::post('/withdrawals', [StaffWithdrawalController::class, 'store'])->name('staff.withdrawals.store');
     

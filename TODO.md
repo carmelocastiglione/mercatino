@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-02: Corretta la funzione di ritiro libri non venduti. Aggiunta lista libri ritirati
 - 2026-06-02: Aggiunto prezzo di vendita nella pagina dei libri disponibili
 - 2026-06-02: Corretto l'errore nel prezzo di vendita
 - 2026-06-01: Nella pagina di vendite, sono visualizzate le vendite per "sessione" come per acquisizioni ed è possibile accedere ai dettagli della singola vendita. Nella pagina di creazione è stato inserito un doppio filtro libro / codice venditore e adesso si può scegliere da una lista con più informazioni. Tolta la colonna pagamento.
@@ -42,6 +43,7 @@
 - Rivedere pagina riscossioni (ricerca nella pagine principale)
 - Aggiungere filtri alle pagine
 - Controllare storico utente (potrebbero esserci errori)
+- Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
 
 ## Admin
 - Import dati da CSV (es. studenti, libri)

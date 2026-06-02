@@ -14,6 +14,7 @@ class Withdrawal extends Model
     protected $fillable = [
         'user_id',
         'book_listing_id',
+        'withdrawal_batch_id',
         'amount',
         'notes',
     ];
@@ -49,5 +50,13 @@ class Withdrawal extends Model
     public function bookListing(): BelongsTo
     {
         return $this->belongsTo(BookListing::class);
+    }
+
+    /**
+     * Get the withdrawal batch (if this withdrawal is part of a batch).
+     */
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(WithdrawalBatch::class, 'withdrawal_batch_id');
     }
 }

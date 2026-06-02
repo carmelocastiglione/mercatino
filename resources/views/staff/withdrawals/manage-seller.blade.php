@@ -17,34 +17,13 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="bg-green-100 border-l-4 border-green-600 rounded-lg p-6">
-                <p class="text-sm text-gray-600 uppercase tracking-wide font-semibold">Totale Vendite</p>
-                <p class="text-4xl font-bold text-green-600 mt-2">
-                    €{{ number_format($seller->getTotalSalesAmount(), 2, ',', '.') }}
-                </p>
-            </div>
-            <div class="bg-red-100 border-l-4 border-red-600 rounded-lg p-6">
-                <p class="text-sm text-gray-600 uppercase tracking-wide font-semibold">Già Riscosso</p>
-                <p class="text-4xl font-bold text-red-600 mt-2">
-                    €{{ number_format($seller->getTotalWithdrawnAmount(), 2, ',', '.') }}
-                </p>
-            </div>
-            <div class="bg-blue-100 border-l-4 border-blue-600 rounded-lg p-6">
-                <p class="text-sm text-gray-600 uppercase tracking-wide font-semibold">Saldo Disponibile</p>
-                <p class="text-4xl font-bold text-blue-600 mt-2">
-                    €{{ number_format($seller->getAvailableBalance(), 2, ',', '.') }}
-                </p>
-            </div>
+        <div class="grid grid-cols-3 gap-6 mb-8">
+            <x-stats-card label="Totale Vendite" :value="$seller->getTotalSalesAmount()" color="green" formatted />
+            <x-stats-card label="Già Riscosso" :value="$seller->getTotalWithdrawnAmount()" color="red" formatted />
+            <x-stats-card label="Da Riscuotere" :value="$seller->getAvailableBalance()" color="blue" formatted />
         </div>
 
         <!-- Messages -->
-        @if(session('success'))
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-green-700">
-                {{ session('success') }}
-            </div>
-        @endif
-
         @if($errors->any())
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700">
                 {{ $errors->first('error') }}
@@ -53,10 +32,18 @@
 
         <!-- Books Venduti Section -->
         <div class="bg-white shadow-md rounded-lg mb-8">
-            <div class="border-b border-gray-200 px-6 py-4">
+            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-gray-900">
-                    📚 Libri Venduti <span class="text-sm text-gray-500 font-normal">({{ count($soldBooks) }})</span>
+                    Libri Venduti <span class="text-sm text-gray-500 font-normal">({{ count($soldBooks) }})</span>
                 </h2>
+                @if(count($soldBooks) > 0)
+                    <form action="{{ route('staff.withdrawals.withdraw-all-sold-books', $seller->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler ritirare tutti i soldi dei libri venduti?');">
+                        @csrf
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-1 px-3 rounded transition-colors">
+                            Ritira Tutto
+                        </button>
+                    </form>
+                @endif
             </div>
             
             @if(count($soldBooks) > 0)
@@ -65,9 +52,10 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Autore</th>
-                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Condizione</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azione</th>
                             </tr>
                         </thead>
@@ -75,27 +63,15 @@
                             @foreach($soldBooks as $book)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->author }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center text-sm">
-                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold 
-                                            @switch($book->condition)
-                                                @case('excellent') bg-green-600 @break
-                                                @case('good') bg-blue-600 @break
-                                                @case('fair') bg-yellow-600 @break
-                                                @case('poor') bg-red-600 @break
-                                                @default bg-gray-600
-                                            @endswitch">
-                                            @switch($book->condition)
-                                                @case('excellent') Ottima @break
-                                                @case('good') Buona @break
-                                                @case('fair') Discreta @break
-                                                @case('poor') Cattiva @break
-                                                @default {{ $book->condition }}
-                                            @endswitch
-                                        </span>
+                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold bg-green-600">Venduto</span>
                                     </td>
                                     <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
                                         €{{ number_format($book->price, 2, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
+                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
                                     </td>
                                     <td class="px-6 py-4 text-center text-sm">
                                         <form action="{{ route('staff.withdrawals.withdraw-money', $book->id) }}" method="POST" style="display: inline;">
@@ -119,10 +95,18 @@
 
         <!-- Books Non Venduti Section -->
         <div class="bg-white shadow-md rounded-lg mb-8">
-            <div class="border-b border-gray-200 px-6 py-4">
+            <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                 <h2 class="text-xl font-bold text-gray-900">
-                    📖 Libri Non Venduti <span class="text-sm text-gray-500 font-normal">({{ count($unsoldBooks) }})</span>
+                    Libri Non Venduti <span class="text-sm text-gray-500 font-normal">({{ count($unsoldBooks) }})</span>
                 </h2>
+                @if(count($unsoldBooks) > 0)
+                    <form action="{{ route('staff.withdrawals.withdraw-all-books', $seller->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler ritirare e archiviare tutti i libri non venduti?');">
+                        @csrf
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-1 px-3 rounded transition-colors">
+                            Ritira e Archivia Tutti
+                        </button>
+                    </form>
+                @endif
             </div>
             
             @if(count($unsoldBooks) > 0)
@@ -131,10 +115,10 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
-                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Autore</th>
-                                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Condizione</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Stato</th>
-                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azione</th>
                             </tr>
                         </thead>
@@ -142,35 +126,19 @@
                             @foreach($unsoldBooks as $book)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->author }}</td>
-                                    <td class="px-6 py-4 text-center text-sm">
-                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold 
-                                            @switch($book->condition)
-                                                @case('excellent') bg-green-600 @break
-                                                @case('good') bg-blue-600 @break
-                                                @case('fair') bg-yellow-600 @break
-                                                @case('poor') bg-red-600 @break
-                                                @default bg-gray-600
-                                            @endswitch">
-                                            @switch($book->condition)
-                                                @case('excellent') Ottima @break
-                                                @case('good') Buona @break
-                                                @case('fair') Discreta @break
-                                                @case('poor') Cattiva @break
-                                                @default {{ $book->condition }}
-                                            @endswitch
-                                        </span>
-                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center text-sm">
                                         <span class="px-2 py-1 rounded text-white text-xs font-semibold 
                                             @switch($book->status)
                                                 @case('available') bg-blue-600 @break
+                                                @case('reserved') bg-purple-600 @break
                                                 @case('pending') bg-yellow-600 @break
                                                 @case('withdrawn') bg-red-600 @break
                                                 @default bg-gray-600
                                             @endswitch">
                                             @switch($book->status)
                                                 @case('available') Disponibile @break
+                                                @case('reserved') Prenotato @break
                                                 @case('pending') In Sospeso @break
                                                 @case('withdrawn') Ritirato @break
                                                 @default {{ $book->status }}
@@ -180,13 +148,25 @@
                                     <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
                                         €{{ number_format($book->price, 2, ',', '.') }}
                                     </td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
+                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
+                                    </td>
                                     <td class="px-6 py-4 text-center text-sm">
-                                        <form action="{{ route('staff.withdrawals.withdraw-book', $book->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler ritirare questo libro?');">
-                                            @csrf
-                                            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-1 px-3 rounded transition-colors">
-                                                Ritira Libro
-                                            </button>
-                                        </form>
+                                        @if(!$book->leave)
+                                            <form action="{{ route('staff.withdrawals.withdraw-book', $book->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler ritirare questo libro?');">
+                                                @csrf
+                                                <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-1 px-3 rounded transition-colors">
+                                                    Ritira Libro
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('staff.withdrawals.archive-book', $book->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler archiviare questo libro?');">
+                                                @csrf
+                                                <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold py-1 px-3 rounded transition-colors">
+                                                    Archivia Libro
+                                                </button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -196,6 +176,102 @@
             @else
                 <div class="p-8 text-center text-gray-500">
                     <p class="text-lg">Nessun libro non venduto</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Books Ritirati Section -->
+        <div class="bg-white shadow-md rounded-lg mb-8">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    Libri Ritirati <span class="text-sm text-gray-500 font-normal">({{ count($reclaimedBooks) }})</span>
+                </h2>
+            </div>
+            
+            @if(count($reclaimedBooks) > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($reclaimedBooks as $book)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-center text-sm">
+                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold bg-red-600">Ritirato</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
+                                        €{{ number_format($book->price, 2, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
+                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->updated_at->format('d/m/Y H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-8 text-center text-gray-500">
+                    <p class="text-lg">Nessun libro ritirato</p>
+                </div>
+            @endif
+        </div>
+
+        <!-- Books Archiviati Section -->
+        <div class="bg-white shadow-md rounded-lg mb-8">
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h2 class="text-xl font-bold text-gray-900">
+                    Libri Archiviati <span class="text-sm text-gray-500 font-normal">({{ count($archivedBooks) }})</span>
+                </h2>
+            </div>
+            
+            @if(count($archivedBooks) > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Titolo</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Acq.</th>
+                                <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Prezzo Vend.</th>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Archiviazione</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            @foreach($archivedBooks as $book)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">{{ $book->book->title }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->book->isbn ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-center text-sm">
+                                        <span class="px-2 py-1 rounded text-white text-xs font-semibold bg-gray-600">Archiviato</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-sm text-gray-900 font-semibold">
+                                        €{{ number_format($book->price, 2, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-right text-sm font-semibold text-green-600">
+                                        {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $book->updated_at->format('d/m/Y H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="p-8 text-center text-gray-500">
+                    <p class="text-lg">Nessun libro archiviato</p>
                 </div>
             @endif
         </div>

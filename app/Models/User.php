@@ -115,6 +115,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the withdrawal batches for this user.
+     */
+    public function withdrawalBatches(): HasMany
+    {
+        return $this->hasMany(WithdrawalBatch::class);
+    }
+
+    /**
      * Get the reclaimed books for this user.
      */
     public function reclaims(): HasMany
@@ -136,7 +144,7 @@ class User extends Authenticatable
     public function getTotalSalesAmount(): float
     {
         return (float) BookListing::where('seller_id', $this->id)
-            ->where('status', 'sold')
+            ->whereIn('status', ['sold', 'withdrawn'])
             ->sum('price');
     }
 

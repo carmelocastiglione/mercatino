@@ -7,6 +7,7 @@ use App\Models\BookListing;
 use App\Models\Reclaim;
 use App\Models\User;
 use App\Models\Withdrawal;
+use App\Models\WithdrawalBatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -126,12 +127,16 @@ class WithdrawalController extends Controller
 
         // Group by status
         $soldBooks = $bookListings->where('status', 'sold')->values();
-        $unsoldBooks = $bookListings->where('status', 'available')->values();
+        $unsoldBooks = $bookListings->whereIn('status', ['available', 'reserved'])->values();
+        $reclaimedBooks = $bookListings->where('status', 'reclaim')->values();
+        $archivedBooks = $bookListings->where('status', 'archived')->values();
 
         return view('staff.withdrawals.manage-seller', [
             'seller' => $user,
             'soldBooks' => $soldBooks,
             'unsoldBooks' => $unsoldBooks,
+            'reclaimedBooks' => $reclaimedBooks,
+            'archivedBooks' => $archivedBooks,
         ]);
     }
 
@@ -156,12 +161,18 @@ class WithdrawalController extends Controller
         $amount = $listing->price;
         $notes = $request->input('notes', "Ritiro libro venduto: {$listing->book->title}");
 
+        // Create withdrawal batch
+        $batch = WithdrawalBatch::create([
+            'user_id' => $seller->id,
+            'total_amount' => $amount,
+        ]);
+
         // Create withdrawal record
         Withdrawal::create([
             'user_id' => $seller->id,
             'book_listing_id' => $listing->id,
+            'withdrawal_batch_id' => $batch->id,
             'amount' => $amount,
-            'notes' => $notes,
         ]);
 
         // Mark the listing as withdrawn (payment collected)
@@ -203,6 +214,140 @@ class WithdrawalController extends Controller
 
         return redirect()->back()
             ->with('success', "Libro \"{$bookTitle}\" ritirato dalla vendita");
+    }
+
+    /**
+     * Archive a book that is not sold (leave = true).
+     */
+    public function archiveBook(BookListing $listing): RedirectResponse
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify listing belongs to staff's school
+        if ($listing->book->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
+        // Verify the listing is not sold and has leave = true
+        if ($listing->status === 'sold') {
+            return redirect()->back()->withErrors(['error' => 'Il libro è già venduto']);
+        }
+
+        if (!$listing->leave) {
+            return redirect()->back()->withErrors(['error' => 'Questo libro non può essere archiviato']);
+        }
+
+        $bookTitle = $listing->book->title;
+
+        // Mark the listing as archived
+        $listing->update(['status' => 'archived']);
+
+        return redirect()->back()
+            ->with('success', "Libro \"{$bookTitle}\" archiviato");
+    }
+
+    /**
+     * Withdraw all available/reserved books with leave = false and archive books with leave = true for a seller.
+     */
+    public function withdrawAllBooks(User $user): RedirectResponse
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($user->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
+        // Get all books to withdraw (available/reserved and leave = false)
+        $booksToWithdraw = BookListing::where('seller_id', $user->id)
+            ->bySchool($staffSchoolId)
+            ->whereIn('status', ['available', 'reserved'])
+            ->where('leave', false)
+            ->get();
+
+        $withdrawCount = 0;
+        foreach ($booksToWithdraw as $listing) {
+            // Create reclaim record
+            Reclaim::create([
+                'user_id' => $user->id,
+                'book_listing_id' => $listing->id,
+                'notes' => "Ritiro massivo libri non venduti: {$listing->book->title}",
+            ]);
+            
+            // Mark the listing as reclaimed
+            $listing->update(['status' => 'reclaim']);
+            $withdrawCount++;
+        }
+
+        // Get all books to archive (available/reserved and leave = true)
+        $booksToArchive = BookListing::where('seller_id', $user->id)
+            ->bySchool($staffSchoolId)
+            ->whereIn('status', ['available', 'reserved'])
+            ->where('leave', true)
+            ->get();
+
+        $archiveCount = 0;
+        foreach ($booksToArchive as $listing) {
+            $listing->update(['status' => 'archived']);
+            $archiveCount++;
+        }
+
+        $message = "{$withdrawCount} libro(i) ritirato(i)";
+        if ($archiveCount > 0) {
+            $message .= ", {$archiveCount} archiviato(i)";
+        }
+
+        return redirect()->back()
+            ->with('success', $message);
+    }
+
+    /**
+     * Withdraw money for all sold books in one operation.
+     */
+    public function withdrawAllSoldBooks(User $user): RedirectResponse
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($user->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
+        // Get all sold books
+        $soldBooks = BookListing::where('seller_id', $user->id)
+            ->bySchool($staffSchoolId)
+            ->where('status', 'sold')
+            ->get();
+
+        // Create withdrawal batch
+        $batch = WithdrawalBatch::create([
+            'user_id' => $user->id,
+            'total_amount' => 0,
+        ]);
+
+        $withdrawCount = 0;
+        $totalAmount = 0;
+        foreach ($soldBooks as $listing) {
+            // Create withdrawal record
+            $withdrawal = Withdrawal::create([
+                'user_id' => $user->id,
+                'book_listing_id' => $listing->id,
+                'withdrawal_batch_id' => $batch->id,
+                'amount' => $listing->price,
+            ]);
+            
+            $totalAmount += $withdrawal->amount;
+            
+            // Mark the listing as withdrawn
+            $listing->update(['status' => 'withdrawn']);
+            $withdrawCount++;
+        }
+
+        // Update batch total amount
+        $batch->update(['total_amount' => $totalAmount]);
+
+        return redirect()->back()
+            ->with('success', "{$withdrawCount} libro(i) venduto(i) - Soldi ritirati");
     }
 
     /**
