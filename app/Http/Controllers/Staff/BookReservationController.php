@@ -198,7 +198,7 @@ class BookReservationController extends Controller
                     'book_title' => $reservation->bookListing->book->title,
                     'book_author' => $reservation->bookListing->book->author,
                     'book_isbn' => $reservation->bookListing->book->isbn,
-                    'book_price' => $reservation->bookListing->price,
+                    'book_price' => $reservation->bookListing->price_sell ?? $reservation->bookListing->price,
                     'book_condition' => $reservation->bookListing->condition,
                     'seller_id' => $reservation->bookListing->seller_id,
                     'seller_name' => $reservation->bookListing->seller->name ?? '',

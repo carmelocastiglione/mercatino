@@ -25,6 +25,7 @@ class BookListing extends Model
         'acquisition_id',
         'condition',
         'price',
+        'price_sell',
         'status',
         'images',
         'views',
@@ -35,6 +36,7 @@ class BookListing extends Model
     protected $casts = [
         'images' => 'json',
         'price' => 'decimal:2',
+        'price_sell' => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

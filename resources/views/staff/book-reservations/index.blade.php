@@ -64,7 +64,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 font-medium text-gray-900">{{ $batch->bookReservations->count() }}</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($batch->getTotalPrice(), 2) }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($batch->total_price, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $batch->created_at->format('d/m/Y H:i') }}
                             </td>

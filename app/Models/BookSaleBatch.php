@@ -63,11 +63,11 @@ class BookSaleBatch extends Model
     }
 
     /**
-     * Get the total revenue from this batch.
+     * Get the total revenue from this batch (calculated from sales with price_sell).
      */
     public function getTotalPriceAttribute(): float
     {
-        return $this->sales->sum(fn($sale) => $sale->bookListing->price);
+        return $this->sales->sum(fn($sale) => $sale->bookListing->price_sell ?? $sale->bookListing->price);
     }
 }
 

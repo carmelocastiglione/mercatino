@@ -64,7 +64,7 @@
                             <p class="font-medium">{{ $sale->bookListing->seller->code }}</p>
                         </td>
                         <td class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            €{{ number_format($sale->bookListing->price, 2) }}
+                            €{{ number_format($sale->bookListing->price_sell ?? $sale->bookListing->price, 2) }}
                         </td>
                     </tr>
                 @empty

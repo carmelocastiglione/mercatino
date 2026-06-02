@@ -665,6 +665,9 @@
                                     buyer_id: buyer.id,
                                     book_listing_id: reservation.book_listing_id,
                                     title: reservation.book_title,
+                                    isbn: reservation.book_isbn || '',
+                                    condition: reservation.book_condition || '',
+                                    seller_code: reservation.seller_code || '',
                                     price: parseFloat(reservation.book_price),
                                 });
                             });

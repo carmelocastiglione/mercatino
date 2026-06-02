@@ -64,7 +64,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">
-                            €{{ number_format($reservation->bookListing->price, 2) }}
+                            €{{ number_format($reservation->bookListing->price_sell ?? $reservation->bookListing->price, 2) }}
                         </td>
                     </tr>
                 @empty

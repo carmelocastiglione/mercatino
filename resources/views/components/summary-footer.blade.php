@@ -11,7 +11,7 @@
         $label = 'Totale Vendite';
     } elseif ($type === 'book-reservation' && $batch) {
         $count = $batch->bookReservations()->count();
-        $total = $batch->bookReservations->sum(fn($r) => $r->bookListing->price);
+        $total = $batch->bookReservations->sum(fn($r) => $r->bookListing->price_sell ?? $r->bookListing->price);
         $label = 'Totale Prenotazione';
     } else {
         $count = $batch->deliveries()->count();

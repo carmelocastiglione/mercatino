@@ -222,6 +222,7 @@ class AcquisitionController extends Controller
     {
         try {
             $staffSchoolId = auth()->user()->school_id;
+            $school = auth()->user()->school;
 
             $validated = request()->validate([
                 'leave' => ['nullable', 'boolean'],
@@ -290,12 +291,16 @@ class AcquisitionController extends Controller
 
                 // Create BookListings for each item
                 foreach ($group['items'] as $item) {
+                    // Calculate selling price = acquisition price + purchase_fee + sales_fee
+                    $priceSell = PriceHelper::calculateSellingPrice($item['price'], $school);
+
                     BookListing::create([
                         'acquisition_id' => $acquisition->id,
                         'book_id' => $item['book_id'],
                         'seller_id' => $item['seller_id'],
                         'condition' => $item['condition'],
                         'price' => $item['price'],
+                        'price_sell' => $priceSell,
                         'status' => 'available',
                         'views' => 0,
                         'favorites' => 0,

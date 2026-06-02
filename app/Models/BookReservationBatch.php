@@ -130,12 +130,10 @@ class BookReservationBatch extends Model
     }
 
     /**
-     * Get total price of all books in batch.
+     * Get total price of all books in batch (calculated from bookReservations).
      */
-    public function getTotalPrice(): float
+    public function getTotalPriceAttribute(): float
     {
-        return $this->bookReservations()
-            ->join('book_listings', 'book_reservations.book_listing_id', '=', 'book_listings.id')
-            ->sum('book_listings.price');
+        return $this->bookReservations->sum(fn($r) => $r->bookListing->price_sell ?? $r->bookListing->price);
     }
 }

@@ -136,7 +136,7 @@ class SaleController extends Controller
                 'author' => $listing->author,
                 'isbn' => $listing->isbn,
                 'condition' => $listing->condition,
-                'price' => $listing->price,
+                'price' => $listing->price_sell ?? $listing->price,
                 'seller_name' => $listing->seller_name,
                 'seller_surname' => $listing->seller_surname,
                 'seller_code' => $listing->seller_code,
@@ -199,7 +199,7 @@ class SaleController extends Controller
                 // Update listing status
                 $listing->update(['status' => 'sold']);
 
-                $totalAmount += $listing->price;
+                $totalAmount += $listing->price_sell ?? $listing->price;
                 $count++;
             }
 

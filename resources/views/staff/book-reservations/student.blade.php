@@ -32,7 +32,7 @@
                             </div>
                             <div class="text-right">
                                 <p class="font-bold text-lg text-purple-600">{{ $batch->bookReservations->count() }} {{ $batch->bookReservations->count() === 1 ? 'libro' : 'libri' }}</p>
-                                <p class="text-sm text-gray-600">€ {{ number_format($batch->getTotalPrice(), 2) }}</p>
+                                <p class="text-sm text-gray-600">€ {{ number_format($batch->total_price, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -100,11 +100,11 @@
                                         <div class="space-y-2 text-sm">
                                             <div class="flex justify-between">
                                                 <span class="text-gray-600">Prezzo:</span>
-                                                <span class="font-medium">€{{ number_format($reservation->bookListing->price, 2) }}</span>
+                                                <span class="font-medium">€{{ number_format($reservation->bookListing->price_sell ?? $reservation->bookListing->price, 2) }}</span>
                                             </div>
                                             <div class="flex justify-between pt-2 border-t-2 border-blue-300 mt-2">
                                                 <span class="font-bold text-gray-900">Prezzo vendita:</span>
-                                                <span class="font-bold text-lg text-blue-600">€<span class="price-display">{{ number_format($reservation->bookListing->price, 2) }}</span></span>
+                                                <span class="font-bold text-lg text-blue-600">€<span class="price-display">{{ number_format($reservation->bookListing->price_sell ?? $reservation->bookListing->price, 2) }}</span></span>
                                             </div>
                                         </div>
                                     </div>

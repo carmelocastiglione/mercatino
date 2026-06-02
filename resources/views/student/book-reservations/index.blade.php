@@ -128,7 +128,7 @@
                                                     @endswitch
                                                 </span>
                                             </td>
-                                            <td class="px-3 py-2 text-right font-semibold text-gray-900">€{{ number_format($reservation->bookListing->price, 2) }}</td>
+                                            <td class="px-3 py-2 text-right font-semibold text-gray-900">€{{ number_format($reservation->bookListing->price_sell ?? $reservation->bookListing->price, 2) }}</td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -143,7 +143,7 @@
                     <!-- Totale -->
                     <div class="flex justify-between items-center pt-4 border-t border-gray-200 mb-4">
                         <span class="font-bold text-gray-900">Totale:</span>
-                        <span class="text-2xl font-bold text-blue-600">€{{ number_format($batch->getTotalPrice(), 2) }}</span>
+                        <span class="text-2xl font-bold text-blue-600">€{{ number_format($batch->total_price, 2) }}</span>
                     </div>
 
                     <!-- Actions -->

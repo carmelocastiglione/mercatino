@@ -61,7 +61,7 @@ class BookReservationController extends Controller
                     ->orWhere('isbn', 'ilike', "%{$query}%")
                     ->orWhere('author', 'ilike', "%{$query}%");
             })
-            ->select('id', 'book_id', 'price', 'condition', 'status')
+            ->select('id', 'book_id', 'price', 'price_sell', 'condition', 'status')
             ->limit(10)
             ->get()
             ->map(function ($listing) {
@@ -70,7 +70,7 @@ class BookReservationController extends Controller
                     'title' => $listing->book->title,
                     'author' => $listing->book->author,
                     'isbn' => $listing->book->isbn,
-                    'price' => $listing->price,
+                    'price' => $listing->price_sell ?? $listing->price,
                     'condition' => $listing->condition,
                 ];
             });
