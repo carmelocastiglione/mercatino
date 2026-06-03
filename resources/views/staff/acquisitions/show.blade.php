@@ -38,6 +38,11 @@
                     Stampa Riepilogo
                 </button>
             </div>
+
+            <!-- Delega - visible only in print -->
+            <div class="hidden print:block" style="page-break-before: always; padding-top: 20px;">
+                <x-delega :scuola="$acquisition->school" />
+            </div>
         </div>
 
         <!-- Print Styles -->
