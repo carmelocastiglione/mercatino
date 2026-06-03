@@ -5,9 +5,14 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\BookDeliveryBatch;
+use App\Models\BookReservationBatch;
 use App\Models\Acquisition;
 use App\Models\BookSale;
+use App\Models\BookSaleBatch;
 use App\Models\Withdrawal;
+use App\Models\WithdrawalBatch;
+use App\Models\PickupBatch;
+use App\Models\Reclaim;
 use App\Models\BookListing;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +24,10 @@ class UserHistoryController extends Controller
      */
     public function index(): View
     {
-        return view('staff.user-history.index');
+        $user = null;
+        $movements = [];
+
+        return view('staff.user-history.index', compact('user', 'movements'));
     }
 
     /**
@@ -58,12 +66,37 @@ class UserHistoryController extends Controller
             abort(403, 'Non autorizzato');
         }
 
-        // Collect all movements
+        $movements = $this->getUserMovements($user);
+
+        return view('staff.user-history.index', compact('user', 'movements'));
+    }
+
+    /**
+     * Get all movements for a user.
+     */
+    private function getUserMovements(User $user): array
+    {
         $movements = [];
+
+        // 0. Book Reservation Batches (Acquisti prenotati)
+        $reservationBatches = BookReservationBatch::where('user_id', $user->id)
+            ->with('bookReservations.bookListing.book')
+            ->get();
+
+        foreach ($reservationBatches as $batch) {
+            $movements[] = [
+                'type' => 'reservation_batch',
+                'date' => $batch->created_at,
+                'data' => $batch,
+                'title' => 'Acquisto prenotato',
+                'description' => $batch->total_items . ' libro/i',
+                'icon' => '📋',
+            ];
+        }
 
         // 1. Delivery Batches (Prenotazioni di consegna)
         $deliveryBatches = BookDeliveryBatch::where('user_id', $user->id)
-            ->with('deliveries')
+            ->with('deliveries.book')
             ->get();
 
         foreach ($deliveryBatches as $batch) {
@@ -71,7 +104,7 @@ class UserHistoryController extends Controller
                 'type' => 'delivery_batch',
                 'date' => $batch->created_at,
                 'data' => $batch,
-                'title' => 'Consegna prenotata in batch',
+                'title' => 'Consegna prenotata',
                 'description' => $batch->deliveries->count() . ' libro/i',
                 'icon' => '📦',
             ];
@@ -93,18 +126,18 @@ class UserHistoryController extends Controller
             ];
         }
 
-        // 3. Book Sales as Buyer (Libri acquistati)
-        $salesAsBuyer = BookSale::where('buyer_id', $user->id)
-            ->with('bookListing.book')
+        // 3. Book Sales Batches as Buyer (Batch di libri acquistati)
+        $saleBatchesAsBuyer = BookSaleBatch::where('buyer_id', $user->id)
+            ->with('sales.bookListing.book')
             ->get();
 
-        foreach ($salesAsBuyer as $sale) {
+        foreach ($saleBatchesAsBuyer as $batch) {
             $movements[] = [
-                'type' => 'purchase',
-                'date' => $sale->created_at,
-                'data' => $sale,
-                'title' => 'Libro acquistato',
-                'description' => $sale->bookListing->book->title ?? 'N/A',
+                'type' => 'purchase_batch',
+                'date' => $batch->created_at,
+                'data' => $batch,
+                'title' => 'Libri acquistati',
+                'description' => $batch->sales->count() . ' libro/i - €' . number_format($batch->total_price ?? 0, 2),
                 'icon' => '🛒',
             ];
         }
@@ -113,7 +146,7 @@ class UserHistoryController extends Controller
         $salesAsSeller = BookSale::whereHas('bookListing', function ($q) use ($user) {
             $q->where('seller_id', $user->id);
         })
-            ->with('bookListing.book')
+            ->with('bookListing.book', 'batch')
             ->get();
 
         foreach ($salesAsSeller as $sale) {
@@ -127,18 +160,67 @@ class UserHistoryController extends Controller
             ];
         }
 
-        // 5. Withdrawals (Riscossioni)
-        $withdrawals = Withdrawal::where('user_id', $user->id)
+        // 5. Withdrawal Batches (Riscossioni in batch)
+        $withdrawalBatches = WithdrawalBatch::where('user_id', $user->id)
+            ->with('withdrawals.bookListing.book')
             ->get();
 
-        foreach ($withdrawals as $withdrawal) {
+        foreach ($withdrawalBatches as $batch) {
             $movements[] = [
-                'type' => 'withdrawal',
-                'date' => $withdrawal->created_at,
-                'data' => $withdrawal,
+                'type' => 'withdrawal_batch',
+                'date' => $batch->created_at,
+                'data' => $batch,
                 'title' => 'Riscossione',
-                'description' => '€' . number_format($withdrawal->amount, 2),
+                'description' => $batch->withdrawals->count() . ' prelievo/i - €' . number_format($batch->total_amount ?? 0, 2),
                 'icon' => '💸',
+            ];
+        }
+
+        // 6. Pickup Batches (Libri ritirati)
+        $pickupBatches = PickupBatch::where('user_id', $user->id)
+            ->with('pickups.bookListing.book')
+            ->get();
+
+        foreach ($pickupBatches as $batch) {
+            $movements[] = [
+                'type' => 'pickup_batch',
+                'date' => $batch->created_at,
+                'data' => $batch,
+                'title' => 'Libri ritirati',
+                'description' => $batch->pickups->count() . ' libro/i',
+                'icon' => '📚',
+            ];
+        }
+
+        // 7. Reclaims as Buyer (Libri che l'utente ha reso)
+        $reclamsByBuyer = Reclaim::where('buyer_id', $user->id)
+            ->with('bookListing.book', 'user')
+            ->get();
+
+        foreach ($reclamsByBuyer as $reclaim) {
+            $movements[] = [
+                'type' => 'reclaim_by_buyer',
+                'date' => $reclaim->created_at,
+                'data' => $reclaim,
+                'title' => 'Libro reso',
+                'description' => $reclaim->bookListing->book->title ?? 'N/A',
+                'icon' => '↩️',
+            ];
+        }
+
+        // 8. Reclaims as Seller (Libri dell'utente che sono stati resi)
+        $reclaimsBySeller = Reclaim::where('user_id', $user->id)
+            ->with('bookListing.book', 'buyer')
+            ->get();
+
+        foreach ($reclaimsBySeller as $reclaim) {
+            $movements[] = [
+                'type' => 'reclaim_by_seller',
+                'date' => $reclaim->created_at,
+                'data' => $reclaim,
+                'title' => 'Libro del tuo stock reso',
+                'description' => $reclaim->bookListing->book->title ?? 'N/A',
+                'icon' => '↩️',
             ];
         }
 
@@ -147,9 +229,6 @@ class UserHistoryController extends Controller
             return $b['date']->timestamp <=> $a['date']->timestamp;
         });
 
-        return view('staff.user-history.show', [
-            'user' => $user,
-            'movements' => $movements,
-        ]);
+        return $movements;
     }
 }

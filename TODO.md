@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-03: Miglioramenti alla pagina storico utente: adesso è possibile accedere ai dettagli di ogni movimento (con informazioni più dettagliate e link alle pagine correlate).
 - 2026-06-02: Miglioramenti alla pagina resi
 - 2026-06-02: Fix dashboard pagina riscossioni
 - 2026-06-02: Migliorato la riscossione dei libri non venduti. Viene adesso generata la ricevuta
@@ -31,26 +32,22 @@
 - Testare il login via Google SSO con studenti reali
 - Controllare le pagine libri, vendite, acquisti e riscossioni
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
+- Impostare condizione del libro di default per la prenotazione di consegna (es: come nuovo)
+- Controllare il prezzo di prenotazione online
 
 ## Staff
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
 - Aggiungere filtri in libri disponibili (es: libro, venditore)
 - Aggiungere filtri in riscossioni
+- Controllare che la rendicontazione economica sia filtrata per la scuola di appartenenza
 - Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
 - Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i soldi al posto dello studente
 - Ridimensionare tutte le stampe
 - Togliere informazioni sulla ricevuta e mettere il discaimer della scuola (acquisizioni)
-- Aggiungere riepilogo stampa vendite
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
-- Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i libri al posto dello studente
-- Sezione economica
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Permettere di impostare una data e ora per la riconsegna soldi
-- Migliorare visualizzazione pagine di ogni categoria
-- Rivedere pagina riscossioni (ricerca nella pagine principale)
-- Aggiungere filtri alle pagine
-- Controllare storico utente (potrebbero esserci errori)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
 
 ## Admin

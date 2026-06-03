@@ -248,7 +248,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     // User History - Storico utente
     Route::get('/storico', [StaffUserHistoryController::class, 'index'])->name('staff.user-history.index');
     Route::get('/storico/search', [StaffUserHistoryController::class, 'search'])->name('staff.user-history.search');
-    Route::get('/storico/user/{user}', [StaffUserHistoryController::class, 'show'])->name('staff.user-history.show');
+    Route::get('/storico/{user}', [StaffUserHistoryController::class, 'show'])->name('staff.user-history.show');
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
