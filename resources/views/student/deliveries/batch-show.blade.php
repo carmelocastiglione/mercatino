@@ -104,6 +104,54 @@
                 page-break-inside: avoid;
             }
 
+            /* Reduce font sizes for print */
+            h1 { font-size: 1.25rem !important; line-height: 1.3; }
+            h2 { font-size: 1rem !important; line-height: 1.3; }
+            h3 { font-size: 0.9rem !important; line-height: 1.3; }
+            p { font-size: 0.85rem !important; line-height: 1.3; }
+            td, th { font-size: 0.85rem !important; }
+            span { font-size: 0.85rem !important; }
+
+            /* Reduce spacing */
+            .mb-8 { margin-bottom: 0.5rem !important; }
+            .mb-6 { margin-bottom: 0.4rem !important; }
+            .mb-4 { margin-bottom: 0.3rem !important; }
+            .mb-3 { margin-bottom: 0.2rem !important; }
+            .mb-2 { margin-bottom: 0.1rem !important; }
+            .mt-2 { margin-top: 0.1rem !important; }
+            .mt-4 { margin-top: 0.2rem !important; }
+
+            .space-y-8 > * + * { margin-top: 0.5rem !important; }
+            .space-y-6 > * + * { margin-top: 0.4rem !important; }
+            .space-y-4 > * + * { margin-top: 0.3rem !important; }
+
+            /* Reduce padding */
+            .p-8 { padding: 0.5rem !important; }
+            .p-6 { padding: 0.4rem !important; }
+            .p-4 { padding: 0.3rem !important; }
+            .px-6 { padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+            .py-4 { padding-top: 0.2rem !important; padding-bottom: 0.2rem !important; }
+            .py-3 { padding-top: 0.2rem !important; padding-bottom: 0.2rem !important; }
+
+            /* Reduce gap */
+            .gap-6 { gap: 0.4rem !important; }
+            .gap-4 { gap: 0.3rem !important; }
+
+            /* Table optimization */
+            table {
+                margin-bottom: 0.3rem !important;
+            }
+
+            th, td {
+                padding: 0.3rem !important;
+            }
+
+            /* Remove background colors and rounded corners from badges only */
+            span.rounded-full {
+                background-color: transparent !important;
+                border-radius: 0 !important;
+            }
+
             /* Clean colors for print */
             * {
                 color: black !important;

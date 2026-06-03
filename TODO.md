@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-03: Riduzione spazi vuoti e compattamento pagine di stampa
 - 2026-06-03: Miglioramenti alla pagina storico utente: adesso è possibile accedere ai dettagli di ogni movimento (con informazioni più dettagliate e link alle pagine correlate).
 - 2026-06-02: Miglioramenti alla pagina resi
 - 2026-06-02: Fix dashboard pagina riscossioni
@@ -18,13 +19,13 @@
 # TODO
 
 ## Stampa ricevute da controllare:
-- Prenotazione consegna (studente)
-- Prenotazione vendita (studente)
-- Acquisizione (staff) + delega
-- Vendita (staff)
-- Riscossione soldi (staff)
-- Riscossione libri non venduti (staff)
-- Resi (staff)
+- Prenotazione consegna (studente FATTO)
+- Prenotazione vendita (studente FATTO)
+- Acquisizione (staff FATTO) + delega (DA AGGIUNGERE)
+- Vendita (staff FATTO)
+- Riscossione soldi (staff FATTO)
+- Riscossione libri non venduti (staff FATTO)
+- Resi (staff FATTO)
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
@@ -36,6 +37,7 @@
 - Controllare il prezzo di prenotazione online
 
 ## Staff
+- Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
 - Aggiungere filtri in libri disponibili (es: libro, venditore)
 - Aggiungere filtri in riscossioni
