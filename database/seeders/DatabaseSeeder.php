@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BookSeeder::class,
             SchoolDeliveryDateSeeder::class,
+            SchoolSettingsSeeder::class,
         ]);
     }
 }

@@ -25,7 +25,7 @@ class SchoolSeeder extends Seeder
 
         School::create([
             'name' => 'Viganò',
-            'description' => 'Istituto tecnico Francesco Viganò',
+            'description' => 'Istituto Tecnico Francesco Viganò',
             'city' => 'Merate',
             'address' => 'Via dei Lodovichi, 2',
             'phone' => '+39 039 9876 5432',

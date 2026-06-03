@@ -1,4 +1,7 @@
 # CHANGELOG
+- 2026-06-03: Aggiunte impostazioni specifiche per la scuola nel menu staff: generali, date consegna, date ritiro
+- 2026-06-03: Aggiunta gestione delle impostazioni specifiche per ogni scuola (es. abilita online etc)
+- 2026-06-03: Inserita lettera di delega al momento della stampa dell'acquisizione dei libri
 - 2026-06-03: Riduzione spazi vuoti e compattamento pagine di stampa
 - 2026-06-03: Miglioramenti alla pagina storico utente: adesso è possibile accedere ai dettagli di ogni movimento (con informazioni più dettagliate e link alle pagine correlate).
 - 2026-06-02: Miglioramenti alla pagina resi
@@ -21,7 +24,7 @@
 ## Stampa ricevute da controllare:
 - Prenotazione consegna (studente FATTO)
 - Prenotazione vendita (studente FATTO)
-- Acquisizione (staff FATTO) + delega (DA AGGIUNGERE)
+- Acquisizione (staff FATTO) + delega (FATTO)
 - Vendita (staff FATTO)
 - Riscossione soldi (staff FATTO)
 - Riscossione libri non venduti (staff FATTO)
@@ -71,3 +74,4 @@
 ## Ulteriori miglioramenti anni successivi
 - Utilizzare un framework JS più robusto per la gestione del carrello (es. Vue o React)
 - Gestione turni volontari
+- Mettere anno scolastico dinamico nella delega

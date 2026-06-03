@@ -1,3 +1,6 @@
+@props([
+    'school' => 'Scuola Superiore', 
+    'referring_name' => 'COMITATO GENITORI DELLA SCUOLA', 'city' => 'Merate'])
     <style media="print">
 
         * {
@@ -107,7 +110,7 @@
 
     <div class="delega_title">MERCATINO DEI LIBRI 2026</div>
     <div class="delega_subtitle">
-        LICEO M.G. AGNESI<br>
+        {{ html_entity_decode($school) }}<br>
         Anno scolastico 2025/2026
     </div>
 
@@ -158,7 +161,7 @@
 
     <p>
         in relazione al ritiro di quanto dovuto, susseguente alla vendita dei libri
-        consegnati in conto vendita a COMITATO GENITORI LICEO AGNESI DI MERATE (LC)
+        consegnati in conto vendita a {{ html_entity_decode($referring_name) }}
     </p>
 
     <div class="delega">DELEGA</div>
@@ -176,8 +179,7 @@
         venduti associato al codice
         <span class="delega_field-small"></span>
         che al ritiro dei libri non venduti (se richiesto in fase di consegna)
-        durante le attività del mercatino dei libri di testo usati, promosso dal
-        COMITATO GENITORI LICEO AGNESI DI MERATE.
+        durante le attività del mercatino dei libri di testo usati, promosso dal {{ html_entity_decode($referring_name) }}.
     </p>
 
     <p>
@@ -185,7 +187,7 @@
     </p>
 
     <p style="margin-top:25px;">
-        Merate, <span class="delega_field-small" style="width:180px;"></span> (data)
+        {{ html_entity_decode($city) }}, <span class="delega_field-small" style="width:180px;"></span> (data)
     </p>
 
     <div class="delega_signatures">

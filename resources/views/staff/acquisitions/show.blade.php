@@ -41,7 +41,7 @@
 
             <!-- Delega - visible only in print -->
             <div class="hidden print:block" style="page-break-before: always; padding-top: 20px;">
-                <x-delega :scuola="$acquisition->school" />
+                <x-delega :school="$acquisition->staff->school->description" :referring_name="$acquisition->staff->school->getSetting('referring_name')" :city="$acquisition->staff->school->city" />
             </div>
         </div>
 

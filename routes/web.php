@@ -25,6 +25,7 @@ use App\Http\Controllers\Staff\BookListingController as StaffBookListingControll
 use App\Http\Controllers\Staff\WithdrawalController as StaffWithdrawalController;
 use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Staff\UserHistoryController as StaffUserHistoryController;
+use App\Http\Controllers\Staff\SettingsController as StaffSettingsController;
 use App\Http\Controllers\Staff\BookReservationController as StaffBookReservationController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
@@ -181,6 +182,10 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/deliveries/reject-single', [StaffDeliveryController::class, 'rejectDeliveryJson'])->name('staff.deliveries.reject-json');
     Route::put('/deliveries/approve-bulk', [StaffDeliveryController::class, 'approveBulk'])->name('staff.deliveries.approve-bulk');
     Route::put('/deliveries/update-batch-status', [StaffDeliveryController::class, 'updateBatchStatus'])->name('staff.deliveries.update-batch-status');
+    
+    // Settings Management - Impostazioni
+    Route::get('/settings/general', [StaffSettingsController::class, 'general'])->name('staff.settings.general');
+    Route::post('/settings/save', [StaffSettingsController::class, 'save'])->name('staff.settings.save');
     
     // Delivery Dates Management - Date di consegna
     Route::get('/delivery-dates', [StaffSchoolDeliveryDateController::class, 'index'])->name('staff.delivery-dates.index');
