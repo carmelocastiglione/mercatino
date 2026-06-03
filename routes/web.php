@@ -18,6 +18,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\BookController as StaffBookController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\SchoolDeliveryDateController as StaffSchoolDeliveryDateController;
+use App\Http\Controllers\Staff\SchoolWithdrawDateController as StaffSchoolWithdrawDateController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Staff\ReclaimController as StaffReclaimController;
@@ -195,6 +196,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/delivery-dates/{deliveryDate}', [StaffSchoolDeliveryDateController::class, 'update'])->name('staff.delivery-dates.update');
     Route::delete('/delivery-dates/{deliveryDate}', [StaffSchoolDeliveryDateController::class, 'destroy'])->name('staff.delivery-dates.destroy');
     Route::patch('/delivery-dates/{deliveryDate}/toggle', [StaffSchoolDeliveryDateController::class, 'toggle'])->name('staff.delivery-dates.toggle');
+    
+    // Withdraw Dates Management - Date di ritiro
+    Route::get('/withdraw-dates', [StaffSchoolWithdrawDateController::class, 'index'])->name('staff.withdraw-dates.index');
+    Route::get('/withdraw-dates/create', [StaffSchoolWithdrawDateController::class, 'create'])->name('staff.withdraw-dates.create');
+    Route::post('/withdraw-dates', [StaffSchoolWithdrawDateController::class, 'store'])->name('staff.withdraw-dates.store');
+    Route::get('/withdraw-dates/{withdrawDate}/edit', [StaffSchoolWithdrawDateController::class, 'edit'])->name('staff.withdraw-dates.edit');
+    Route::put('/withdraw-dates/{withdrawDate}', [StaffSchoolWithdrawDateController::class, 'update'])->name('staff.withdraw-dates.update');
+    Route::delete('/withdraw-dates/{withdrawDate}', [StaffSchoolWithdrawDateController::class, 'destroy'])->name('staff.withdraw-dates.destroy');
+    Route::patch('/withdraw-dates/{withdrawDate}/toggle', [StaffSchoolWithdrawDateController::class, 'toggle'])->name('staff.withdraw-dates.toggle');
     
     // Book Listings - Libri disponibili
     Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');

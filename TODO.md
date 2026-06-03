@@ -40,34 +40,29 @@
 - Controllare il prezzo di prenotazione online
 
 ## Staff
+- Togliere informazioni inutili sulla ricevuta
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
 - Aggiungere filtri in libri disponibili (es: libro, venditore)
 - Aggiungere filtri in riscossioni
 - Controllare che la rendicontazione economica sia filtrata per la scuola di appartenenza
 - Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
-- Aggiungere delega nella ricevuta di acquisizione per permettere a genitori o altri di ritirare i soldi al posto dello studente
-- Ridimensionare tutte le stampe
-- Togliere informazioni sulla ricevuta e mettere il discaimer della scuola (acquisizioni)
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
-- Permettere di impostare una data e ora per la riconsegna soldi
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
 
 ## Admin
 - Import dati da CSV (es. studenti, libri)
-- Gestione fee scuole
+- Gestione commissioni scuole
 
 ## Miglioramenti Generali
 - L'orario è quello del server, impostare fuso orario corretto
-- Creare interfaccia comune per la stampa
 - Controllare tutte le pagination
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
 - Ogni libro dovrebbe essere associato ad un anno scolastico
-- Controllare che nella stampa ogni libro sia su una riga
 - Generare codici a barre univoci per ogni consegna / vendita / acquisto
 - Controllare che la versione mobile non abbia problemi di visualizzazione
 
@@ -75,3 +70,4 @@
 - Utilizzare un framework JS più robusto per la gestione del carrello (es. Vue o React)
 - Gestione turni volontari
 - Mettere anno scolastico dinamico nella delega
+- Creare interfaccia comune per la stampa

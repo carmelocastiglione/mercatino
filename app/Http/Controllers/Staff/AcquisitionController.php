@@ -337,8 +337,22 @@ class AcquisitionController extends Controller
     {
         $acquisition->load('staff', 'seller', 'bookListings.book');
         
+        $school = $acquisition->staff->school;
+        
+        // Carica le date di ritiro della scuola
+        $withdrawDates = $school->withdrawDates()
+            ->where('is_active', true)
+            ->orderBy('scheduled_date')
+            ->get();
+        
+        $referringName = $school->getSetting('referring_name');
+        
         return view('staff.acquisitions.show', [
             'acquisition' => $acquisition,
+            'school' => $school->description,
+            'referringName' => $referringName,
+            'city' => $school->city,
+            'withdrawDates' => $withdrawDates,
         ]);
     }
 

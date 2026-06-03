@@ -1,6 +1,8 @@
 @props([
     'school' => 'Scuola Superiore', 
-    'referring_name' => 'COMITATO GENITORI DELLA SCUOLA', 'city' => 'Merate'])
+    'referring_name' => 'COMITATO GENITORI DELLA SCUOLA', 
+    'city' => 'Merate',
+    'withdrawDates' => []])
     <style media="print">
 
         * {
@@ -175,7 +177,7 @@
 
     <p>
         il <span class="delega_field-small"></span>
-        nelle date 22/07/26 e 23/07/26, al ritiro sia del corrispettivo dei libri
+        nelle date {{ $withdrawDates->map(fn($d) => $d->scheduled_date->format('d/m/y'))->implode(',  ') }}, al ritiro sia del corrispettivo dei libri
         venduti associato al codice
         <span class="delega_field-small"></span>
         che al ritiro dei libri non venduti (se richiesto in fase di consegna)

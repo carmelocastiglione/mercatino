@@ -33,6 +33,14 @@ class School extends Model
     }
 
     /**
+     * Get the withdraw dates configured for the school.
+     */
+    public function withdrawDates(): HasMany
+    {
+        return $this->hasMany(SchoolWithdrawDate::class);
+    }
+
+    /**
      * Get the settings for the school.
      */
     public function settings(): HasMany
