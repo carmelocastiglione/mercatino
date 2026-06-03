@@ -77,7 +77,7 @@ class SchoolDeliveryDateController extends Controller
      */
     public function edit(SchoolDeliveryDate $deliveryDate): View
     {
-        $this->authorize($deliveryDate);
+        $this->authorizeDeliveryDate($deliveryDate);
 
         return view('staff.school-delivery-dates.edit', [
             'deliveryDate' => $deliveryDate,
@@ -89,7 +89,7 @@ class SchoolDeliveryDateController extends Controller
      */
     public function update(Request $request, SchoolDeliveryDate $deliveryDate): RedirectResponse
     {
-        $this->authorize($deliveryDate);
+        $this->authorizeDeliveryDate($deliveryDate);
 
         $validated = $request->validate([
             'scheduled_date' => 'required|date_format:Y-m-d',
@@ -118,7 +118,7 @@ class SchoolDeliveryDateController extends Controller
      */
     public function destroy(SchoolDeliveryDate $deliveryDate): RedirectResponse
     {
-        $this->authorize($deliveryDate);
+        $this->authorizeDeliveryDate($deliveryDate);
 
         $deliveryDate->delete();
 
@@ -131,7 +131,7 @@ class SchoolDeliveryDateController extends Controller
      */
     public function toggle(SchoolDeliveryDate $deliveryDate): RedirectResponse
     {
-        $this->authorize($deliveryDate);
+        $this->authorizeDeliveryDate($deliveryDate);
 
         $deliveryDate->update([
             'is_active' => !$deliveryDate->is_active,
@@ -145,7 +145,7 @@ class SchoolDeliveryDateController extends Controller
     /**
      * Authorize the user to manage the delivery date.
      */
-    protected function authorize(SchoolDeliveryDate $deliveryDate): void
+    public function authorizeDeliveryDate(SchoolDeliveryDate $deliveryDate): void
     {
         if ($deliveryDate->school_id !== auth()->user()->school_id) {
             abort(403, 'Non sei autorizzato a modificare questa data di consegna');
