@@ -30,25 +30,27 @@
             label="IN CATALOGO"
         />
 
-        <!-- Prenotazioni consegne -->
-        <x-dashboard-card 
-            href="{{ route('staff.deliveries.index') }}"
-            title="Prenotazioni consegne"
-            description="Esamina e approva le prenotazioni degli studenti"
-            count="{{ $pendingDeliveryBatches ?? 0 }}"
-            bgColor="yellow"
-            label="DA ESAMINARE"
-        />
+        @if($enableOnlineSales)
+            <!-- Prenotazioni consegne -->
+            <x-dashboard-card 
+                href="{{ route('staff.deliveries.index') }}"
+                title="Prenotazioni consegne"
+                description="Esamina e approva le prenotazioni degli studenti"
+                count="{{ $pendingDeliveryBatches ?? 0 }}"
+                bgColor="yellow"
+                label="DA ESAMINARE"
+            />
 
-        <!-- Prenotazioni Acquisti -->
-        <x-dashboard-card 
-            href="{{ route('staff.book-reservations.index') }}"
-            title="Prenotazioni acquisti"
-            description="Gestisci le prenotazioni dei libri acquisiti"
-            count="{{ $pendingReservations ?? 0 }}"
-            bgColor="pink"
-            label="DA ESAMINARE"
-        />
+            <!-- Prenotazioni Acquisti -->
+            <x-dashboard-card 
+                href="{{ route('staff.book-reservations.index') }}"
+                title="Prenotazioni acquisti"
+                description="Gestisci le prenotazioni dei libri acquisiti"
+                count="{{ $pendingReservations ?? 0 }}"
+                bgColor="pink"
+                label="DA ESAMINARE"
+            />
+        @endif
 
         <!-- Acquisizioni -->
         <x-dashboard-card 

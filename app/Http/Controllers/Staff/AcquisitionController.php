@@ -164,7 +164,9 @@ class AcquisitionController extends Controller
      */
     public function create(): View
     {
-        return view('staff.acquisitions.create');
+        return view('staff.acquisitions.create', [
+            'enableOnlineSales' => auth()->user()->school->hasFeatureEnabled('enable_online_sales'),
+        ]);
     }
 
     /**

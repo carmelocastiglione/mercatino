@@ -100,15 +100,17 @@
                     Libri disponibili
                 </a>
 
-                <!-- Prenotazioni consegne -->
-                <a href="{{ route('staff.deliveries.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/deliveries*')) bg-gray-100 text-gray-900 @endif">
-                    Prenotazioni consegne
-                </a>  
-                
-                <!-- Prenotazioni Acquisti -->
-                <a href="{{ route('staff.book-reservations.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/book-reservations*')) bg-gray-100 text-gray-900 @endif">
-                    Prenotazioni acquisti
-                </a>
+                @if(Auth::user()->school->hasFeatureEnabled('enable_online_sales'))
+                    <!-- Prenotazioni consegne -->
+                    <a href="{{ route('staff.deliveries.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/deliveries*')) bg-gray-100 text-gray-900 @endif">
+                        Prenotazioni consegne
+                    </a>  
+                    
+                    <!-- Prenotazioni Acquisti -->
+                    <a href="{{ route('staff.book-reservations.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/book-reservations*')) bg-gray-100 text-gray-900 @endif">
+                        Prenotazioni acquisti
+                    </a>
+                @endif
 
                 <!-- Acquisizioni -->
                 <a href="{{ route('staff.acquisitions.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/acquisitions*')) bg-gray-100 text-gray-900 @endif">

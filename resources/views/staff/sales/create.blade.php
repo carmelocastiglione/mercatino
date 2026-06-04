@@ -24,20 +24,22 @@
         <!-- Left Column: Form -->
         <div class="lg:col-span-2">
             <div class="space-y-6">
-                <!-- Buyer Password Box -->
-                <div id="buyer_password_box" class="hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
-                    <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
-                    <div class="space-y-4">
-                        <div>
-                            <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
-                            <p id="buyer_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
-                        </div>
-                        <div>
-                            <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
-                            <code id="buyer_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                <!-- Buyer Password Box (shown only when online sales are enabled) -->
+                @if($enableOnlineSales)
+                    <div id="buyer_password_box" class="hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+                        <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
+                                <p id="buyer_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
+                                <code id="buyer_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                            </div>
                         </div>
                     </div>
-                </div>
+                @endif
 
                 <!-- Info Box: Multiple Books Selection -->
                 <x-info-box
@@ -220,13 +222,16 @@
             document.getElementById('sidebar_buyer_code').textContent = code;
             document.getElementById('sidebar_buyer_name').textContent = `${name} ${surname}`;
 
-            // Nascondi le credenziali di default
-            document.getElementById('buyer_password_box').classList.add('hidden');
-            
-            if (password) {
-                document.getElementById('buyer_email_display').textContent = email;
-                document.getElementById('buyer_password_display').textContent = password;
-                document.getElementById('buyer_password_box').classList.remove('hidden');
+            // Nascondi le credenziali di default (se elemento esiste)
+            const passwordBox = document.getElementById('buyer_password_box');
+            if (passwordBox) {
+                passwordBox.classList.add('hidden');
+                
+                if (password) {
+                    document.getElementById('buyer_email_display').textContent = email;
+                    document.getElementById('buyer_password_display').textContent = password;
+                    passwordBox.classList.remove('hidden');
+                }
             }
         }
 

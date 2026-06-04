@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-04: Se la scuola non usufruisce dell'online, vengono nascoste le funzionalità di prenotazione consegna e ritiro e non vengono più mostrati i dati di login quando si crea un nuovo utente che consegna o vende.
 - 2026-06-03: Aggiunte impostazioni specifiche per la scuola nel menu staff: generali, date consegna, date ritiro
 - 2026-06-03: Aggiunta gestione delle impostazioni specifiche per ogni scuola (es. abilita online etc)
 - 2026-06-03: Inserita lettera di delega al momento della stampa dell'acquisizione dei libri
@@ -41,12 +42,12 @@
 
 ## Staff
 - Togliere informazioni inutili sulla ricevuta
+- Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
 - Aggiungere filtri in libri disponibili (es: libro, venditore)
 - Aggiungere filtri in riscossioni
 - Controllare che la rendicontazione economica sia filtrata per la scuola di appartenenza
-- Eliminare i dati di login quando si crea un utente e i link alle prenotazioni di consegne e vendite per chi non usufruisce dell'online
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)

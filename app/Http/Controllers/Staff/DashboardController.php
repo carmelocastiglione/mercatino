@@ -22,6 +22,7 @@ class DashboardController extends Controller
     public function index(): View
     {
         $schoolId = auth()->user()->school_id;
+        $school = auth()->user()->school;
 
         return view('staff.dashboard', [
             'totalBooks' => Book::bySchool($schoolId)->count(),
@@ -33,6 +34,7 @@ class DashboardController extends Controller
             'totalWithdrawals' => Withdrawal::bySchool($schoolId)->count(),
             'pendingReclaims' => Reclaim::where('status', 'pending')->bySchool($schoolId)->count(),
             'pendingReservations' => BookReservationBatch::where('status', 'pending')->bySchool($schoolId)->count(),
+            'enableOnlineSales' => $school->hasFeatureEnabled('enable_online_sales'),
         ]);
     }
 }

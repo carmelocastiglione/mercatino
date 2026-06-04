@@ -47,6 +47,7 @@ class SaleController extends Controller
         return view('staff.sales.create', [
             'approvedReservations' => $approvedReservations,
             'studentId' => $studentId,
+            'enableOnlineSales' => auth()->user()->school->hasFeatureEnabled('enable_online_sales'),
         ]);
     }
 

@@ -14,20 +14,22 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- LEFT SIDE: FORM -->
         <div class="lg:col-span-2">
-            <!-- Seller Password Box -->
-            <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
-                <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
-                        <p id="seller_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
-                        <code id="seller_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+            <!-- Seller Password Box (shown only when online sales are enabled) -->
+            @if($enableOnlineSales)
+                <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
+                    <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
+                            <p id="seller_email_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 text-center text-lg break-all"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-center text-gray-600 mb-2">Password:</p>
+                            <code id="seller_password_display" class="font-mono bg-white px-4 py-3 rounded border border-green-200 text-green-700 block text-center text-lg"></code>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
 
             <form id="acquisition_form" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                 @csrf
@@ -329,13 +331,16 @@
             selectedSellerDiv.classList.remove('hidden');
             sellerCodeDisplay.textContent = code;
             
-            // Nascondi le credenziali di default
-            document.getElementById('seller_password_box').classList.add('hidden');
-            
-            if (password) {
-                document.getElementById('seller_email_display').textContent = email;
-                document.getElementById('seller_password_display').textContent = password;
-                document.getElementById('seller_password_box').classList.remove('hidden');
+            // Nascondi le credenziali di default (se elemento esiste)
+            const passwordBox = document.getElementById('seller_password_box');
+            if (passwordBox) {
+                passwordBox.classList.add('hidden');
+                
+                if (password) {
+                    document.getElementById('seller_email_display').textContent = email;
+                    document.getElementById('seller_password_display').textContent = password;
+                    passwordBox.classList.remove('hidden');
+                }
             }
         }
 
@@ -634,8 +639,11 @@
             // Resetta la condizione a "like-new"
             document.getElementById('condition_like-new').checked = true;
             
-            // Nasconde le credenziali (password box)
-            document.getElementById('seller_password_box').classList.add('hidden');
+            // Nasconde le credenziali (password box) se elemento esiste
+            const pwBox = document.getElementById('seller_password_box');
+            if (pwBox) {
+                pwBox.classList.add('hidden');
+            }
             
             // Nascondi i dettagli del prezzo
             document.getElementById('price_details_section').style.display = 'none';
