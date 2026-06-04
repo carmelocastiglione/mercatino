@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-04: Correzione fuso orario per tutte le date (adesso è impostato su Europe/Rome)
 - 2026-06-04: Aggiunti filtri di ricerca nelle pagine
 - 2026-06-04: Eliminato il box informativo presente nella ricevuto dalla stampa
 - 2026-06-04: Se la scuola non usufruisce dell'online, vengono nascoste le funzionalità di prenotazione consegna e ritiro e non vengono più mostrati i dati di login quando si crea un nuovo utente che consegna o vende.
@@ -58,7 +59,6 @@
 - Gestione commissioni scuole
 
 ## Miglioramenti Generali
-- L'orario è quello del server, impostare fuso orario corretto
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
