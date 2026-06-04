@@ -26,12 +26,9 @@ class BookReservationController extends Controller
      */
     public function index(): View
     {
-        $batches = BookReservationBatch::where('status', 'pending')
-            ->with('user', 'bookReservations.bookListing.book')
-            ->bySchool(auth()->user()->school_id)
-            ->latest()
-            ->paginate(10);
+        $query = request()->input('q', '');
 
+        // Totals without filters
         $pendingCount = BookReservationBatch::where('status', 'pending')
             ->bySchool(auth()->user()->school_id)
             ->count();
@@ -44,11 +41,28 @@ class BookReservationController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
+        // Filtered batches for table
+        $batches = BookReservationBatch::where('status', 'pending')
+            ->with('user', 'bookReservations.bookListing.book')
+            ->bySchool(auth()->user()->school_id)
+            ->when($query, function ($q) use ($query) {
+                return $q->whereHas('user', function ($userQuery) use ($query) {
+                    $userQuery->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('staff.book-reservations.index', [
             'batches' => $batches,
             'pendingCount' => $pendingCount,
             'confirmedCount' => $confirmedCount,
             'rejectedCount' => $rejectedCount,
+            'filterQuery' => $query,
         ]);
     }
 

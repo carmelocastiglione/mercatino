@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-04: Aggiunti filtri di ricerca nelle pagine
 - 2026-06-04: Eliminato il box informativo presente nella ricevuto dalla stampa
 - 2026-06-04: Se la scuola non usufruisce dell'online, vengono nascoste le funzionalità di prenotazione consegna e ritiro e non vengono più mostrati i dati di login quando si crea un nuovo utente che consegna o vende.
 - 2026-06-03: Aggiunte impostazioni specifiche per la scuola nel menu staff: generali, date consegna, date ritiro
@@ -44,10 +45,9 @@
 ## Staff
 - Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
-- Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
-- Aggiungere filtri in libri disponibili (es: libro, venditore)
-- Aggiungere filtri in riscossioni
+- Aggiungere filtri per libro
 - Controllare che la rendicontazione economica sia filtrata per la scuola di appartenenza
+- Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
@@ -59,7 +59,6 @@
 
 ## Miglioramenti Generali
 - L'orario è quello del server, impostare fuso orario corretto
-- Controllare tutte le pagination
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?

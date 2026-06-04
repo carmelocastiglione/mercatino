@@ -13,22 +13,35 @@ class BookListingController extends Controller
      */
     public function index(): View
     {
+        $schoolId = auth()->user()->school_id;
+        $query = request()->input('q', '');
+        
         $listings = BookListing::with('book', 'seller')
             ->where('status', 'available')
-            ->bySchool(auth()->user()->school_id)
+            ->bySchool($schoolId)
+            ->when($query, function($q) use($query) {
+                return $q->whereHas('book', function($bookQuery) use($query) {
+                    $bookQuery->where(function($subQuery) use($query) {
+                        $subQuery->where('title', 'ilike', "%{$query}%")
+                            ->orWhere('author', 'ilike', "%{$query}%")
+                            ->orWhere('isbn', 'ilike', "%{$query}%");
+                    });
+                });
+            })
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         $totalAvailableBooks = BookListing::where('status', 'available')
-            ->bySchool(auth()->user()->school_id)
+            ->bySchool($schoolId)
             ->count();
 
         $totalAcquisitionAmount = BookListing::where('status', 'available')
-            ->bySchool(auth()->user()->school_id)
+            ->bySchool($schoolId)
             ->sum('price');
 
         $totalSalesAmount = BookListing::where('status', 'available')
-            ->bySchool(auth()->user()->school_id)
+            ->bySchool($schoolId)
             ->sum('price_sell');
 
         return view('staff.book-listings.index', [
@@ -36,6 +49,7 @@ class BookListingController extends Controller
             'totalAvailableBooks' => $totalAvailableBooks,
             'totalAcquisitionAmount' => $totalAcquisitionAmount,
             'totalSalesAmount' => $totalSalesAmount,
+            'filterQuery' => $query,
         ]);
     }
 }

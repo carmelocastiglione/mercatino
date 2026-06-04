@@ -77,6 +77,31 @@
             Tutti i Resi
         </h2>
 
+        <!-- Filter Form -->
+        <div class="bg-white border border-red-200 rounded-lg p-6 mb-8">
+            <form method="GET" action="{{ route('staff.reclaims.index') }}" class="flex gap-2">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Filtra per nome, cognome, email o codice venditore..." 
+                    value="{{ $filterQuery }}"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    autocomplete="off"
+                />
+                <button type="submit" class="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">
+                    Filtra
+                </button>
+                @if($filterQuery)
+                    <a href="{{ route('staff.reclaims.index') }}" class="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition">
+                        Reset
+                    </a>
+                @endif
+            </form>
+            @if($filterQuery)
+                <p class="text-sm text-gray-600 mt-2">Risultati per: <strong>{{ $filterQuery }}</strong> ({{ $reclaims->total() }} risultati)</p>
+            @endif
+        </div>
+
         @if($reclaims->isEmpty())
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
                 <p class="text-gray-500 text-lg">Nessun reso al momento.</p>
@@ -144,6 +169,10 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-200">
+                {{ $reclaims->links() }}
             </div>
         @endif
     </div>

@@ -16,6 +16,33 @@
         <x-stats-card label="Valore di Vendita" :value="$totalSalesAmount" color="green" formatted />
     </div>
 
+    @if($listings->count() > 0)
+        <!-- Filter Form -->
+        <div class="bg-white border border-purple-200 rounded-lg p-6 mb-8">
+            <form method="GET" action="{{ route('staff.book-listings.index') }}" class="flex gap-2">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Filtra per titolo, autore o codice ISBN..." 
+                    value="{{ $filterQuery }}"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    autocomplete="off"
+                />
+                <button type="submit" class="px-6 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition">
+                    Filtra
+                </button>
+                @if($filterQuery)
+                    <a href="{{ route('staff.book-listings.index') }}" class="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition">
+                        Reset
+                    </a>
+                @endif
+            </form>
+            @if($filterQuery)
+                <p class="text-sm text-gray-600 mt-2">Risultati per: <strong>{{ $filterQuery }}</strong> ({{ $listings->total() }} risultati)</p>
+            @endif
+        </div>
+    @endif
+
     <!-- Listings Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">

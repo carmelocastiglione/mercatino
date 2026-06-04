@@ -13,6 +13,13 @@
         </a>
     </div>
 
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <x-stats-card label="Libri Totali" :value="$totalBooks" color="blue" />
+        <x-stats-card label="Copie Medie Disponibili Per Libro" :value="round($avgAvailableCopies, 1)" color="green" />
+        <x-stats-card label="Copie Medie Totali Per Libro" :value="round($avgTotalCopies, 1)" color="purple" />
+    </div>
+
     @if ($message = Session::get('success'))
         <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800">
             {{ $message }}
@@ -22,6 +29,33 @@
     @if ($message = Session::get('error'))
         <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800">
             {{ $message }}
+        </div>
+    @endif
+
+    @if($books->count() > 0)
+        <!-- Filter Form -->
+        <div class="bg-white border border-blue-200 rounded-lg p-6 mb-8">
+            <form method="GET" action="{{ route('staff.books.index') }}" class="flex gap-2">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Filtra per titolo, autore o codice ISBN..." 
+                    value="{{ $filterQuery }}"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    autocomplete="off"
+                />
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                    Filtra
+                </button>
+                @if($filterQuery)
+                    <a href="{{ route('staff.books.index') }}" class="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition">
+                        Reset
+                    </a>
+                @endif
+            </form>
+            @if($filterQuery)
+                <p class="text-sm text-gray-600 mt-2">Risultati per: <strong>{{ $filterQuery }}</strong> ({{ $books->total() }} risultati)</p>
+            @endif
         </div>
     @endif
 

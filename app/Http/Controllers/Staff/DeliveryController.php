@@ -19,12 +19,9 @@ class DeliveryController extends Controller
      */
     public function index(): View
     {
-        $batches = BookDeliveryBatch::where('status', 'pending')
-            ->with('user', 'deliveries.book')
-            ->bySchool(auth()->user()->school_id)
-            ->latest()
-            ->paginate(10);
+        $query = request()->input('q', '');
 
+        // Totals without filters
         $pendingCount = BookDeliveryBatch::where('status', 'pending')
             ->bySchool(auth()->user()->school_id)
             ->count();
@@ -37,11 +34,28 @@ class DeliveryController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
+        // Filtered batches for table
+        $batches = BookDeliveryBatch::where('status', 'pending')
+            ->with('user', 'deliveries.book')
+            ->bySchool(auth()->user()->school_id)
+            ->when($query, function ($q) use ($query) {
+                return $q->whereHas('user', function ($userQuery) use ($query) {
+                    $userQuery->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('staff.deliveries.index', [
             'batches' => $batches,
             'pendingCount' => $pendingCount,
             'approvedCount' => $approvedCount,
             'rejectedCount' => $rejectedCount,
+            'filterQuery' => $query,
         ]);
     }
 

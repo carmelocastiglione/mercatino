@@ -23,15 +23,25 @@ class WithdrawalController extends Controller
     public function index(): View
     {
         $schoolId = auth()->user()->school_id;
+        $query = request()->input('q', '');
 
         // Get all users that have book listings from staff's school
-        $sellers = User::whereHas('bookListings.book', function ($query) use ($schoolId) {
-                $query->bySchool($schoolId);
+        $sellers = User::whereHas('bookListings.book', function ($queryBuilder) use ($schoolId) {
+                $queryBuilder->bySchool($schoolId);
             })
             ->where('school_id', $schoolId)
+            ->when($query, function ($queryBuilder) use ($query) {
+                return $queryBuilder->where(function ($queryBuilder) use ($query) {
+                    $queryBuilder->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%");
+                });
+            })
             ->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
             ->latest('updated_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         // Calculate total amounts - Totale Ricavi Vendite (sum of price_sell for sold books, excluding reclaimed)
         $totalEarned = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
@@ -41,8 +51,8 @@ class WithdrawalController extends Controller
             ->sum('book_listings.price_sell');
 
         // Calculate total amounts - Totale Riscosso (sum of amounts from withdrawals)
-        $totalWithdrawn = Withdrawal::whereHas('user', function ($query) use ($schoolId) {
-                $query->where('school_id', $schoolId);
+        $totalWithdrawn = Withdrawal::whereHas('user', function ($queryBuilder) use ($schoolId) {
+                $queryBuilder->where('school_id', $schoolId);
             })
             ->sum('amount');
 
@@ -87,6 +97,7 @@ class WithdrawalController extends Controller
             'usersWithdrawn' => $usersWithdrawn,
             'usersWithSoldBooks' => $usersWithSoldBooks,
             'withdrawalProgress' => $withdrawalProgress,
+            'filterQuery' => $query,
         ]);
     }
 

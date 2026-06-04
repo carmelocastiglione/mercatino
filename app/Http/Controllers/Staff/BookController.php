@@ -18,14 +18,48 @@ class BookController extends Controller
     public function index(): View
     {
         $schoolId = auth()->user()->school_id;
+        $query = request()->input('q', '');
         
+        // Calculate statistics for all books in school
+        $totalBooks = Book::bySchool($schoolId)->count();
+        
+        // Get all books with counts to calculate averages
+        $allBooksStats = Book::bySchool($schoolId)
+            ->withCount(['listings' => fn($q) => $q->where('status', 'available')])
+            ->withCount('listings as total_listings')
+            ->get();
+        
+        $avgAvailableCopies = $totalBooks > 0 
+            ? $allBooksStats->sum('listings_count') / $totalBooks 
+            : 0;
+        
+        $avgTotalCopies = $totalBooks > 0 
+            ? $allBooksStats->sum('total_listings') / $totalBooks 
+            : 0;
+        
+        // Get filtered/paginated books
         $books = Book::bySchool($schoolId)
             ->withCount(['listings' => fn($q) => $q->where('status', 'available')])
             ->withCount('listings as total_listings')
+            ->when($query, function($q) use($query) {
+                return $q->where(function($subQuery) use($query) {
+                    $subQuery->where('title', 'ilike', "%{$query}%")
+                        ->orWhere('author', 'ilike', "%{$query}%")
+                        ->orWhere('isbn', 'ilike', "%{$query}%");
+                });
+            })
             ->orderBy('title', 'asc')
-            ->paginate(20);
+            ->paginate(20)
+            ->withQueryString();
 
-        return view('staff.books.index', compact('books'));
+        return view('staff.books.index', [
+            'books' => $books,
+            'query' => $query,
+            'filterQuery' => $query,
+            'totalBooks' => $totalBooks,
+            'avgAvailableCopies' => $avgAvailableCopies,
+            'avgTotalCopies' => $avgTotalCopies,
+        ]);
     }
 
     /**

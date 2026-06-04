@@ -20,21 +20,35 @@ class AcquisitionController extends Controller
      */
     public function index(): View
     {
-        $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
-            ->whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
-            ->latest()
-            ->paginate(15);
-
+        $query = request()->input('q', '');
+        
+        // Totals without filters
         $totalAcquisitionsCount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->count();
 
         $totalAcquisitionsAmount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->sum('total_price');
 
+        // Filtered acquisitions for table
+        $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
+            ->whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->when($query, function ($q) use ($query) {
+                return $q->whereHas('seller', function ($userQuery) use ($query) {
+                    $userQuery->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%");
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
         return view('staff.acquisitions.index', [
             'acquisitions' => $acquisitions,
             'totalAcquisitionsCount' => $totalAcquisitionsCount,
             'totalAcquisitionsAmount' => $totalAcquisitionsAmount,
+            'filterQuery' => $query,
         ]);
     }
 

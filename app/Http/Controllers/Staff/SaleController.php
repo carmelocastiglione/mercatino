@@ -18,20 +18,34 @@ class SaleController extends Controller
      */
     public function index(): View
     {
-        $batches = BookSaleBatch::with(['creator', 'buyer', 'sales'])
-            ->bySchool(auth()->user()->school_id)
-            ->latest('created_at')
-            ->paginate(15);
+        $query = request()->input('q', '');
 
+        // Totals without filters
         $totalBatchesCount = BookSaleBatch::bySchool(auth()->user()->school_id)->count();
         
         $totalRevenue = BookSaleBatch::bySchool(auth()->user()->school_id)
             ->sum('total_price');
 
+        // Filtered batches for table
+        $batches = BookSaleBatch::with(['creator', 'buyer', 'sales'])
+            ->bySchool(auth()->user()->school_id)
+            ->when($query, function ($q) use ($query) {
+                return $q->whereHas('buyer', function ($buyerQuery) use ($query) {
+                    $buyerQuery->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%");
+                });
+            })
+            ->latest('created_at')
+            ->paginate(15)
+            ->withQueryString();
+
         return view('staff.sales.index', [
             'batches' => $batches,
             'totalBatchesCount' => $totalBatchesCount,
             'totalRevenue' => $totalRevenue,
+            'filterQuery' => $query,
         ]);
     }
 

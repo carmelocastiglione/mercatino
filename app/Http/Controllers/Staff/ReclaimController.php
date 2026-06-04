@@ -17,14 +17,31 @@ class ReclaimController extends Controller
     public function index()
     {
         $staffSchoolId = auth()->user()->school_id;
+        $query = request()->input('q', '');
         
-        $reclaims = Reclaim::bySchool($staffSchoolId)
+        // Get all reclaims for statistics (without filter)
+        $allReclaims = Reclaim::bySchool($staffSchoolId)
             ->with(['user', 'bookListing.book', 'bookListing.seller', 'buyer'])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Filtered reclaims for table
+        $reclaims = Reclaim::bySchool($staffSchoolId)
+            ->with(['user', 'bookListing.book', 'bookListing.seller', 'buyer'])
+            ->when($query, function ($q) use ($query) {
+                return $q->whereHas('bookListing.seller', function ($sellerQuery) use ($query) {
+                    $sellerQuery->where('name', 'ilike', "%{$query}%")
+                        ->orWhere('surname', 'ilike', "%{$query}%")
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhere('code', 'ilike', "%{$query}%");
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
         
-        // Calcola statistiche (solo per resi approvati)
-        $approvedReclaims = $reclaims->where('status', 'approved');
+        // Calculate statistics (only from all reclaims, not filtered)
+        $approvedReclaims = $allReclaims->where('status', 'approved');
         $totalReclaims = $approvedReclaims->count();
         $totalReclaimedAmount = $approvedReclaims->sum(fn($r) => $r->bookListing->price_sell ?? 0);
         
@@ -34,6 +51,7 @@ class ReclaimController extends Controller
             'reclaims' => $reclaims,
             'totalReclaims' => $totalReclaims,
             'totalReclaimedAmount' => $totalReclaimedAmount,
+            'filterQuery' => $query,
         ]);
     }
 

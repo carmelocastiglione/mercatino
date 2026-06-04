@@ -54,6 +54,31 @@
             </div>
         @endif
 
+        <!-- Filter Form -->
+        <div class="bg-white border border-indigo-200 rounded-lg p-6 mb-8">
+            <form method="GET" action="{{ route('staff.withdrawals.index') }}" class="flex gap-2">
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Filtra per nome, cognome, email o codice venditore..." 
+                    value="{{ $filterQuery }}"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    autocomplete="off"
+                />
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
+                    Filtra
+                </button>
+                @if($filterQuery)
+                    <a href="{{ route('staff.withdrawals.index') }}" class="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition">
+                        Reset
+                    </a>
+                @endif
+            </form>
+            @if($filterQuery)
+                <p class="text-sm text-gray-600 mt-2">Risultati per: <strong>{{ $filterQuery }}</strong> ({{ $sellers->total() }} risultati)</p>
+            @endif
+        </div>
+
         <!-- Sellers Table -->
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
             <table class="w-full">

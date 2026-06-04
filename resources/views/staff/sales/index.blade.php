@@ -32,6 +32,31 @@
         message="Questa pagina registra le vendite senza tener conto dei resi. Se un libro è stato venduto e poi restituito, la vendita originale rimarrà registrata qui. Le vendite totali e l'incasso totale sono conteggiati senza tener conto delle vendite. Per una gestione accurata dei resi, consulta la sezione 'Resi' dedicata. Per controllare l'incasso effettivo comprensivo di resi, consulta la sezione 'Riscossioni'."
     />
 
+    <!-- Filter Form -->
+    <div class="bg-white border border-green-200 rounded-lg p-6 mb-8">
+        <form method="GET" action="{{ route('staff.sales.index') }}" class="flex gap-2">
+            <input 
+                type="text" 
+                name="q" 
+                placeholder="Filtra per nome, cognome, email o codice acquirente..." 
+                value="{{ $filterQuery }}"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                autocomplete="off"
+            />
+            <button type="submit" class="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition">
+                Filtra
+            </button>
+            @if($filterQuery)
+                <a href="{{ route('staff.sales.index') }}" class="px-6 py-2 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition">
+                    Reset
+                </a>
+            @endif
+        </form>
+        @if($filterQuery)
+            <p class="text-sm text-gray-600 mt-2">Risultati per: <strong>{{ $filterQuery }}</strong> ({{ $batches->total() }} risultati)</p>
+        @endif
+    </div>
+
     @if($batches->count() > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
