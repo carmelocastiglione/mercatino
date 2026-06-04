@@ -78,7 +78,7 @@ class AcquisitionController extends Controller
     }
 
     /**
-     * Search sellers by name or email (filtered by staff's school).
+     * Search sellers by name, surname, email or code (filtered by staff's school).
      */
     public function searchSellers()
     {
@@ -93,7 +93,8 @@ class AcquisitionController extends Controller
             ->where(function ($q) use ($query) {
                 $q->where('name', 'ilike', "%{$query}%")
                     ->orWhere('surname', 'ilike', "%{$query}%")
-                    ->orWhere('email', 'ilike', "%{$query}%");
+                    ->orWhere('email', 'ilike', "%{$query}%")
+                    ->orWhere('code', 'ilike', "%{$query}%");
             })
             ->select('id', 'name', 'surname', 'email', 'code')
             ->limit(10)
