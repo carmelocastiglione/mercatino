@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-04: Eliminato il box informativo presente nella ricevuto dalla stampa
 - 2026-06-04: Se la scuola non usufruisce dell'online, vengono nascoste le funzionalità di prenotazione consegna e ritiro e non vengono più mostrati i dati di login quando si crea un nuovo utente che consegna o vende.
 - 2026-06-03: Aggiunte impostazioni specifiche per la scuola nel menu staff: generali, date consegna, date ritiro
 - 2026-06-03: Aggiunta gestione delle impostazioni specifiche per ogni scuola (es. abilita online etc)
@@ -41,7 +42,6 @@
 - Controllare il prezzo di prenotazione online
 
 ## Staff
-- Togliere informazioni inutili sulla ricevuta
 - Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri in vendite (es: libro o venditore) e acquisizioni (es: libro o acquirente)
