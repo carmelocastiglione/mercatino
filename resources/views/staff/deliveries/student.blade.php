@@ -34,8 +34,8 @@
                                 <div class="flex-1">
                                     <div class="grid grid-cols-6 gap-4 text-sm">
                                         <div>
-                                            <p class="text-gray-600 font-medium">ID Prenotazione</p>
-                                            <p class="text-gray-900 font-mono text-lg">{{ $batchData['batch']->id }}</p>
+                                            <p class="text-gray-600 font-medium">Codice Transazione</p>
+                                            <p class="text-gray-900 font-mono text-lg">{{ $batchData['batch']->ean13 ?? 'N/A' }}</p>
                                         </div>
                                         <div>
                                             <p class="text-gray-600 font-medium">N. Libri</p>

@@ -33,12 +33,12 @@ class AcquisitionController extends Controller
         $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
             ->whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->when($query, function ($q) use ($query) {
-                return $q->whereHas('seller', function ($userQuery) use ($query) {
-                    $userQuery->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%")
-                        ->orWhere('code', 'ilike', "%{$query}%");
-                });
+                return $q->where('ean13', 'ilike', "%{$query}%")
+                    ->orWhereHas('seller', function ($userQuery) use ($query) {
+                        $userQuery->where('surname', 'ilike', "%{$query}%")
+                            ->orWhere('email', 'ilike', "%{$query}%")
+                            ->orWhere('code', 'ilike', "%{$query}%");
+                    });
             })
             ->latest()
             ->paginate(15)
@@ -92,7 +92,7 @@ class AcquisitionController extends Controller
     }
 
     /**
-     * Search sellers by name, surname, email or code (filtered by staff's school).
+     * Search sellers by surname, email or code (filtered by staff's school).
      */
     public function searchSellers()
     {
@@ -105,8 +105,7 @@ class AcquisitionController extends Controller
 
         $users = User::where('school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%{$query}%")
-                    ->orWhere('surname', 'ilike', "%{$query}%")
+                $q->where('surname', 'ilike', "%{$query}%")
                     ->orWhere('email', 'ilike', "%{$query}%")
                     ->orWhere('code', 'ilike', "%{$query}%");
             })
@@ -131,10 +130,12 @@ class AcquisitionController extends Controller
 
         $students = User::where('school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%{$query}%")
-                    ->orWhere('surname', 'ilike', "%{$query}%")
+                $q->where('surname', 'ilike', "%{$query}%")
                     ->orWhere('email', 'ilike', "%{$query}%")
-                    ->orWhere('code', 'ilike', "%{$query}%");
+                    ->orWhere('code', 'ilike', "%{$query}%")
+                    ->orWhereHas('deliveryBatches', function ($batchQuery) use ($query) {
+                        $batchQuery->where('ean13', 'ilike', "%{$query}%");
+                    });
             })
             ->select('id', 'name', 'surname', 'email', 'code')
             ->limit(10)

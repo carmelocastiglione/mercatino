@@ -27,7 +27,7 @@
             <input 
                 type="text" 
                 id="buyer_search" 
-                placeholder="Digita nome, cognome, email o codice acquirente..." 
+                placeholder="Digita codice transazione, cognome, email o codice acquirente..." 
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             
@@ -83,7 +83,7 @@
                 <input 
                     type="text" 
                     name="q" 
-                    placeholder="Filtra per nome, cognome, email o codice venditore..." 
+                    placeholder="Filtra per codice transazione, cognome, email o codice venditore..." 
                     value="{{ $filterQuery }}"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                     autocomplete="off"
@@ -111,6 +111,7 @@
                 <table class="w-full">
                     <thead class="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-gray-200">
                         <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acquirente</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Venditore</th>
@@ -122,6 +123,9 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($reclaims as $reclaim)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">
+                                    <p class="font-mono font-bold text-gray-900">{{ $reclaim->ean13 ?? 'N/A' }}</p>
+                                </td>
                                 <td class="px-6 py-4">
                                     <div>
                                         <p class="font-medium text-gray-900">{{ $reclaim->bookListing->book->title }}</p>

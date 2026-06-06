@@ -32,10 +32,15 @@ class WithdrawalController extends Controller
             ->where('school_id', $schoolId)
             ->when($query, function ($queryBuilder) use ($query) {
                 return $queryBuilder->where(function ($queryBuilder) use ($query) {
-                    $queryBuilder->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
+                    $queryBuilder->where('surname', 'ilike', "%{$query}%")
                         ->orWhere('code', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%");
+                        ->orWhere('email', 'ilike', "%{$query}%")
+                        ->orWhereHas('withdrawalBatches', function ($batchQuery) use ($query) {
+                            $batchQuery->where('ean13', 'ilike', "%{$query}%");
+                        })
+                        ->orWhereHas('pickupBatches', function ($batchQuery) use ($query) {
+                            $batchQuery->where('ean13', 'ilike', "%{$query}%");
+                        });
                 });
             })
             ->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
@@ -123,10 +128,15 @@ class WithdrawalController extends Controller
                 $q->bySchool($schoolId);
             })
             ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%$query%")
-                    ->orWhere('surname', 'ilike', "%$query%")
+                $q->where('surname', 'ilike', "%$query%")
                     ->orWhere('code', 'ilike', "%$query%")
-                    ->orWhere('email', 'ilike', "%$query%");
+                    ->orWhere('email', 'ilike', "%$query%")
+                    ->orWhereHas('withdrawalBatches', function ($batchQuery) use ($query) {
+                        $batchQuery->where('ean13', 'ilike', "%$query%");
+                    })
+                    ->orWhereHas('pickupBatches', function ($batchQuery) use ($query) {
+                        $batchQuery->where('ean13', 'ilike', "%$query%");
+                    });
             })
             ->take(10)
             ->get(['id', 'name', 'surname', 'code', 'email']);

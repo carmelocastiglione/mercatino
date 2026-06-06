@@ -25,7 +25,7 @@
             <input 
                 type="text" 
                 name="q" 
-                placeholder="Filtra per nome, cognome, email o codice venditore..." 
+                placeholder="Codice transazione, cognome, email o codice venditore..." 
                 value="{{ $filterQuery }}"
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autocomplete="off"
@@ -50,8 +50,8 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Venditore</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Staff</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libri</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Totale</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
@@ -62,14 +62,14 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($acquisitions as $acquisition)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm font-mono font-bold text-gray-900">
+                                    {{ $acquisition->ean13 ?? 'N/A' }}
+                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-900 font-medium">
                                     <div>
                                         <p class="font-semibold">{{ $acquisition->seller->name }} {{ $acquisition->seller->surname }}</p>
                                         <p class="text-xs text-gray-500">{{ $acquisition->seller->code }}</p>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-600">
-                                    {{ $acquisition->staff->name }} {{ $acquisition->staff->surname }}
                                 </td>
                                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">
                                     {{ $acquisition->bookListings->count() }}

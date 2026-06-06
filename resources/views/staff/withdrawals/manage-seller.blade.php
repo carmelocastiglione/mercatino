@@ -132,6 +132,7 @@
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Numero Libri</th>
                                 <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Totale</th>
@@ -141,6 +142,7 @@
                         <tbody class="divide-y divide-gray-200">
                             @foreach($withdrawalBatches as $batch)
                                 <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-mono font-bold text-gray-900">{{ $batch->ean13 ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
                                     <td class="px-6 py-4 text-sm text-center text-gray-900 font-semibold">{{ $batch->withdrawals->count() }}</td>
                                     <td class="px-6 py-4 text-sm text-right text-gray-900 font-semibold">€{{ number_format($batch->total_amount, 2, ',', '.') }}</td>
@@ -305,6 +307,7 @@
                     <table class="w-full">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                                 <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Numero Libri</th>
                                 <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
@@ -313,6 +316,7 @@
                         <tbody class="divide-y divide-gray-200">
                             @foreach($pickupBatches as $batch)
                                 <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 text-sm font-mono font-bold text-gray-900">{{ $batch->ean13 ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ $batch->created_at->format('d/m/Y H:i') }}</td>
                                     <td class="px-6 py-4 text-sm text-center text-gray-900 font-semibold">{{ $batch->pickups->count() }}</td>
                                     <td class="px-6 py-4 text-center text-sm space-x-2">

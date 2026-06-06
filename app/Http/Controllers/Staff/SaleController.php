@@ -30,12 +30,12 @@ class SaleController extends Controller
         $batches = BookSaleBatch::with(['creator', 'buyer', 'sales'])
             ->bySchool(auth()->user()->school_id)
             ->when($query, function ($q) use ($query) {
-                return $q->whereHas('buyer', function ($buyerQuery) use ($query) {
-                    $buyerQuery->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%")
-                        ->orWhere('code', 'ilike', "%{$query}%");
-                });
+                return $q->where('ean13', 'ilike', "%{$query}%")
+                    ->orWhereHas('buyer', function ($buyerQuery) use ($query) {
+                        $buyerQuery->where('surname', 'ilike', "%{$query}%")
+                            ->orWhere('email', 'ilike', "%{$query}%")
+                            ->orWhere('code', 'ilike', "%{$query}%");
+                    });
             })
             ->latest('created_at')
             ->paginate(15)
@@ -96,8 +96,7 @@ class SaleController extends Controller
 
         $buyers = User::where('school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%{$query}%")
-                    ->orWhere('surname', 'ilike', "%{$query}%")
+                $q->where('surname', 'ilike', "%{$query}%")
                     ->orWhere('code', 'ilike', "%{$query}%")
                     ->orWhere('email', 'ilike', "%{$query}%");
             })

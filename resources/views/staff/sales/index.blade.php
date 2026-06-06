@@ -38,7 +38,7 @@
             <input 
                 type="text" 
                 name="q" 
-                placeholder="Filtra per nome, cognome, email o codice acquirente..." 
+                placeholder="Codice transazione, cognome, email o codice acquirente..." 
                 value="{{ $filterQuery }}"
                 class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 autocomplete="off"
@@ -63,8 +63,8 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
+                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acquirente</th>
-                            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Staff</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libri Venduti</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Totale</th>
                             <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
@@ -74,6 +74,9 @@
                     <tbody class="divide-y divide-gray-200">
                         @foreach($batches as $batch)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 text-sm font-mono font-bold text-gray-900">
+                                    {{ $batch->ean13 ?? 'N/A' }}
+                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">
                                     @if($batch->buyer)
                                         <p class="font-medium">{{ $batch->buyer->name }} {{ $batch->buyer->surname }}</p>
@@ -81,9 +84,6 @@
                                     @else
                                         <span class="text-gray-500">N/A</span>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 font-medium">
-                                    {{ $batch->creator->name }} {{ $batch->creator->surname }}
                                 </td>
                                 <td class="px-6 py-4 text-sm font-semibold text-gray-900">
                                     {{ $batch->sales->count() }}

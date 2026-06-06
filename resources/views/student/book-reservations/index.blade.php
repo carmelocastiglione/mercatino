@@ -50,7 +50,7 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-lg font-bold text-gray-900">
-                                Prenotazione #{{ $batch->id }}
+                                Codice Prenotazione: <span class="font-mono text-blue-600">{{ $batch->ean13 }}</span>
                             </h3>
                             <p class="text-sm text-gray-600">
                                 {{ $batch->created_at->format('d/m/Y \a\l\l\e H:i') }}

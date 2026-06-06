@@ -267,6 +267,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
+    Route::get('/book-reservations/search-students', [StaffBookReservationController::class, 'searchStudents'])->name('staff.book-reservations.search-students');
     Route::get('/book-reservations/student/{studentId}', [StaffBookReservationController::class, 'studentReservations'])->name('staff.book-reservations.student');
     Route::get('/book-reservations/prepare-sales', [StaffBookReservationController::class, 'prepareSales'])->name('staff.book-reservations.prepare-sales');
     Route::get('/book-reservations/{bookReservationBatch}', [StaffBookReservationController::class, 'show'])->name('staff.book-reservations.show');

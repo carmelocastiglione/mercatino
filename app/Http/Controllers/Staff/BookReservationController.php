@@ -46,11 +46,13 @@ class BookReservationController extends Controller
             ->with('user', 'bookReservations.bookListing.book')
             ->bySchool(auth()->user()->school_id)
             ->when($query, function ($q) use ($query) {
-                return $q->whereHas('user', function ($userQuery) use ($query) {
-                    $userQuery->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%")
-                        ->orWhere('code', 'ilike', "%{$query}%");
+                return $q->where(function ($groupQuery) use ($query) {
+                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                        ->orWhereHas('user', function ($userQuery) use ($query) {
+                            $userQuery->where('surname', 'ilike', "%{$query}%")
+                                ->orWhere('email', 'ilike', "%{$query}%")
+                                ->orWhere('code', 'ilike', "%{$query}%");
+                        });
                 });
             })
             ->latest()
@@ -100,6 +102,34 @@ class BookReservationController extends Controller
             'batches' => $batches,
             'pendingCount' => $pendingCount,
         ]);
+    }
+
+    /**
+     * Search for students by surname, email, code, or reservation batch code.
+     */
+    public function searchStudents(): JsonResponse
+    {
+        $query = request()->input('q');
+        $staffSchoolId = auth()->user()->school_id;
+
+        if (!$query || strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $students = User::where('school_id', $staffSchoolId)
+            ->where(function ($q) use ($query) {
+                $q->where('surname', 'ilike', "%{$query}%")
+                    ->orWhere('email', 'ilike', "%{$query}%")
+                    ->orWhere('code', 'ilike', "%{$query}%")
+                    ->orWhereHas('bookReservationBatches', function ($batchQuery) use ($query) {
+                        $batchQuery->where('ean13', 'ilike', "%{$query}%");
+                    });
+            })
+            ->select('id', 'name', 'surname', 'email', 'code')
+            ->limit(10)
+            ->get();
+
+        return response()->json($students);
     }
 
     /**

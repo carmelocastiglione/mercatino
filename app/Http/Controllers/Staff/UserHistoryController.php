@@ -44,8 +44,7 @@ class UserHistoryController extends Controller
 
         $users = User::where('school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
-                $q->where('name', 'ilike', "%{$query}%")
-                    ->orWhere('surname', 'ilike', "%{$query}%")
+                $q->where('surname', 'ilike', "%{$query}%")
                     ->orWhere('code', 'ilike', "%{$query}%")
                     ->orWhere('email', 'ilike', "%{$query}%");
             })

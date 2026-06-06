@@ -29,11 +29,13 @@ class ReclaimController extends Controller
         $reclaims = Reclaim::bySchool($staffSchoolId)
             ->with(['user', 'bookListing.book', 'bookListing.seller', 'buyer'])
             ->when($query, function ($q) use ($query) {
-                return $q->whereHas('bookListing.seller', function ($sellerQuery) use ($query) {
-                    $sellerQuery->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%")
-                        ->orWhere('code', 'ilike', "%{$query}%");
+                return $q->where(function ($groupQuery) use ($query) {
+                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                        ->orWhereHas('buyer', function ($buyerQuery) use ($query) {
+                            $buyerQuery->where('surname', 'ilike', "%{$query}%")
+                                ->orWhere('email', 'ilike', "%{$query}%")
+                                ->orWhere('code', 'ilike', "%{$query}%");
+                        });
                 });
             })
             ->orderBy('created_at', 'desc')
@@ -70,10 +72,14 @@ class ReclaimController extends Controller
         $buyers = User::where('role', 'studente')
             ->where('school_id', $staffSchoolId)
             ->where(function ($q) use ($query) {
-                $q->whereRaw("LOWER(name) ILIKE ?", ["%{$query}%"])
-                  ->orWhereRaw("LOWER(surname) ILIKE ?", ["%{$query}%"])
+                $q->whereRaw("LOWER(surname) ILIKE ?", ["%{$query}%"])
                   ->orWhereRaw("LOWER(email) ILIKE ?", ["%{$query}%"])
-                  ->orWhereRaw("LOWER(code) ILIKE ?", ["%{$query}%"]);
+                  ->orWhereRaw("LOWER(code) ILIKE ?", ["%{$query}%"])
+                  ->orWhereHas('purchases', function ($purchaseQuery) use ($query) {
+                      $purchaseQuery->whereHas('batch', function ($batchQuery) use ($query) {
+                          $batchQuery->where('ean13', 'ilike', "%{$query}%");
+                      });
+                  });
             })
             ->limit(10)
             ->get(['id', 'name', 'surname', 'email', 'code']);

@@ -39,11 +39,13 @@ class DeliveryController extends Controller
             ->with('user', 'deliveries.book')
             ->bySchool(auth()->user()->school_id)
             ->when($query, function ($q) use ($query) {
-                return $q->whereHas('user', function ($userQuery) use ($query) {
-                    $userQuery->where('name', 'ilike', "%{$query}%")
-                        ->orWhere('surname', 'ilike', "%{$query}%")
-                        ->orWhere('email', 'ilike', "%{$query}%")
-                        ->orWhere('code', 'ilike', "%{$query}%");
+                return $q->where(function ($groupQuery) use ($query) {
+                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                        ->orWhereHas('user', function ($userQuery) use ($query) {
+                            $userQuery->where('surname', 'ilike', "%{$query}%")
+                                ->orWhere('email', 'ilike', "%{$query}%")
+                                ->orWhere('code', 'ilike', "%{$query}%");
+                        });
                 });
             })
             ->latest()

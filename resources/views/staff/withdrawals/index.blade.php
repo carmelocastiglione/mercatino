@@ -37,7 +37,7 @@
                 <input 
                     type="text" 
                     id="seller-search" 
-                    placeholder="Digita nome, cognome, codice o email..." 
+                    placeholder="Digita codice transazione, cognome, codice o email..." 
                     class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     autocomplete="off">
                 
@@ -60,7 +60,7 @@
                 <input 
                     type="text" 
                     name="q" 
-                    placeholder="Filtra per nome, cognome, email o codice venditore..." 
+                    placeholder="Filtra per codice transazione, cognome, email o codice venditore..." 
                     value="{{ $filterQuery }}"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                     autocomplete="off"

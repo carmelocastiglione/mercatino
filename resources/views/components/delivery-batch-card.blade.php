@@ -4,10 +4,10 @@
     <!-- Batch Header -->
     <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-b-2 border-blue-300 px-6 py-4">
         <div class="grid grid-cols-6 gap-4 items-center">
-            <!-- ID -->
+            <!-- Transaction Code -->
             <div>
-                <p class="text-xs text-gray-600 font-semibold uppercase">ID Batch</p>
-                <p class="text-lg font-bold text-blue-600">#{{ $batch->id }}</p>
+                <p class="text-xs text-gray-600 font-semibold uppercase">Codice Prenotazione</p>
+                <p class="font-mono text-lg font-bold text-blue-600">{{ $batch->ean13 }}</p>
             </div>
 
             <!-- Number of Books -->

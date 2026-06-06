@@ -25,7 +25,7 @@
                 <input 
                     type="text" 
                     id="student_search" 
-                    placeholder="Cerca studente per nome, cognome, email o codice..." 
+                    placeholder="Cerca studente per codice transazione, cognome, email o codice..." 
                     class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     autocomplete="off"
                 />
@@ -67,7 +67,7 @@
                 <input 
                     type="text" 
                     name="q" 
-                    placeholder="Filtra per nome, cognome, email o codice studente..." 
+                    placeholder="Filtra per codice transazione, cognome, email o codice studente..." 
                     value="{{ $filterQuery }}"
                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     autocomplete="off"
@@ -90,6 +90,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Codice Transazione</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Studente</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">N. Libri</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Totale</th>
@@ -101,6 +102,9 @@
                 <tbody class="divide-y divide-gray-200">
                     @foreach($batches as $batch)
                         <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4">
+                                <p class="font-mono font-bold text-gray-900">{{ $batch->ean13 ?? 'N/A' }}</p>
+                            </td>
                             <td class="px-6 py-4">
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $batch->user->name }} {{ $batch->user->surname }}</p>

@@ -25,8 +25,9 @@
                     <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg mb-4 border border-purple-200">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-semibold text-gray-600">Batch Prenotazione</p>
-                                <p class="text-xs text-gray-500 mt-1">
+                                <p class="text-xs font-semibold text-gray-600 mb-2">Codice Transazione</p>
+                                <p class="font-mono font-bold text-lg text-purple-700 bg-white px-3 py-2 rounded border border-purple-300">{{ $batch->ean13 }}</p>
+                                <p class="text-xs text-gray-500 mt-2">
                                     Data: {{ $batch->created_at->format('d/m/Y H:i') }}
                                 </p>
                             </div>
