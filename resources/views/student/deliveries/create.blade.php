@@ -106,7 +106,7 @@
                     <div class="grid grid-cols-2 gap-4">
                         @foreach(['like-new' => 'Come Nuovo', 'good' => 'Buona', 'fair' => 'Discreta', 'poor' => 'Scarsa'] as $value => $label)
                             <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
-                                <input type="radio" id="condition_{{ $value }}" name="condition" value="{{ $value }}" class="w-4 h-4 text-blue-600">
+                                <input type="radio" id="condition_{{ $value }}" name="condition" value="{{ $value }}" class="w-4 h-4 text-blue-600" @if($value === 'like-new') checked @endif>
                                 <span class="ml-3 text-sm font-medium text-gray-900">{{ $label }}</span>
                             </label>
                         @endforeach
@@ -282,6 +282,8 @@
             document.getElementById('selected_book_box').classList.add('hidden');
             document.getElementById('price_details_section').style.display = 'none';
             searchResults.classList.add('hidden');
+            // Reset condition to "Come Nuovo"
+            document.getElementById('condition_like-new').checked = true;
             bookSearch.focus();
         }
 
@@ -341,6 +343,9 @@
             document.getElementById('selected_book_box').classList.remove('hidden');
             
             searchResults.classList.add('hidden');
+            
+            // Reset condition to "Come Nuovo"
+            document.getElementById('condition_like-new').checked = true;
             
             // Calculate price
             const condition = document.querySelector('input[name="condition"]:checked');
@@ -403,7 +408,8 @@
             bookSearch.value = '';
             bookIdInput.value = '';
             document.getElementById('selected_book_box').classList.add('hidden');
-            document.querySelectorAll('input[name="condition"]').forEach(input => input.checked = false);
+            // Reset condition to "Come Nuovo"
+            document.getElementById('condition_like-new').checked = true;
             document.getElementById('price_details_section').style.display = 'none';
             currentBook = null;
             bookSearch.focus();
