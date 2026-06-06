@@ -27,7 +27,8 @@
                 <!-- Buyer Password Box (shown only when online sales are enabled) -->
                 @if($enableOnlineSales)
                     <div id="buyer_password_box" class="hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
-                        <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                        <p class="text-lg text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                        <p class="text-sm text-center text-gray-600 mb-4">Comunica queste credenziali al venditore per accedere al portale online. Queste credenziali vengono visualizzate una sola volta e verranno stampate nella ricevuta successiva.</p>
                         <div class="space-y-4">
                             <div>
                                 <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
@@ -203,6 +204,7 @@
         let selectedBuyer = null;
         let selectedBookPrice = 0;
         let isSaving = false;
+        let currentBuyerPassword = null; // Memorizza password dell'acquirente
 
         // Global Functions (callable from onclick)
         function selectBuyer(id, name, surname, code, email, password) {
@@ -210,6 +212,9 @@
             document.getElementById('buyer_id').value = id;
             document.getElementById('buyer_search').value = `${name} ${surname} (${code})`;
             document.getElementById('buyer_results').classList.add('hidden');
+            
+            // Salva la password temporaneamente per inviarla al server
+            currentBuyerPassword = password;
 
             // Show selected buyer info
             const selectedDiv = document.getElementById('buyer_selected');
@@ -396,6 +401,7 @@
                         'X-CSRF-Token': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
+                        buyer_password: currentBuyerPassword, // Invia password al server
                         sales: cart
                     })
                 });

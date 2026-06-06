@@ -244,6 +244,7 @@ class AcquisitionController extends Controller
 
             $validated = request()->validate([
                 'leave' => ['nullable', 'boolean'],
+                'seller_password' => ['nullable', 'string'], // Password del venditore (temporanea)
                 'acquisitions' => ['required', 'array', 'min:1'],
                 'acquisitions.*.seller_id' => ['required', 'exists:users,id'],
                 'acquisitions.*.book_id' => ['required', 'exists:books,id'],
@@ -328,6 +329,13 @@ class AcquisitionController extends Controller
                 }
 
                 $createdCount++;
+            }
+
+            // Se online sales è abilitato e c'è una password, salva in session temporaneamente
+            if ($school->getSetting('enable_online_sales') && !empty($validated['seller_password'])) {
+                session()->put('seller_login_credentials', [
+                    'password' => $validated['seller_password'],
+                ]);
             }
 
             return response()->json([

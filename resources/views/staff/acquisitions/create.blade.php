@@ -17,7 +17,8 @@
             <!-- Seller Password Box (shown only when online sales are enabled) -->
             @if($enableOnlineSales)
                 <div id="seller_password_box" class="mb-6 hidden bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-6 shadow-md">
-                    <p class="text-sm text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                    <p class="text-lg text-center text-gray-600 mb-4">Credenziali di accesso</p>
+                    <p class="text-sm text-center text-gray-600 mb-4">Comunica queste credenziali al venditore per accedere al portale online. Queste credenziali vengono visualizzate una sola volta e verranno stampate nella ricevuta successiva.</p>
                     <div class="space-y-4">
                         <div>
                             <p class="text-xs text-center text-gray-600 mb-2">Email:</p>
@@ -282,6 +283,7 @@
         const sellerCodeBox = document.getElementById('seller_code_box');
         const sellerCodeDisplay = document.getElementById('seller_code_display');
         let sellerDebounceTimer;
+        let currentSellerPassword = null; // Memorizza password del venditore selezionato
 
         sellerSearch.addEventListener('input', (e) => {
             clearTimeout(sellerDebounceTimer);
@@ -330,6 +332,9 @@
             selectedSellerText.textContent = name;
             selectedSellerDiv.classList.remove('hidden');
             sellerCodeDisplay.textContent = code;
+            
+            // Salva la password temporaneamente per inviarla al server
+            currentSellerPassword = password;
             
             // Nascondi le credenziali di default (se elemento esiste)
             const passwordBox = document.getElementById('seller_password_box');
@@ -639,12 +644,6 @@
             // Resetta la condizione a "like-new"
             document.getElementById('condition_like-new').checked = true;
             
-            // Nasconde le credenziali (password box) se elemento esiste
-            const pwBox = document.getElementById('seller_password_box');
-            if (pwBox) {
-                pwBox.classList.add('hidden');
-            }
-            
             // Nascondi i dettagli del prezzo
             document.getElementById('price_details_section').style.display = 'none';
             
@@ -689,6 +688,7 @@
                     },
                     body: JSON.stringify({
                         leave: leave,
+                        seller_password: currentSellerPassword, // Invia password al server
                         acquisitions: cart.map(item => ({
                             seller_id: item.seller_id,
                             book_id: item.book_id,

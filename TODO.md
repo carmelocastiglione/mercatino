@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-06: Per le scuole con online abilitato, se si crea un nuovo utente dalla schermata di consegna o vendita, i dati di login (email e password) vengono adesso mostrati in un box informativo sulla ricevuta. Questo permette allo staff di comunicare facilmente le credenziali agli studenti e semplifica la gestione degli account.
 - 2026-06-06: La condizione di default di un libro prenotato per la consegna è adesso "come nuovo" per semplificare l'inserimento da parte degli studenti. Questo permette di velocizzare il processo di prenotazione e ridurre gli errori di inserimento.
 - 2026-06-06: Aggiunto filtro di ricerca per codice transazione nelle pagine dello staff. Rimosso il filtro di ricerca per nome studente (lasciato solo il cognome) per semplificare l'interfaccia e ridurre i tempi di ricerca.
 - 2026-06-05: Generazione di un codice a barre univoco per ciascuna ricevuta di acquisizione, vendita, consegna, etc. Il codice a barre è basato su un formato EAN13 e viene visualizzato sia nella pagina di dettaglio dell'acquisizione/vendita/consegna che sulla ricevuta stampata. Questo permette una tracciabilità più efficiente e una gestione semplificata delle operazioni tramite scansione del codice a barre.
@@ -55,8 +56,8 @@
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
+- Aggiungere card Utenti nella dashboard staff
 - Controllare che nell'approvazione delle prenotazioni vendite, possa continuare anche se non ho libri approvati o rifiutati (es: se ho 3 prenotazioni e ne approvo solo 1, dovrei poter continuare con la vendita di quel libro senza dover approvare o rifiutare le altre 2 perché magari il libro sarà disponibile più avanti)
-- Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro
 - Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?
@@ -70,6 +71,7 @@
 - Gestione commissioni scuole
 
 ## Miglioramenti Generali
+- Pagina profilo dove modificare le proprie informazioni
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?

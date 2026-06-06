@@ -24,6 +24,37 @@
         <div class="space-y-8">
             <x-seller-information-card :acquisition="$acquisition" />
 
+            <!-- Login Credentials Box (shown only if school has online sales and credentials are in session) -->
+            @php
+                $sellerEmail = $acquisition->seller->email;
+                $sellerPassword = session()->pull('seller_login_credentials.password');
+                $enableOnlineSales = auth()->user()->school->getSetting('enable_online_sales');
+            @endphp
+            
+            @if($enableOnlineSales && $sellerPassword)
+                <div class="bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-lg p-8 shadow-lg print:bg-white print:border-2 print:border-green-600">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-bold text-gray-900">Credenziali di Primo Accesso</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 print-credentials-grid">
+                        <div class="text-center flex flex-col items-center">
+                            <p class="text-xs font-semibold text-gray-700 uppercase mb-2">Email</p>
+                            <div class="bg-white border-2 border-green-300 rounded-lg p-4 w-full flex items-center justify-center">
+                                <p class="font-mono text-lg text-green-700 break-all">{{ $sellerEmail }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center flex flex-col items-center">
+                            <p class="text-xs font-semibold text-gray-700 uppercase mb-2">Password</p>
+                            <div class="bg-white border-2 border-green-300 rounded-lg p-4 w-full flex items-center justify-center">
+                                <code id="password_field" class="font-mono text-lg text-green-700">{{ $sellerPassword }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <x-acquisition-books-table :acquisition="$acquisition" />
 
             <x-summary-footer :acquisition="$acquisition" />
@@ -180,6 +211,24 @@
             span.rounded-full {
                 background-color: transparent !important;
                 border-radius: 0 !important;
+            }
+
+            /* Print layout for credentials - side by side with equal height */
+            .print-credentials-grid {
+                display: flex !important;
+                gap: 0.4rem !important;
+            }
+
+            .print-credentials-grid > div {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .print-credentials-grid > div > div:last-child {
+                flex-grow: 1 !important;
+                display: flex !important;
+                align-items: center !important;
             }
         </style>
 

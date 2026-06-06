@@ -166,8 +166,10 @@ class SaleController extends Controller
     {
         try {
             $staffSchoolId = auth()->user()->school_id;
+            $school = auth()->user()->school;
 
             $validated = request()->validate([
+                'buyer_password' => ['nullable', 'string'], // Password dell'acquirente (temporanea)
                 'sales' => ['required', 'array', 'min:1'],
                 'sales.*.buyer_id' => ['required', 'exists:users,id'],
                 'sales.*.book_listing_id' => ['required', 'exists:book_listings,id'],
@@ -219,6 +221,13 @@ class SaleController extends Controller
 
             // Update batch with total price
             $batch->update(['total_price' => $totalAmount]);
+
+            // Se online sales è abilitato e c'è una password, salva in session temporaneamente
+            if ($school->getSetting('enable_online_sales') && !empty($validated['buyer_password'])) {
+                session()->put('buyer_login_credentials', [
+                    'password' => $validated['buyer_password'],
+                ]);
+            }
 
             // Clear session data after processing
             session()->forget(['approved_reservations', 'student_id']);
