@@ -6,15 +6,24 @@
         <div class="space-y-6">
             <!-- ID and Code Row -->
             <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <p class="text-xs text-gray-500 font-semibold uppercase mb-1 text-center">ID Acquisizione</p>
-                    <div class="w-full bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 text-center">
-                        <p class="text-3xl font-bold text-blue-600 tracking-widest">#{{ $acquisition->id }}</p>
+                <div class="flex flex-col">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-1 text-center">Codice Transazione</p>
+                    <div class="flex-1 w-full bg-white border-2 border-blue-300 rounded-lg p-4 text-center flex flex-col justify-center items-center">
+                        @if($acquisition->ean13)
+                            <div class="flex justify-center">
+                                <?php
+                                    $barcode = (new \Picqer\Barcode\Types\TypeEan13())->getBarcode($acquisition->ean13);
+                                    $renderer = new \Picqer\Barcode\Renderers\SvgRenderer();
+                                    echo $renderer->render($barcode);
+                                ?>
+                            </div>
+                            <p class="text-sm font-mono font-bold text-gray-900 mt-2">{{ $acquisition->ean13 }}</p>
+                        @endif
                     </div>
                 </div>
-                <div>
+                <div class="flex flex-col">
                     <p class="text-xs text-gray-500 font-semibold uppercase mb-1 text-center">Codice Venditore</p>
-                    <div class="w-full bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 text-center">
+                    <div class="flex-1 w-full bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-4 text-center flex items-center justify-center">
                         <p class="text-3xl font-bold text-blue-600 tracking-widest">{{ $acquisition->seller->code }}</p>
                     </div>
                 </div>

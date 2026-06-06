@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\EAN13Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,6 +23,7 @@ class BookReservationBatch extends Model
         'confirmed_at',
         'rejected_at',
         'cancelled_at',
+        'ean13',
     ];
 
     protected $casts = [
@@ -33,6 +35,18 @@ class BookReservationBatch extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Boot method to generate EAN13.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $batch) {
+            $batch->ean13 = EAN13Helper::generate();
+        });
+    }
 
     /**
      * Get the student who made this reservation.

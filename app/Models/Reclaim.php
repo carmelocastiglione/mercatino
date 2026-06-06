@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\EAN13Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -19,6 +20,7 @@ class Reclaim extends Model
         'notes',
         'status',
         'rejection_reason',
+        'ean13',
     ];
 
     /**
@@ -28,6 +30,18 @@ class Reclaim extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Boot method to generate EAN13.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $reclaim) {
+            $reclaim->ean13 = EAN13Helper::generate();
+        });
+    }
 
     /**
      * Scope to filter reclaims by school.

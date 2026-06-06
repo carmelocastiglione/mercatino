@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-05: Generazione di un codice a barre univoco per ciascuna ricevuta di acquisizione, vendita, consegna, etc. Il codice a barre è basato su un formato EAN13 e viene visualizzato sia nella pagina di dettaglio dell'acquisizione/vendita/consegna che sulla ricevuta stampata. Questo permette una tracciabilità più efficiente e una gestione semplificata delle operazioni tramite scansione del codice a barre.
 - 2026-06-04: Correzione fuso orario per tutte le date (adesso è impostato su Europe/Rome)
 - 2026-06-04: Aggiunti filtri di ricerca nelle pagine
 - 2026-06-04: Eliminato il box informativo presente nella ricevuto dalla stampa
@@ -28,11 +29,11 @@
 ## Stampa ricevute da controllare:
 - Prenotazione consegna (studente FATTO)
 - Prenotazione vendita (studente FATTO)
-- Acquisizione (staff FATTO) + delega (FATTO)
-- Vendita (staff FATTO)
-- Riscossione soldi (staff FATTO)
-- Riscossione libri non venduti (staff FATTO)
-- Resi (staff FATTO)
+- Acquisizione: acquisitions
+- Vendita: sales_batches
+- Riscossione soldi: withdrawal_batches
+- Riscossione libri non venduti: pickup_batches
+- Resi: reclaims
 
 ## Studente
 - C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
@@ -44,6 +45,7 @@
 - Controllare il prezzo di prenotazione online
 
 ## Staff
+- Aggiungere la ricerca per codice transazione
 - Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro

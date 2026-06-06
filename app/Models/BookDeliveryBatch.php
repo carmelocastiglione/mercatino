@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\EAN13Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,6 +23,7 @@ class BookDeliveryBatch extends Model
         'status',
         'delivered_date',
         'notes',
+        'ean13',
     ];
 
     /**
@@ -32,6 +34,18 @@ class BookDeliveryBatch extends Model
     protected $casts = [
         'delivered_date' => 'datetime',
     ];
+
+    /**
+     * Boot method to generate EAN13.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (self $batch) {
+            $batch->ean13 = EAN13Helper::generate();
+        });
+    }
 
     /**
      * Get the student who created this batch.

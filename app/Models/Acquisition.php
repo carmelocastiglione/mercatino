@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\EAN13Helper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,7 +15,20 @@ class Acquisition extends Model
         'status',
         'total_price',
         'notes',
+        'ean13',
     ];
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($acquisition) {
+            $acquisition->ean13 = EAN13Helper::generate();
+        });
+    }
 
     /**
      * Get the staff member who made this acquisition.
