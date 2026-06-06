@@ -30,6 +30,16 @@
             label="IN CATALOGO"
         />
 
+        <!-- Gestione Utenti -->
+        <x-dashboard-card 
+            href="{{ route('staff.users.index') }}"
+            title="Gestione utenti"
+            description="Gestisci gli studenti, il loro storico e lo staff della tua scuola"
+            count="{{ ($totalStudents ?? 0) + ($totalStaff ?? 0) }}"
+            bgColor="orange"
+            label="TOTALE"
+        />
+
         @if($enableOnlineSales)
             <!-- Prenotazioni consegne -->
             <x-dashboard-card 

@@ -1,4 +1,6 @@
 # CHANGELOG
+- 2026-06-06: Integrazione della sezione "Storico Utente" in "Utenti"
+- 2026-06-06: Aggiunta sezione "Utenti" nella dashboard dello staff per visualizzare e gestire gli utenti registrati, con funzionalità di ricerca e filtro per nome, email, e ruolo. Questa sezione permette allo staff di avere una panoramica completa degli utenti e di gestire facilmente le loro informazioni.
 - 2026-06-06: Per le scuole con online abilitato, se si crea un nuovo utente dalla schermata di consegna o vendita, i dati di login (email e password) vengono adesso mostrati in un box informativo sulla ricevuta. Questo permette allo staff di comunicare facilmente le credenziali agli studenti e semplifica la gestione degli account.
 - 2026-06-06: La condizione di default di un libro prenotato per la consegna è adesso "come nuovo" per semplificare l'inserimento da parte degli studenti. Questo permette di velocizzare il processo di prenotazione e ridurre gli errori di inserimento.
 - 2026-06-06: Aggiunto filtro di ricerca per codice transazione nelle pagine dello staff. Rimosso il filtro di ricerca per nome studente (lasciato solo il cognome) per semplificare l'interfaccia e ridurre i tempi di ricerca.
@@ -56,7 +58,6 @@
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
-- Aggiungere card Utenti nella dashboard staff
 - Controllare che nell'approvazione delle prenotazioni vendite, possa continuare anche se non ho libri approvati o rifiutati (es: se ho 3 prenotazioni e ne approvo solo 1, dovrei poter continuare con la vendita di quel libro senza dover approvare o rifiutare le altre 2 perché magari il libro sarà disponibile più avanti)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro

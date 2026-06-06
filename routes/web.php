@@ -28,6 +28,7 @@ use App\Http\Controllers\Staff\RegisterController as StaffRegisterController;
 use App\Http\Controllers\Staff\UserHistoryController as StaffUserHistoryController;
 use App\Http\Controllers\Staff\SettingsController as StaffSettingsController;
 use App\Http\Controllers\Staff\BookReservationController as StaffBookReservationController;
+use App\Http\Controllers\Staff\UserController as StaffUserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -172,6 +173,13 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/books/{book}/edit', [StaffBookController::class, 'edit'])->name('staff.books.edit');
     Route::put('/books/{book}', [StaffBookController::class, 'update'])->name('staff.books.update');
     Route::delete('/books/{book}', [StaffBookController::class, 'destroy'])->name('staff.books.destroy');
+    
+    // Users Management (RESTful)
+    Route::get('/users', [StaffUserController::class, 'index'])->name('staff.users.index');
+    Route::get('/users/create', [StaffUserController::class, 'create'])->name('staff.users.create');
+    Route::post('/users', [StaffUserController::class, 'store'])->name('staff.users.store');
+    Route::get('/users/{user}/edit', [StaffUserController::class, 'edit'])->name('staff.users.edit');
+    Route::put('/users/{user}', [StaffUserController::class, 'update'])->name('staff.users.update');
     
     // Deliveries Management
     Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');

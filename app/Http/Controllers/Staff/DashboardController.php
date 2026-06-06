@@ -11,6 +11,7 @@ use App\Models\BookListing;
 use App\Models\BookReservationBatch;
 use App\Models\BookSale;
 use App\Models\Reclaim;
+use App\Models\User;
 use App\Models\Withdrawal;
 use Illuminate\View\View;
 
@@ -35,6 +36,8 @@ class DashboardController extends Controller
             'pendingReclaims' => Reclaim::where('status', 'pending')->bySchool($schoolId)->count(),
             'pendingReservations' => BookReservationBatch::where('status', 'pending')->bySchool($schoolId)->count(),
             'enableOnlineSales' => $school->hasFeatureEnabled('enable_online_sales'),
+            'totalStudents' => User::where('school_id', $schoolId)->where('role', 'studente')->count(),
+            'totalStaff' => User::where('school_id', $schoolId)->where('role', 'staff')->count(),
         ]);
     }
 }

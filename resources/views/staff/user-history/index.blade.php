@@ -3,6 +3,7 @@
 @section('title', 'Storico Utente')
 
 @section('content')
+    <!-- Search Box (commented out for now, to be reintroduced in future updates)
     <div class="mb-8">
         <h1 class="text-4xl font-bold text-gray-900">Storico Utente</h1>
         <p class="text-gray-600 mt-2">Cerca un utente per visualizzare tutti i suoi movimenti</p>
@@ -24,11 +25,15 @@
             <div id="user_results" class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-72 overflow-y-auto z-10"></div>
         </div>
     </div>
+    -->
+   
+        <div class="mb-8">
+            <a href="{{ route('staff.users.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">← Torna a Utenti</a>
+        </div>
 
-    @if($user && count($movements) > 0)
         <div class="mb-8 flex items-center justify-between">
             <div>
-                <h2 class="text-3xl font-bold text-gray-900">Storico di {{ $user->name }} {{ $user->surname }}</h2>
+                <h1 class="text-4xl font-bold text-gray-900">Storico di {{ $user->name }} {{ $user->surname }}</h1>
                 <div class="flex items-center gap-4 mt-3">
                     <p class="text-sm text-gray-600"><strong>Codice:</strong> {{ $user->code }}</p>
                     <p class="text-sm text-gray-600"><strong>Email:</strong> {{ $user->email }}</p>
@@ -36,6 +41,7 @@
             </div>
         </div>
 
+        @if($user && count($movements) > 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <!-- Table Header -->
             <div class="overflow-x-auto">
