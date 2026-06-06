@@ -85,8 +85,12 @@ class WithdrawalController extends Controller
                     ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
                     ->count();
                 
-                // Count withdrawals for this user
-                $withdrawnCount = Withdrawal::where('user_id', $user->id)->count();
+                // Count withdrawals for this user (filtered by school via book listings)
+                $withdrawnCount = Withdrawal::where('user_id', $user->id)
+                    ->whereHas('bookListing.book', function($q) use ($schoolId) {
+                        $q->where('school_id', $schoolId);
+                    })
+                    ->count();
                 
                 return $soldCount > 0 && $soldCount === $withdrawnCount;
             })
@@ -166,14 +170,20 @@ class WithdrawalController extends Controller
         $soldBooks = $bookListings->where('status', 'sold')->values();
         $unsoldBooks = $bookListings->whereIn('status', ['available', 'reserved'])->values();
 
-        // Get all withdrawal batches with their withdrawals
+        // Get all withdrawal batches with their withdrawals (filtered by school)
         $withdrawalBatches = WithdrawalBatch::where('user_id', $user->id)
+            ->whereHas('user', function($q) use ($schoolId) {
+                $q->where('school_id', $schoolId);
+            })
             ->with(['withdrawals.bookListing.book'])
             ->latest()
             ->get();
 
-        // Get all pickup batches with their pickups
+        // Get all pickup batches with their pickups (filtered by school)
         $pickupBatches = PickupBatch::where('user_id', $user->id)
+            ->whereHas('user', function($q) use ($schoolId) {
+                $q->where('school_id', $schoolId);
+            })
             ->with(['pickups.bookListing.book'])
             ->latest()
             ->get();

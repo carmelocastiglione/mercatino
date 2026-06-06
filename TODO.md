@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-06: La condizione di default di un libro prenotato per la consegna è adesso "come nuovo" per semplificare l'inserimento da parte degli studenti. Questo permette di velocizzare il processo di prenotazione e ridurre gli errori di inserimento.
 - 2026-06-06: Aggiunto filtro di ricerca per codice transazione nelle pagine dello staff. Rimosso il filtro di ricerca per nome studente (lasciato solo il cognome) per semplificare l'interfaccia e ridurre i tempi di ricerca.
 - 2026-06-05: Generazione di un codice a barre univoco per ciascuna ricevuta di acquisizione, vendita, consegna, etc. Il codice a barre è basato su un formato EAN13 e viene visualizzato sia nella pagina di dettaglio dell'acquisizione/vendita/consegna che sulla ricevuta stampata. Questo permette una tracciabilità più efficiente e una gestione semplificata delle operazioni tramite scansione del codice a barre.
 - 2026-06-04: Correzione fuso orario per tutte le date (adesso è impostato su Europe/Rome)
@@ -51,8 +52,6 @@
 - Testare il login via Google SSO con studenti reali
 - Controllare le pagine libri, vendite, acquisti e riscossioni
 - Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
-- Impostare condizione del libro di default per la prenotazione di consegna (es: come nuovo)
-- Controllare il prezzo di prenotazione online
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
@@ -60,7 +59,6 @@
 - Aggiungere sulla ricevuta, se le vendite online sono abilitate, le credenziali per accedere al profilo studente (es: codice venditore o codice prenotazione)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro
-- Controllare che la rendicontazione economica sia filtrata per la scuola di appartenenza
 - Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?
 - Aggiungere consegna materiale scolastico (non libri)
 - Export dati studenti, libri, vendite, consegne, etc
@@ -84,3 +82,4 @@
 - Gestione turni volontari
 - Mettere anno scolastico dinamico nella delega
 - Creare interfaccia comune per la stampa
+- Fare in modo che i le query siano filtrate automaticamente per scuola (es: quando cerco un libro, cerco solo tra i libri della mia scuola) per realizzare la multi-tenancy
