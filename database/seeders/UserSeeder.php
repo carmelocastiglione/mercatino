@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
             'role' => 'studente',
             'school_id' => $vigano?->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Marco', 'Rossi'),
+            'code' => User::generateCode('Marco', 'Rossi', $vigano?->id),
         ]);
 
         User::create([
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             'role' => 'studente',
             'school_id' => $vigano?->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Sara', 'Neri'),
+            'code' => User::generateCode('Sara', 'Neri', $vigano?->id),
         ]);
 
         User::create([
@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
             'role' => 'staff',
             'school_id' => $vigano?->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Anna', 'Bianchi'),
+            'code' => User::generateCode('Anna', 'Bianchi', $vigano?->id),
         ]);
 
         // Liceo Agnesi users
@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
             'role' => 'studente',
             'school_id' => $agnesi->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Marco', 'Rossi'),
+            'code' => User::generateCode('Marco', 'Rossi', $agnesi->id),
         ]);
 
         User::create([
@@ -73,7 +73,7 @@ class UserSeeder extends Seeder
             'role' => 'studente',
             'school_id' => $agnesi->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Sara', 'Neri'),
+            'code' => User::generateCode('Sara', 'Neri', $agnesi->id),
         ]);
 
         User::create([
@@ -84,7 +84,7 @@ class UserSeeder extends Seeder
             'role' => 'staff',
             'school_id' => $agnesi->id,
             'email_verified_at' => now(),
-            'code' => User::generateCode('Anna', 'Bianchi'),
+            'code' => User::generateCode('Anna', 'Bianchi', $agnesi->id),
         ]);
 
         // Admin user for local login (not associated with a school)

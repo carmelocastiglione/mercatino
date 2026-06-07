@@ -27,6 +27,7 @@ return new class extends Migration
         // Add school_id to users table
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('school_id')->nullable()->after('role')->constrained('schools')->onDelete('set null');
+            $table->unique(['school_id', 'code']);
         });
 
         // Add school_id to books table

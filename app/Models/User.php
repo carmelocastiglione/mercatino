@@ -25,23 +25,35 @@ class User extends Authenticatable
 
         static::creating(function ($user) {
             if (!$user->code) {
-                $user->code = self::generateCode($user->name, $user->surname);
+                $user->code = self::generateCode($user->name, $user->surname, $user->school_id);
             }
         });
     }
 
     /**
-     * Generate a unique code from name and surname.
+     * Generate a unique code from name and surname, unique per school.
      * Format: First letter of name + First letter of surname + . + 4 digit number
      * Example: JD.0001, MR.0002
+     * The code is unique within each school.
      */
-    public static function generateCode(string $name, string $surname): string
+    public static function generateCode(string $name, string $surname, ?int $schoolId = null): string
     {
         $initials = strtoupper(substr($name, 0, 1) . substr($surname, 0, 1));
         
-        // Get the next sequential number for this initials combination
-        $count = self::where('code', 'like', "$initials.%")->count();
-        $nextNumber = $count + 1;
+        // Get the highest number assigned for this initials combination within the school
+        // This prevents collisions if users are deleted (gaps won't cause duplicate codes)
+        $query = self::where('code', 'like', "$initials.%");
+        
+        if ($schoolId) {
+            $query->where('school_id', $schoolId);
+        }
+        
+        // Extract the maximum number from existing codes
+        $maxNumber = $query->pluck('code')
+            ->map(fn($code) => (int) substr($code, strlen($initials) + 1))
+            ->max() ?? 0;
+        
+        $nextNumber = $maxNumber + 1;
         
         return $initials . '.' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }

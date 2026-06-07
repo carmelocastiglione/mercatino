@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-07: Rivista logica assegnazione codice univoco agli utenti. Adesso il codice è univoco solo all'interno della stessa scuola, permettendo così di avere lo stesso codice per utenti di scuole diverse.
 - 2026-06-07: Rivista procedura di approvazione prenotazione vendita
 - 2026-06-07: Creazione pagina Esportazione Dati per permettere allo staff di esportare i dati in formato CSV per analisi esterne o backup.
 - 2026-06-06: Integrazione della sezione "Storico Utente" in "Utenti"
@@ -63,7 +64,6 @@
 - Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro
-- Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?
 - Aggiungere consegna materiale scolastico (non libri)
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
