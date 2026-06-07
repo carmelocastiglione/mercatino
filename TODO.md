@@ -77,7 +77,6 @@
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
 - Ogni libro dovrebbe essere associato ad un anno scolastico
-- Generare codici a barre univoci per ogni consegna / vendita / acquisto
 - Controllare che la versione mobile non abbia problemi di visualizzazione
 
 ## Ulteriori miglioramenti anni successivi
@@ -85,4 +84,4 @@
 - Gestione turni volontari
 - Mettere anno scolastico dinamico nella delega
 - Creare interfaccia comune per la stampa
-- Fare in modo che i le query siano filtrate automaticamente per scuola (es: quando cerco un libro, cerco solo tra i libri della mia scuola) per realizzare la multi-tenancy
+- Fare in modo che le query siano filtrate automaticamente per scuola (es: quando cerco un libro, cerco solo tra i libri della mia scuola) per realizzare la multi-tenancy

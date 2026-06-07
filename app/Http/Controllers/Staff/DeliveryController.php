@@ -207,6 +207,7 @@ class DeliveryController extends Controller
             return [
                 'batch' => [
                     'id' => $batchData['batch']->id,
+                    'ean13' => $batchData['batch']->ean13,
                 ],
                 'deliveries' => $batchData['deliveries']->map(function ($delivery) {
                     return ['id' => $delivery->id];

@@ -241,6 +241,37 @@
         errorContainer.classList.add('hidden');
     }
 
+    function checkAndCloseBatchIfComplete(deliveryId) {
+        const deliveryElement = document.getElementById(`delivery_${deliveryId}`);
+        const batchElement = deliveryElement.closest('.border');
+        const batchHeader = batchElement.querySelector('.batch-header');
+        const batchId = batchHeader.getAttribute('data-batch-id');
+        
+        // Trova tutti i delivery di questo batch
+        const allDeliveriesInBatch = Array.from(batchElement.querySelectorAll('.delivery-item'));
+        
+        // Controlla se tutti sono elaborati (approvati o rifiutati)
+        const allProcessed = allDeliveriesInBatch.every(delivery => {
+            const approvedDiv = delivery.querySelector('.delivery-approved');
+            const rejectedDiv = delivery.querySelector('.delivery-rejected');
+            return !approvedDiv.classList.contains('hidden') || !rejectedDiv.classList.contains('hidden');
+        });
+        
+        if (allProcessed) {
+            // Chiudi e colora il batch
+            const batchContent = batchElement.querySelector('.batch-content');
+            const toggle = batchHeader.querySelector('.batch-toggle svg');
+            
+            // Applica colore verde chiaro
+            batchHeader.style.background = 'linear-gradient(to right, rgb(240, 253, 244), rgb(236, 253, 245))';
+            batchHeader.style.borderBottomColor = 'rgb(134, 239, 172)';
+            
+            // Nascondi il contenuto
+            batchContent.classList.add('hidden');
+            toggle.style.transform = 'rotate(0deg)';
+        }
+    }
+
     function approveDelivery(deliveryId) {
         const deliveryElement = document.getElementById(`delivery_${deliveryId}`);
         const detailsElements = deliveryElement.querySelectorAll('.delivery-details');
@@ -252,6 +283,9 @@
         detailsElements.forEach(el => el.classList.add('hidden'));
         approvedElement.classList.remove('hidden');
         approvedElement.querySelector('.delivery-approved-price').textContent = priceValue;
+        
+        // Controlla se il batch è completo
+        checkAndCloseBatchIfComplete(deliveryId);
     }
 
     function rejectDelivery(deliveryId) {
@@ -262,6 +296,9 @@
         // Nascondi i dettagli e mostra lo stato rifiutato
         detailsElements.forEach(el => el.classList.add('hidden'));
         rejectedElement.classList.remove('hidden');
+        
+        // Controlla se il batch è completo
+        checkAndCloseBatchIfComplete(deliveryId);
     }
 
     function continueProcess() {
@@ -286,6 +323,7 @@
             const batchId = batchData.batch.id;
             deliveriesByBatch[batchId] = {
                 batchId: batchId,
+                ean13: batchData.batch.ean13,
                 approved: [],
                 rejected: [],
                 unapproved: []
@@ -333,7 +371,7 @@
             if (elaboratedDeliveries > 0 && elaboratedDeliveries < totalDeliveries) {
                 // C'è incoerenza: alcuni libri sono elaborati, altri no
                 hasErrors = true;
-                errorMessages.push(`Consegna ${batchId}: tutti i ${totalDeliveries} libri devono essere approvati o rifiutati. Attualmente: ${elaboratedDeliveries} elaborati, ${batch.unapproved.length} non elaborati.`);
+                errorMessages.push(`Consegna ${batch.ean13}: tutti i ${totalDeliveries} libri devono essere approvati o rifiutati. Attualmente: ${elaboratedDeliveries} elaborati, ${batch.unapproved.length} non elaborati.`);
             } else if (elaboratedDeliveries === totalDeliveries && elaboratedDeliveries > 0) {
                 // Tutti i libri sono stati elaborati: il batch passa a "submitted"
                 batchesToSubmit.push(batchId);
