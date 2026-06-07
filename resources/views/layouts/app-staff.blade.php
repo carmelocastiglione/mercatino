@@ -84,7 +84,7 @@
                 </div>
             </div>
 
-            <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
+            <nav class="flex-1 p-6 space-y-0 overflow-y-auto">
                 <!-- Dashboard -->
                 <a href="{{ route('staff.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff') && !request()->is('staff/deliveries*')) bg-gray-100 text-gray-900 @endif">
                     Dashboard
@@ -135,6 +135,11 @@
                 <!-- Resi -->
                 <a href="{{ route('staff.reclaims.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/reclaims*')) bg-gray-100 text-gray-900 @endif">
                     Resi
+                </a>
+
+                <!-- Esporta dati -->
+                <a href="{{ route('staff.export.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('staff/export*')) bg-gray-100 text-gray-900 @endif">
+                    Esporta dati
                 </a>
 
                 <!-- Divider -->

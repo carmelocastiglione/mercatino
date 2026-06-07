@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-07: Creazione pagina Esportazione Dati per permettere allo staff di esportare i dati in formato CSV per analisi esterne o backup.
 - 2026-06-06: Integrazione della sezione "Storico Utente" in "Utenti"
 - 2026-06-06: Aggiunta sezione "Utenti" nella dashboard dello staff per visualizzare e gestire gli utenti registrati, con funzionalità di ricerca e filtro per nome, email, e ruolo. Questa sezione permette allo staff di avere una panoramica completa degli utenti e di gestire facilmente le loro informazioni.
 - 2026-06-06: Per le scuole con online abilitato, se si crea un nuovo utente dalla schermata di consegna o vendita, i dati di login (email e password) vengono adesso mostrati in un box informativo sulla ricevuta. Questo permette allo staff di comunicare facilmente le credenziali agli studenti e semplifica la gestione degli account.
@@ -63,7 +64,6 @@
 - Aggiungere filtri per libro
 - Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?
 - Aggiungere consegna materiale scolastico (non libri)
-- Export dati studenti, libri, vendite, consegne, etc
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
 

@@ -29,6 +29,7 @@ use App\Http\Controllers\Staff\UserHistoryController as StaffUserHistoryControll
 use App\Http\Controllers\Staff\SettingsController as StaffSettingsController;
 use App\Http\Controllers\Staff\BookReservationController as StaffBookReservationController;
 use App\Http\Controllers\Staff\UserController as StaffUserController;
+use App\Http\Controllers\Staff\ExportController as StaffExportController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SchoolController;
 use App\Http\Controllers\Admin\UserController;
@@ -272,6 +273,10 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/storico', [StaffUserHistoryController::class, 'index'])->name('staff.user-history.index');
     Route::get('/storico/search', [StaffUserHistoryController::class, 'search'])->name('staff.user-history.search');
     Route::get('/storico/{user}', [StaffUserHistoryController::class, 'show'])->name('staff.user-history.show');
+    
+    // Export - Esportazione dati
+    Route::get('/esporta', [StaffExportController::class, 'index'])->name('staff.export.index');
+    Route::get('/esporta/download/{type}', [StaffExportController::class, 'download'])->name('staff.export.download');
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');

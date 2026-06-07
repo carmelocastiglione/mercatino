@@ -91,7 +91,7 @@
                 </div>
             </div>
 
-            <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
+            <nav class="flex-1 p-6 space-y-0 overflow-y-auto">
                 <!-- Dashboard -->
                 <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition @if(request()->is('admin') && !request()->is('admin/schools*') && !request()->is('admin/users*') && !request()->is('admin/books*') && !request()->is('admin/listings*') && !request()->is('log-viewer*')) bg-gray-100 text-gray-900 @endif">
                     Dashboard

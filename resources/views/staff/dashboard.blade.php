@@ -102,5 +102,15 @@
             label="PENDENTI"
         />
 
+        <!-- Esporta dati -->
+        <x-dashboard-card 
+            href="{{ route('staff.export.index') }}"
+            title="Esporta dati"
+            description="Scarica i dati della tua scuola in formato CSV"
+            count="∞"
+            bgColor="cyan"
+            label="ESPORTAZIONE"
+        />
+
     </div>
 @endsection

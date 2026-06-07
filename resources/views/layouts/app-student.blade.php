@@ -83,7 +83,7 @@
                 </div>
             </div>
 
-            <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
+            <nav class="flex-1 p-6 space-y-0 overflow-y-auto">
                 <!-- Prenota Consegna - Highlighted -->
                 <a href="{{ route('student.deliveries.create') }}" class="block mb-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition shadow-md">
                     ✨ Prenota consegna
