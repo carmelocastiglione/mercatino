@@ -8,6 +8,7 @@ use App\Models\BookReservationBatch;
 use App\Models\BookReservation;
 use App\Models\BookSale;
 use App\Models\User;
+use App\Helpers\PriceHelper;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -81,25 +82,65 @@ class BookReservationController extends Controller
             abort(403, 'Non puoi accedere alle prenotazioni di questo studente');
         }
 
+        $school = $student->school;
+
         // Get all pending batches for this student with their pending reservations
         $batches = BookReservationBatch::where('user_id', $studentId)
             ->where('school_id', $staffSchoolId)
             ->where('status', 'pending')
             ->with(['bookReservations' => function ($query) {
                 $query->where('status', 'pending')
-                      ->with('bookListing.book');
+                      ->with('bookListing.book', 'bookListing.seller.school');
             }])
             ->latest()
             ->get();
+
+        // Calcola i prezzi per ogni reservazione con la fee di vendita sommata
+        $batches->each(function ($batch) use ($school) {
+            $batch->bookReservations->each(function ($reservation) use ($school) {
+                // Calcola marketplace_price (metà del prezzo originale)
+                $originalPrice = $reservation->bookListing->book->original_price;
+                $marketplacePrice = floor($originalPrice) / 2;
+                
+                // Fee di vendita (sommata, non sottratta)
+                $fee = $school->sales_fee ?? 0;
+                $total = $marketplacePrice + $fee;
+
+                // Salva i dati nel modello per usarli nella blade
+                $reservation->price_data = [
+                    'original_price' => (float) $originalPrice,
+                    'marketplace_price' => (float) $marketplacePrice,
+                    'fee' => (float) $fee,
+                    'total' => (float) $total,
+                ];
+            });
+        });
 
         // Count total pending reservations across all batches
         $pendingCount = $batches->sum(function ($batch) {
             return $batch->bookReservations->count();
         });
 
+        // Prepare batchesForJson for JavaScript (includes all reservations data)
+        $batchesForJson = $batches->map(function ($batch) {
+            return [
+                'batch' => ['id' => $batch->id, 'ean13' => $batch->ean13],
+                'reservations' => $batch->bookReservations->map(function ($res) {
+                    return ['id' => $res->id];
+                })->toArray(),
+            ];
+        })->toArray();
+
+        // Collect all reservations for JavaScript
+        $reservations = $batches->flatMap(function ($batch) {
+            return $batch->bookReservations;
+        });
+
         return view('staff.book-reservations.student', [
             'student' => $student,
             'batches' => $batches,
+            'reservations' => $reservations,
+            'batchesForJson' => $batchesForJson,
             'pendingCount' => $pendingCount,
         ]);
     }
@@ -150,9 +191,9 @@ class BookReservationController extends Controller
     }
 
     /**
-     * Approve a single book reservation (JSON API endpoint)
+     * Approve a single book reservation (JSON API endpoint - verification only)
      */
-    public function approveReservation(Request $request): JsonResponse
+    public function approveSingle(Request $request): JsonResponse
     {
         $reservationId = $request->query('reservation_id');
         $reservation = BookReservation::find($reservationId);
@@ -170,19 +211,14 @@ class BookReservationController extends Controller
             return response()->json(['success' => false, 'message' => 'Prenotazione non in sospeso'], 400);
         }
 
-        // Mark as approved but don't change book listing status yet
-        $reservation->update([
-            'status' => 'confirmed',
-            'confirmed_at' => now(),
-        ]);
-
-        return response()->json(['success' => true, 'message' => 'Prenotazione approvata']);
+        // Just acknowledge, don't save
+        return response()->json(['success' => true, 'message' => 'Pronto per approvazione']);
     }
 
     /**
-     * Reject a single book reservation (JSON API endpoint)
+     * Reject a single book reservation (JSON API endpoint - verification only)
      */
-    public function rejectReservation(Request $request): JsonResponse
+    public function rejectSingle(Request $request): JsonResponse
     {
         $reservationId = $request->query('reservation_id');
         $reservation = BookReservation::find($reservationId);
@@ -200,15 +236,167 @@ class BookReservationController extends Controller
             return response()->json(['success' => false, 'message' => 'Prenotazione non in sospeso'], 400);
         }
 
-        // Mark as rejected and restore book listing to available
-        $reservation->update([
-            'status' => 'rejected',
-            'rejected_at' => now(),
+        // Just acknowledge, don't save
+        return response()->json(['success' => true, 'message' => 'Pronto per rifiuto']);
+    }
+
+    /**
+     * Approve multiple book reservations (JSON API endpoint)
+     */
+    public function approveBulk(Request $request): JsonResponse
+    {
+        $reservationIds = $request->input('reservation_ids', []);
+
+        if (empty($reservationIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessuna prenotazione specificata'], 400);
+        }
+
+        $reservations = BookReservation::whereIn('id', $reservationIds)
+            ->where('status', 'pending')
+            ->with('batch')
+            ->get();
+
+        if ($reservations->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Nessuna prenotazione pending trovata'], 404);
+        }
+
+        // Verify all reservations belong to staff's school
+        foreach ($reservations as $reservation) {
+            if ($reservation->batch->user->school_id !== auth()->user()->school_id) {
+                return response()->json(['success' => false, 'message' => 'Non autorizzato'], 403);
+            }
+        }
+
+        $approvedCount = 0;
+        foreach ($reservations as $reservation) {
+            $reservation->update([
+                'status' => 'confirmed',
+                'confirmed_at' => now(),
+            ]);
+            $approvedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "$approvedCount prenotazioni approvate",
+            'approved_count' => $approvedCount
+        ]);
+    }
+
+    /**
+     * Reject multiple book reservations (JSON API endpoint)
+     */
+    public function rejectMultiple(Request $request): JsonResponse
+    {
+        $reservationIds = $request->input('reservation_ids', []);
+
+        if (empty($reservationIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessuna prenotazione specificata'], 400);
+        }
+
+        $reservations = BookReservation::whereIn('id', $reservationIds)
+            ->where('status', 'pending')
+            ->with('batch', 'bookListing')
+            ->get();
+
+        if ($reservations->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Nessuna prenotazione pending trovata'], 404);
+        }
+
+        // Verify all reservations belong to staff's school
+        foreach ($reservations as $reservation) {
+            if ($reservation->batch->user->school_id !== auth()->user()->school_id) {
+                return response()->json(['success' => false, 'message' => 'Non autorizzato'], 403);
+            }
+        }
+
+        $rejectedCount = 0;
+        foreach ($reservations as $reservation) {
+            $reservation->update([
+                'status' => 'rejected',
+                'rejected_at' => now(),
+            ]);
+            
+            // Restore book listing to available
+            $reservation->bookListing->update(['status' => 'available']);
+            $rejectedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "$rejectedCount prenotazioni rifiutate",
+            'rejected_count' => $rejectedCount
+        ]);
+    }
+
+    /**
+     * Update batch status (JSON API endpoint)
+     */
+    public function updateBatchStatus(Request $request): JsonResponse
+    {
+        $batchIds = $request->input('batch_ids', []);
+        $status = $request->input('status', 'confirmed');
+
+        if (empty($batchIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessun batch specificato'], 400);
+        }
+
+        // Valida lo stato
+        $allowedStatuses = ['pending', 'confirmed', 'rejected'];
+        if (!in_array($status, $allowedStatuses)) {
+            return response()->json(['success' => false, 'message' => 'Stato non valido'], 400);
+        }
+
+        $batches = BookReservationBatch::whereIn('id', $batchIds)->get();
+
+        if ($batches->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Nessun batch trovato'], 404);
+        }
+
+        $staffSchoolId = auth()->user()->school_id;
+        $updatedCount = 0;
+
+        foreach ($batches as $batch) {
+            // Verifica che il batch appartenga alla scuola dello staff
+            if ($batch->user->school_id !== $staffSchoolId) {
+                return response()->json(['success' => false, 'message' => 'Non autorizzato ad aggiornare questo batch'], 403);
+            }
+
+            $batch->update([
+                'status' => $status,
+                'confirmed_at' => $status === 'confirmed' ? now() : null,
+                'rejected_at' => $status === 'rejected' ? now() : null,
+            ]);
+
+            $updatedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "$updatedCount batch aggiornati",
+            'updated_count' => $updatedCount
+        ]);
+    }
+
+    /**
+     * Store approved reservation IDs in session before redirecting to sales
+     */
+    public function storeSessionApprovals(Request $request): JsonResponse
+    {
+        $approvedIds = $request->input('approved_reservation_ids', []);
+        $studentId = $request->input('student_id');
+
+        if (empty($approvedIds)) {
+            return response()->json(['success' => false, 'message' => 'Nessuna prenotazione'], 400);
+        }
+
+        // Store in session
+        session()->put([
+            'approved_reservation_ids' => $approvedIds,
+            'student_id' => $studentId
         ]);
 
-        $reservation->bookListing->update(['status' => 'available']);
-
-        return response()->json(['success' => true, 'message' => 'Prenotazione rifiutata']);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -224,15 +412,21 @@ class BookReservationController extends Controller
                 abort(403, 'Non autorizzato');
             }
 
-            // Get all confirmed reservations for this student from pending batches
-            $confirmedReservations = BookReservation::whereHas('batch', function ($query) use ($studentId) {
-                $query->where('user_id', $studentId)->where('status', 'pending');
-            })->where('status', 'confirmed')
+            // Get approved reservation IDs from session (set by storeSessionApprovals)
+            $approvedIds = session()->get('approved_reservation_ids', []);
+
+            if (empty($approvedIds)) {
+                return redirect()->back()->withErrors(['error' => 'Nessuna prenotazione approvata in questa sessione']);
+            }
+
+            // Get ONLY the confirmed reservations that were approved in this session
+            $confirmedReservations = BookReservation::whereIn('id', $approvedIds)
+                ->where('status', 'confirmed')
                 ->with('batch', 'bookListing.book')
                 ->get();
 
             if ($confirmedReservations->isEmpty()) {
-                return redirect()->back()->withErrors(['error' => 'Nessuna prenotazione approvata']);
+                return redirect()->back()->withErrors(['error' => 'Nessuna prenotazione approvata trovata']);
             }
 
             // Prepare data for sales creation

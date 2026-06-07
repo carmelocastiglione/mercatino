@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-07: Rivista procedura di approvazione prenotazione vendita
 - 2026-06-07: Creazione pagina Esportazione Dati per permettere allo staff di esportare i dati in formato CSV per analisi esterne o backup.
 - 2026-06-06: Integrazione della sezione "Storico Utente" in "Utenti"
 - 2026-06-06: Aggiunta sezione "Utenti" nella dashboard dello staff per visualizzare e gestire gli utenti registrati, con funzionalità di ricerca e filtro per nome, email, e ruolo. Questa sezione permette allo staff di avere una panoramica completa degli utenti e di gestire facilmente le loro informazioni.
@@ -59,7 +60,7 @@
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
-- Controllare che nell'approvazione delle prenotazioni vendite, possa continuare anche se non ho libri approvati o rifiutati (es: se ho 3 prenotazioni e ne approvo solo 1, dovrei poter continuare con la vendita di quel libro senza dover approvare o rifiutare le altre 2 perché magari il libro sarà disponibile più avanti)
+- Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Aggiungere filtri per libro
 - Controllare che sia possibile generare codice ripetuti tra scuole diverse (es: MR.0001 in scuola A e MR.0001 in scuola B) -> è necessario?

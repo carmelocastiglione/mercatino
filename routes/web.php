@@ -283,11 +283,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::get('/book-reservations/search-students', [StaffBookReservationController::class, 'searchStudents'])->name('staff.book-reservations.search-students');
     Route::get('/book-reservations/student/{studentId}', [StaffBookReservationController::class, 'studentReservations'])->name('staff.book-reservations.student');
     Route::get('/book-reservations/prepare-sales', [StaffBookReservationController::class, 'prepareSales'])->name('staff.book-reservations.prepare-sales');
+    Route::post('/book-reservations/store-session-approvals', [StaffBookReservationController::class, 'storeSessionApprovals'])->name('staff.book-reservations.store-session-approvals');
     Route::get('/book-reservations/{bookReservationBatch}', [StaffBookReservationController::class, 'show'])->name('staff.book-reservations.show');
     Route::post('/book-reservations/{bookReservationBatch}/confirm', [StaffBookReservationController::class, 'confirm'])->name('staff.book-reservations.confirm');
     Route::post('/book-reservations/{bookReservationBatch}/reject', [StaffBookReservationController::class, 'reject'])->name('staff.book-reservations.reject');
-    Route::put('/book-reservations/approve-single', [StaffBookReservationController::class, 'approveReservation'])->name('staff.book-reservations.approve-single');
-    Route::put('/book-reservations/reject-single', [StaffBookReservationController::class, 'rejectReservation'])->name('staff.book-reservations.reject-single');
+    Route::put('/book-reservations/approve-single', [StaffBookReservationController::class, 'approveSingle'])->name('staff.book-reservations.approve-single');
+    Route::put('/book-reservations/reject-single', [StaffBookReservationController::class, 'rejectSingle'])->name('staff.book-reservations.reject-single');
+    Route::put('/book-reservations/approve-bulk', [StaffBookReservationController::class, 'approveBulk'])->name('staff.book-reservations.approve-bulk');
+    Route::put('/book-reservations/reject-multiple', [StaffBookReservationController::class, 'rejectMultiple'])->name('staff.book-reservations.reject-multiple');
+    Route::put('/book-reservations/update-batch-status', [StaffBookReservationController::class, 'updateBatchStatus'])->name('staff.book-reservations.update-batch-status');
     Route::post('/book-reservations/create-sales', [StaffBookReservationController::class, 'createSalesBulk'])->name('staff.book-reservations.create-sales');
 });
 
