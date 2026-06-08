@@ -321,6 +321,10 @@ class BookReservationController extends Controller
             
             // Restore book listing to available
             $reservation->bookListing->update(['status' => 'available']);
+            
+            // Notify seller when individual reservation is rejected
+            $this->notificationService->notifyBookReservationRejected($reservation->bookListing);
+            
             $rejectedCount++;
         }
 
@@ -369,13 +373,6 @@ class BookReservationController extends Controller
                 'confirmed_at' => $status === 'confirmed' ? now() : null,
                 'rejected_at' => $status === 'rejected' ? now() : null,
             ]);
-
-            // Send notifications based on status change
-            if ($status === 'confirmed') {
-                $this->notificationService->notifyBatchConfirmed($batch);
-            } elseif ($status === 'rejected') {
-                $this->notificationService->notifyBatchRejected($batch);
-            }
 
             $updatedCount++;
         }

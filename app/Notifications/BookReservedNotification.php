@@ -5,7 +5,7 @@ namespace App\Notifications;
 use App\Models\BookListing;
 use Illuminate\Notifications\Notification;
 
-class BookReservationCancelledNotification extends Notification
+class BookReservedNotification extends Notification
 {
     /**
      * The book listing instance.
@@ -44,8 +44,8 @@ class BookReservationCancelledNotification extends Notification
             'isbn' => $book->isbn,
             'book_listing_id' => $this->bookListing->id,
             'price_sell' => $this->bookListing->price_sell,
-            'title' => 'Prenotazione annullata',
-            'description' => "La prenotazione del tuo libro \"{$book->title}\" ({$book->isbn}) è stata annullata",
+            'title' => 'Libro prenotato',
+            'description' => "Il tuo libro \"{$book->title}\" ({$book->isbn}) è stato prenotato",
         ];
     }
 }

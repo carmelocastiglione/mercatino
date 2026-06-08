@@ -124,6 +124,7 @@ class BookReservationController extends Controller
         // Verify all books are available and belong to the same school
         $bookListings = BookListing::whereIn('id', $validated['book_listing_ids'])
             ->where('status', 'available')
+            ->with('book')
             ->bySchool($user->school_id)
             ->get();
 
@@ -153,10 +154,10 @@ class BookReservationController extends Controller
 
             // Mark the book as reserved
             $listing->update(['status' => 'reserved']);
-        }
 
-        // Send notifications
-        $this->notificationService->notifyBatchCreated($batch);
+            // Notify the seller that their book has been reserved
+            $this->notificationService->notifyBookReserved($listing);
+        }
 
         return redirect()->route('student.book-reservations.show', $batch)
             ->with('success', 'Prenotazione creata con successo. Lo staff esaminerà la tua richiesta.');
@@ -201,10 +202,10 @@ class BookReservationController extends Controller
         foreach ($bookReservationBatch->bookReservations as $reservation) {
             $reservation->update(['status' => 'cancelled']);
             $reservation->bookListing->update(['status' => 'available']);
-        }
 
-        // Send notifications
-        $this->notificationService->notifyBatchCancelled($bookReservationBatch);
+            // Notify the seller that the book reservation has been cancelled
+            $this->notificationService->notifyBookReservationCancelled($reservation->bookListing);
+        }
 
         return redirect()->route('student.book-reservations.index')
             ->with('success', 'Prenotazione cancellata con successo.');

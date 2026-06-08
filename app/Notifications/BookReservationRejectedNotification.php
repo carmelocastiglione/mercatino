@@ -2,21 +2,28 @@
 
 namespace App\Notifications;
 
-use App\Models\BookReservationBatch;
+use App\Models\BookListing;
 use Illuminate\Notifications\Notification;
 
 class BookReservationRejectedNotification extends Notification
 {
     /**
+     * The book listing instance.
+     */
+    protected BookListing $bookListing;
+
+    /**
      * Create a new notification instance.
      */
-    public function __construct(
-        protected BookReservationBatch $batch,
-        protected array $books,
-    ) {}
+    public function __construct(BookListing $bookListing)
+    {
+        $this->bookListing = $bookListing;
+    }
 
     /**
      * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
      */
     public function via(object $notifiable): array
     {
@@ -28,16 +35,17 @@ class BookReservationRejectedNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $book = $this->bookListing->book;
+
         return [
-            'batch_id' => $this->batch->id,
-            'count' => $this->batch->total_items,
-            'books' => $this->books,
-            'title' => 'Prenotazione Rifiutata',
-            'description' => sprintf(
-                'La tua prenotazione di %d libro/i è stata rifiutata. I libri sono ora disponibili per altri studenti: %s',
-                $this->batch->total_items,
-                implode(', ', $this->books)
-            ),
+            'book_id' => $book->id,
+            'book_title' => $book->title,
+            'book_author' => $book->author,
+            'isbn' => $book->isbn,
+            'book_listing_id' => $this->bookListing->id,
+            'price_sell' => $this->bookListing->price_sell,
+            'title' => 'Prenotazione rifiutata',
+            'description' => "La prenotazione del tuo libro \"{$book->title}\" ({$book->isbn}) è stata rifiutata",
         ];
     }
 }

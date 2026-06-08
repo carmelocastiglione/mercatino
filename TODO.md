@@ -51,22 +51,11 @@
 - Resi: staff/reclaims
 - Storico utente: staff/storico
 
-## Riassunto notifiche:
-- notifyBatchCreated()
-- notifyBatchConfirmed()
-- notifyBatchRejected()
-- notifyBatchCancelled()
-- notifyBookSold()
-
-- BookReservationController (Student)
-Store: chiama $this->notificationService->notifyBatchCreated()
-Destroy: chiama $this->notificationService->notifyBatchCancelled()
-
-- BookReservationController (Staff)
-UpdateBatchStatus: chiama i metodi di notifica per confirmed/rejected
-
-- SaleController (Staff)
-Store: chiama $this->notificationService->notifyBookSold()
+## Riassunto notifiche (NotificationService):
+- notifyBookSold(): SaleController (Staff) store
+- notifyBookReserved(): BookReservationController (Student) store
+- notifyBookReservationCancelled(): BookReservationController (Student) destroy
+- notifyBookReservationRejected(): BookReservationController (Staff) rejectMultiple
 
 # TODO
 

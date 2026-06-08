@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Str;
 
 class Notification extends Model
 {
@@ -12,6 +13,8 @@ class Notification extends Model
      * Usa il sistema nativo di Laravel con morphs per notifiable
      */
     public $timestamps = true;
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'notifiable_type',
@@ -27,6 +30,20 @@ class Notification extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * Boot method to generate UUID.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->id) {
+                $model->id = Str::uuid();
+            }
+        });
+    }
 
     /**
      * Check if notification is read.

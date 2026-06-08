@@ -8,13 +8,6 @@
         <p class="text-gray-600 mt-2">Leggi tutti gli aggiornamenti sul tuo account</p>
     </div>
 
-    <!-- Success Message -->
-    @if (session('success'))
-        <div class="mb-6 p-4 bg-green-50 border border-green-300 rounded-lg">
-            <p class="text-sm font-medium text-green-700">{{ session('success') }}</p>
-        </div>
-    @endif
-
     <!-- Action Buttons -->
     @if ($unreadCount > 0)
         <div class="mb-6 flex gap-3">

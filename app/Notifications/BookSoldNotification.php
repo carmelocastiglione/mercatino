@@ -42,10 +42,10 @@ class BookSoldNotification extends Notification
             'book_id' => $book->id,
             'book_title' => $book->title,
             'book_author' => $book->author,
-            'price' => $bookListing->price,
+            'price_sell' => $bookListing->price_sell,
             'sale_id' => $this->bookSale->id,
             'title' => 'Libro venduto',
-            'description' => "Il tuo libro \"{$book->title}\" di {$book->author} è stato venduto a €" . number_format($bookListing->price, 2),
+            'description' => "Il tuo libro \"{$book->title}\" ({$book->isbn}) è stato venduto a €" . number_format($bookListing->price_sell, 2),
         ];
     }
 }
