@@ -3,10 +3,9 @@
 namespace App\Notifications;
 
 use App\Models\BookSale;
-use App\Models\Notification;
-use Illuminate\Notifications\Notification as BaseNotification;
+use Illuminate\Notifications\Notification;
 
-class BookSoldNotification extends BaseNotification
+class BookSoldNotification extends Notification
 {
     /**
      * The book sale instance.
@@ -28,29 +27,25 @@ class BookSoldNotification extends BaseNotification
      */
     public function via(object $notifiable): array
     {
-        return ['custom'];
+        return ['database'];
     }
 
     /**
-     * Get the custom representation of the notification.
+     * Get the array representation of the notification.
      */
-    public function toCustom(object $notifiable): void
+    public function toArray(object $notifiable): array
     {
         $bookListing = $this->bookSale->bookListing;
         $book = $bookListing->book;
 
-        Notification::create([
-            'user_id' => $notifiable->id,
-            'type' => 'book_sold',
-            'data' => [
-                'book_id' => $book->id,
-                'book_title' => $book->title,
-                'book_author' => $book->author,
-                'price' => $bookListing->price,
-                'sale_id' => $this->bookSale->id,
-            ],
+        return [
+            'book_id' => $book->id,
+            'book_title' => $book->title,
+            'book_author' => $book->author,
+            'price' => $bookListing->price,
+            'sale_id' => $this->bookSale->id,
             'title' => 'Libro venduto',
             'description' => "Il tuo libro \"{$book->title}\" di {$book->author} è stato venduto a €" . number_format($bookListing->price, 2),
-        ]);
+        ];
     }
 }

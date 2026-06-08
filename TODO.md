@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-08: Riscritto da zero il sistema di notifiche all'utente
 - 2026-06-07: Rivista logica assegnazione codice univoco agli utenti. Adesso il codice è univoco solo all'interno della stessa scuola, permettendo così di avere lo stesso codice per utenti di scuole diverse.
 - 2026-06-07: Rivista procedura di approvazione prenotazione vendita
 - 2026-06-07: Creazione pagina Esportazione Dati per permettere allo staff di esportare i dati in formato CSV per analisi esterne o backup.
@@ -50,10 +51,26 @@
 - Resi: staff/reclaims
 - Storico utente: staff/storico
 
+## Riassunto notifiche:
+- notifyBatchCreated()
+- notifyBatchConfirmed()
+- notifyBatchRejected()
+- notifyBatchCancelled()
+- notifyBookSold()
+
+- BookReservationController (Student)
+Store: chiama $this->notificationService->notifyBatchCreated()
+Destroy: chiama $this->notificationService->notifyBatchCancelled()
+
+- BookReservationController (Staff)
+UpdateBatchStatus: chiama i metodi di notifica per confirmed/rejected
+
+- SaleController (Staff)
+Store: chiama $this->notificationService->notifyBookSold()
+
 # TODO
 
 ## Studente
-- C'è un problema con le doppie notifiche agli studenti quando si vende un libro prenotato. Da risolvere
 - Farsi approvare dai tecnici Viganò l'applicazione da Google Cloud Console per poter utilizzare il login via Google SSO
 - Testare il login via Google SSO con studenti reali
 - Controllare le pagine libri, vendite, acquisti e riscossioni
@@ -76,7 +93,7 @@
 - Pagina profilo dove modificare le proprie informazioni
 - Ampliare sistema di notifiche
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
-- Per ogni libro, specificare il tipo (esempio: fisico, digitale). **Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import**?
+- Per ogni libro, specificare il tipo (esempio: fisico, digitale). Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import? Inoltre, tipi differenti non hanno isbn differenti?
 - Ogni libro dovrebbe essere associato ad un anno scolastico
 - Controllare che la versione mobile non abbia problemi di visualizzazione
 

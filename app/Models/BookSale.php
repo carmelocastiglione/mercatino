@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\BookSold;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,18 +22,6 @@ class BookSale extends Model
         'reclaim_id',
         'reclaimed_at',
     ];
-
-    /**
-     * Boot method to dispatch events.
-     */
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::created(function (self $sale) {
-            event(new BookSold($sale));
-        });
-    }
 
     /**
      * The attributes that should be cast.

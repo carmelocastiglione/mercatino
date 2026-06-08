@@ -47,7 +47,7 @@ class NotificationController extends Controller
     public function markAsRead(Notification $notification): RedirectResponse
     {
         // Authorize the user
-        if ($notification->user_id !== auth()->id()) {
+        if ($notification->notifiable_id !== auth()->id()) {
             abort(403, 'Non sei autorizzato ad accedere a questa notifica');
         }
 
@@ -64,10 +64,7 @@ class NotificationController extends Controller
         $user = auth()->user();
         $user->notifications()
             ->unread()
-            ->update([
-                'is_read' => true,
-                'read_at' => now(),
-            ]);
+            ->update(['read_at' => now()]);
 
         return back()->with('success', 'Tutte le notifiche sono state marcate come lette');
     }
@@ -78,7 +75,7 @@ class NotificationController extends Controller
     public function delete(Notification $notification): RedirectResponse
     {
         // Authorize the user
-        if ($notification->user_id !== auth()->id()) {
+        if ($notification->notifiable_id !== auth()->id()) {
             abort(403, 'Non sei autorizzato ad accedere a questa notifica');
         }
 

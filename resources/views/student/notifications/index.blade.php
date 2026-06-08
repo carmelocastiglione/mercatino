@@ -77,7 +77,7 @@
         </div>
 
         <!-- Delete all read notifications -->
-        @if ($notifications->where('is_read', true)->count() > 0)
+        @if ($notifications->where('read_at', '!=', null)->count() > 0)
             <div class="mt-8 text-center">
                 <form action="{{ route('student.notifications.delete-all-read') }}" method="POST" onsubmit="return confirm('Eliminare tutte le notifiche lette?');">
                     @csrf

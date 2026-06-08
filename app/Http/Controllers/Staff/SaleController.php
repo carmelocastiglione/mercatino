@@ -7,12 +7,16 @@ use App\Models\BookSale;
 use App\Models\BookSaleBatch;
 use App\Models\BookListing;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 
 class SaleController extends Controller
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
     /**
      * Display the list of sale batches (filtered by staff's school).
      */
@@ -211,6 +215,9 @@ class SaleController extends Controller
                     'buyer_id' => $sale['buyer_id'],
                     'book_sale_batch_id' => $batch->id,
                 ]);
+
+                // Send notification to seller
+                $this->notificationService->notifyBookSold($bookSale);
 
                 // Update listing status
                 $listing->update(['status' => 'sold']);

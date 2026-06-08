@@ -161,9 +161,9 @@ class User extends Authenticatable
     /**
      * Get the notifications for this user.
      */
-    public function notifications(): HasMany
+    public function notifications()
     {
-        return $this->hasMany(Notification::class);
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 
     /**

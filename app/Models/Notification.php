@@ -3,58 +3,53 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Notification extends Model
 {
+    /**
+     * Indica che questa tabella non ha colonne user_id/title/description
+     * Usa il sistema nativo di Laravel con morphs per notifiable
+     */
+    public $timestamps = true;
+
     protected $fillable = [
-        'user_id',
+        'notifiable_type',
+        'notifiable_id',
         'type',
         'data',
-        'title',
-        'description',
-        'is_read',
         'read_at',
     ];
 
     protected $casts = [
         'data' => 'array',
-        'is_read' => 'boolean',
         'read_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
 
     /**
-     * Get the user that owns the notification.
+     * Check if notification is read.
      */
-    public function user(): BelongsTo
+    public function getIsReadAttribute(): bool
     {
-        return $this->belongsTo(User::class);
+        return !is_null($this->read_at);
     }
 
     /**
-     * Mark notification as read.
+     * Get title from data array.
      */
-    public function markAsRead(): void
+    public function getTitleAttribute(): string
     {
-        if (!$this->is_read) {
-            $this->update([
-                'is_read' => true,
-                'read_at' => now(),
-            ]);
-        }
+        return $this->data['title'] ?? 'Notifica';
     }
 
     /**
-     * Mark notification as unread.
+     * Get description from data array.
      */
-    public function markAsUnread(): void
+    public function getDescriptionAttribute(): string
     {
-        $this->update([
-            'is_read' => false,
-            'read_at' => null,
-        ]);
+        return $this->data['description'] ?? '';
     }
 
     /**
@@ -62,7 +57,7 @@ class Notification extends Model
      */
     public function scopeUnread($query)
     {
-        return $query->where('is_read', false);
+        return $query->whereNull('read_at');
     }
 
     /**
@@ -70,7 +65,7 @@ class Notification extends Model
      */
     public function scopeRead($query)
     {
-        return $query->where('is_read', true);
+        return $query->whereNotNull('read_at');
     }
 
     /**
@@ -79,5 +74,23 @@ class Notification extends Model
     public function scopeLatest($query)
     {
         return $query->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Mark notification as read.
+     */
+    public function markAsRead(): void
+    {
+        if (is_null($this->read_at)) {
+            $this->update(['read_at' => now()]);
+        }
+    }
+
+    /**
+     * Mark notification as unread.
+     */
+    public function markAsUnread(): void
+    {
+        $this->update(['read_at' => null]);
     }
 }

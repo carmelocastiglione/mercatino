@@ -7,8 +7,7 @@ use App\Models\BookListing;
 use App\Models\BookReservationBatch;
 use App\Models\BookReservation;
 use App\Models\BookSale;
-use App\Events\BookReservationBatchCreated;
-use App\Events\BookReservationBatchCancelled;
+use App\Services\NotificationService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +15,10 @@ use Illuminate\Http\JsonResponse;
 
 class BookReservationController extends Controller
 {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {}
+
     /**
      * Display a listing of the student's book reservations.
      */
@@ -152,8 +155,8 @@ class BookReservationController extends Controller
             $listing->update(['status' => 'reserved']);
         }
 
-        // Dispatch event
-        BookReservationBatchCreated::dispatch($batch);
+        // Send notifications
+        $this->notificationService->notifyBatchCreated($batch);
 
         return redirect()->route('student.book-reservations.show', $batch)
             ->with('success', 'Prenotazione creata con successo. Lo staff esaminerà la tua richiesta.');
@@ -200,8 +203,8 @@ class BookReservationController extends Controller
             $reservation->bookListing->update(['status' => 'available']);
         }
 
-        // Dispatch event
-        BookReservationBatchCancelled::dispatch($bookReservationBatch);
+        // Send notifications
+        $this->notificationService->notifyBatchCancelled($bookReservationBatch);
 
         return redirect()->route('student.book-reservations.index')
             ->with('success', 'Prenotazione cancellata con successo.');

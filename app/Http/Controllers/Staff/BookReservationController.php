@@ -9,6 +9,7 @@ use App\Models\BookReservation;
 use App\Models\BookSale;
 use App\Models\User;
 use App\Helpers\PriceHelper;
+use App\Services\NotificationService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -16,8 +17,9 @@ use Illuminate\Http\JsonResponse;
 
 class BookReservationController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private NotificationService $notificationService
+    ) {
         $this->middleware('auth');
         $this->middleware(StaffMiddleware::class);
     }
@@ -367,6 +369,13 @@ class BookReservationController extends Controller
                 'confirmed_at' => $status === 'confirmed' ? now() : null,
                 'rejected_at' => $status === 'rejected' ? now() : null,
             ]);
+
+            // Send notifications based on status change
+            if ($status === 'confirmed') {
+                $this->notificationService->notifyBatchConfirmed($batch);
+            } elseif ($status === 'rejected') {
+                $this->notificationService->notifyBatchRejected($batch);
+            }
 
             $updatedCount++;
         }
