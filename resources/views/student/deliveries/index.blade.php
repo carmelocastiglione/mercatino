@@ -26,20 +26,15 @@
     </div>
 
     <!-- Summary Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
         <!-- Consegne in Attesa -->
         <a href="{{ route('student.deliveries.pending') }}" class="hover:shadow-md transition">
             <x-stats-card label="In Attesa" :value="$pendingDeliveries" color="yellow" />
         </a>
 
-        <!-- Consegne Approvate -->
-        <a href="{{ route('student.deliveries.approved') }}" class="hover:shadow-md transition">
-            <x-stats-card label="Approvate" :value="$approvedDeliveries" color="green" />
-        </a>
-
-        <!-- Consegne Rifiutate -->
-        <a href="{{ route('student.deliveries.rejected') }}" class="hover:shadow-md transition">
-            <x-stats-card label="Rifiutate" :value="$rejectedDeliveries" color="red" />
+        <!-- Consegne Valutate -->
+        <a href="{{ route('student.deliveries.submitted') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Valutate" :value="$submittedDeliveries" color="green" />
         </a>
     </div>
 
@@ -73,11 +68,8 @@
                         @case('pending')
                             Nessuna consegna in attesa
                         @break
-                        @case('approved')
-                            Nessuna consegna approvata
-                        @break
-                        @case('rejected')
-                            Nessuna consegna rifiutata
+                        @case('submitted')
+                            Nessuna consegna valutata
                         @break
                         @default
                             Nessuna consegna trovata

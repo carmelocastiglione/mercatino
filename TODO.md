@@ -1,4 +1,6 @@
 # CHANGELOG
+- 2026-06-09: Rivista la sistemazione grafica delle pagine studente prenotazioni consegne
+- 2026-06-09: Per il Viganò l'applicazione è stata approvata dai tecnici e adesso gli studenti possono loggarsi con il loro account scolastico senza inserire la password. La loro email deve essere già presente nel database per poter accedere. Per le altre scuole, invece, è ancora necessario inserire email e password per accedere.
 - 2026-06-08: Riscritto da zero il sistema di notifiche all'utente
 - 2026-06-07: Rivista logica assegnazione codice univoco agli utenti. Adesso il codice è univoco solo all'interno della stessa scuola, permettendo così di avere lo stesso codice per utenti di scuole diverse.
 - 2026-06-07: Rivista procedura di approvazione prenotazione vendita
@@ -60,18 +62,14 @@
 # TODO
 
 ## Studente
-- Farsi approvare dai tecnici Viganò l'applicazione da Google Cloud Console per poter utilizzare il login via Google SSO
-- Testare il login via Google SSO con studenti reali
-- Controllare le pagine libri, vendite, acquisti e riscossioni
-- Ampliare le notifiche (esempio: aggiungere reminder soldi da ritirare, etc)
+- Quando uno studente prenota un libro, nel caso ci sia una lunga lista di libri disponibili, cosa fare?
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
-- Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
-- Aggiungere filtri per libro
-- Aggiungere consegna materiale scolastico (non libri)
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
+- Aggiungere consegna materiale scolastico (non libri): se una scuola vuole consegnare anche materiale scolastico (es. camici) dovrebbe essere possibile farlo tramite una prenotazione simile a quella dei libri. Chiedere se serve
+- Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)
 
 ## Admin
@@ -79,11 +77,13 @@
 - Gestione commissioni scuole
 
 ## Miglioramenti Generali
-- Pagina profilo dove modificare le proprie informazioni
-- Ampliare sistema di notifiche
+- Aggiungere log nel codice per facilitare il debug e monitorare le operazioni
+- Ampliare sistema di notifiche (scegliere quali)
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
+- Nel layout, mettere le notifice di successo o errore sotto il titolo e non sopra (esempio: quando si approva una prenotazione, mostrare la notifica sotto il titolo "Prenotazioni")
+- Ogni libro dovrebbe essere associato ad un anno scolastico (serve? alternativa: ogni anno ripulire tutto il database e ricominciare da zero)
+- Pagina profilo dove modificare le proprie informazioni (quali? password e?)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import? Inoltre, tipi differenti non hanno isbn differenti?
-- Ogni libro dovrebbe essere associato ad un anno scolastico
 - Controllare che la versione mobile non abbia problemi di visualizzazione
 
 ## Ulteriori miglioramenti anni successivi
@@ -92,3 +92,4 @@
 - Mettere anno scolastico dinamico nella delega
 - Creare interfaccia comune per la stampa
 - Fare in modo che le query siano filtrate automaticamente per scuola (es: quando cerco un libro, cerco solo tra i libri della mia scuola) per realizzare la multi-tenancy
+- Aggiungere filtri per libro

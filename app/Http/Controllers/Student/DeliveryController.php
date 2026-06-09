@@ -93,15 +93,13 @@ class DeliveryController extends Controller
             ->latest()
             ->paginate(10);
 
-        $pendingDeliveries = $user->bookDeliveries()->where('status', 'pending')->count();
-        $approvedDeliveries = $user->bookDeliveries()->where('status', 'approved')->count();
-        $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
+        $pendingDeliveries = $user->deliveryBatches()->where('status', 'pending')->count();
+        $submittedDeliveries = $user->deliveryBatches()->where('status', 'submitted')->count();
 
         return view('student.deliveries.index', [
             'batches' => $batches,
             'pendingDeliveries' => $pendingDeliveries,
-            'approvedDeliveries' => $approvedDeliveries,
-            'rejectedDeliveries' => $rejectedDeliveries,
+            'submittedDeliveries' => $submittedDeliveries,
         ]);
     }
 
@@ -112,32 +110,27 @@ class DeliveryController extends Controller
     {
         $user = auth()->user();
         
-        // Get batches that contain deliveries with the specified status
+        // Get batches filtered by status
         $batches = $user->deliveryBatches()
             ->with('deliveries.book', 'scheduledDeliveryDate', 'school')
-            ->whereHas('deliveries', function ($query) use ($status) {
-                $query->where('status', $status);
-            })
+            ->where('status', $status)
             ->latest()
             ->paginate(10);
 
         $statusLabels = [
-            'pending' => 'In Sospeso',
-            'approved' => 'Approvate',
-            'rejected' => 'Rifiutate',
+            'pending' => 'In Attesa',
+            'submitted' => 'Valutate',
         ];
 
-        $pendingDeliveries = $user->bookDeliveries()->where('status', 'pending')->count();
-        $approvedDeliveries = $user->bookDeliveries()->where('status', 'approved')->count();
-        $rejectedDeliveries = $user->bookDeliveries()->where('status', 'rejected')->count();
+        $pendingDeliveries = $user->deliveryBatches()->where('status', 'pending')->count();
+        $submittedDeliveries = $user->deliveryBatches()->where('status', 'submitted')->count();
 
         return view('student.deliveries.index', [
             'batches' => $batches,
             'statusFilter' => $status,
             'statusLabel' => $statusLabels[$status] ?? $status,
             'pendingDeliveries' => $pendingDeliveries,
-            'approvedDeliveries' => $approvedDeliveries,
-            'rejectedDeliveries' => $rejectedDeliveries,
+            'submittedDeliveries' => $submittedDeliveries,
         ]);
     }
 
