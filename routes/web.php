@@ -111,6 +111,9 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StudentBookReservationController::class, 'index'])->name('student.book-reservations.index');
+    Route::get('/book-reservations/status/pending', [StudentBookReservationController::class, 'byStatus'])->defaults('status', 'pending')->name('student.book-reservations.pending');
+    Route::get('/book-reservations/status/confirmed', [StudentBookReservationController::class, 'byStatus'])->defaults('status', 'confirmed')->name('student.book-reservations.confirmed');
+    Route::get('/book-reservations/status/cancelled', [StudentBookReservationController::class, 'byStatus'])->defaults('status', 'cancelled')->name('student.book-reservations.cancelled');
     Route::get('/book-reservations/create', [StudentBookReservationController::class, 'create'])->name('student.book-reservations.create');
     Route::get('/book-reservations/search-acquisition-books', [StudentBookReservationController::class, 'searchAcquisitionBooks'])->name('student.book-reservations.search-acquisition-books');
     Route::post('/book-reservations/check-availability', [StudentBookReservationController::class, 'checkAvailability'])->name('student.book-reservations.check-availability');

@@ -95,29 +95,7 @@
                     </div>
                 </div>
 
-                <!-- Note -->
-                <div class="mb-8">
-                    <label for="notes" class="block text-sm font-semibold text-gray-900 mb-2">
-                        Note (opzionale)
-                    </label>
-                    <textarea 
-                        id="notes" 
-                        name="notes" 
-                        rows="3" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Aggiungi eventuali note sulla tua prenotazione..."
-                    ></textarea>
-                </div>
 
-                <!-- Submit Button -->
-                <button 
-                    type="submit" 
-                    id="submit_btn"
-                    disabled
-                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
-                >
-                    Crea Prenotazione
-                </button>
             </form>
         </div>
 
@@ -137,6 +115,17 @@
                         <span id="summary_price" class="font-bold text-2xl text-blue-600">€0.00</span>
                     </div>
                 </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    form="reservation_form"
+                    id="submit_btn"
+                    disabled
+                    class="w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
+                >
+                    Crea Prenotazione
+                </button>
             </div>
         </div>
     </div>
@@ -171,7 +160,12 @@
                         if (books.length === 0) {
                             searchResultsDiv.innerHTML = '<div class="p-4 text-sm text-gray-500">Nessun libro trovato</div>';
                         } else {
-                            searchResultsDiv.innerHTML = books.map(book => {
+                            const availableBooks = books.filter(book => !selectedBooks.has(book.id));
+                            
+                            if (availableBooks.length === 0) {
+                                searchResultsDiv.innerHTML = '<div class="p-4 text-sm text-gray-500">Tutti i libri trovati sono già selezionati</div>';
+                            } else {
+                                searchResultsDiv.innerHTML = availableBooks.map(book => {
                                 const bookId = book.id;
                                 const bookTitle = book.title.replace(/'/g, "\\'");
                                 const bookAuthor = book.author.replace(/'/g, "\\'");
@@ -205,6 +199,7 @@
                                 </div>
                                 `;
                             }).join('');
+                            }
                         }
                         searchResultsDiv.classList.remove('hidden');
                     });
@@ -225,6 +220,59 @@
         function removeBook(id) {
             selectedBooks.delete(id);
             updateUI();
+            // Se c'è una ricerca in corso, aggiorna i risultati
+            if (bookSearchInput.value.trim().length >= 2) {
+                const query = bookSearchInput.value.trim();
+                fetch(`{{ route('student.book-reservations.search-acquisition-books') }}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(books => {
+                        if (books.length === 0) {
+                            searchResultsDiv.innerHTML = '<div class="p-4 text-sm text-gray-500">Nessun libro trovato</div>';
+                        } else {
+                            const availableBooks = books.filter(book => !selectedBooks.has(book.id));
+                            
+                            if (availableBooks.length === 0) {
+                                searchResultsDiv.innerHTML = '<div class="p-4 text-sm text-gray-500">Tutti i libri trovati sono già selezionati</div>';
+                            } else {
+                                searchResultsDiv.innerHTML = availableBooks.map(book => {
+                                    const bookId = book.id;
+                                    const bookTitle = book.title.replace(/'/g, "\\'");
+                                    const bookAuthor = book.author.replace(/'/g, "\\'");
+                                    const bookPrice = book.price;
+                                    const bookCondition = book.condition;
+                                    const bookIsbn = book.isbn;
+                                    
+                                    const conditionLabels = {
+                                        'like-new': 'Come Nuovo',
+                                        'good': 'Buona',
+                                        'fair': 'Discreta',
+                                        'poor': 'Scarsa'
+                                    };
+
+                                    const conditionBadgeClasses = {
+                                        'like-new': 'bg-green-100 text-green-800',
+                                        'good': 'bg-blue-100 text-blue-800',
+                                        'fair': 'bg-yellow-100 text-yellow-800',
+                                        'poor': 'bg-red-100 text-red-800'
+                                    };
+                                    
+                                    return `
+                                    <div class="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer" onclick="selectBook(${bookId}, '${bookTitle}', '${bookAuthor}', ${bookPrice}, '${bookCondition}', '${bookIsbn}')">
+                                        <div class="font-medium text-gray-900">${book.title}</div>
+                                        <div class="text-sm text-gray-600">di ${book.author}</div>
+                                        <div class="text-xs text-gray-500">ISBN: ${book.isbn}</div>
+                                        <div class="flex justify-between items-center mt-2">
+                                            <span class="text-sm font-semibold text-gray-700">€${parseFloat(book.price).toFixed(2)}</span>
+                                            <span class="px-2 py-1 rounded-full text-xs font-semibold ${conditionBadgeClasses[bookCondition] || 'bg-gray-100 text-gray-800'}">${conditionLabels[bookCondition] || bookCondition}</span>
+                                        </div>
+                                    </div>
+                                    `;
+                                }).join('');
+                            }
+                        }
+                        searchResultsDiv.classList.remove('hidden');
+                    });
+            }
         }
 
         // Aggiorna UI
