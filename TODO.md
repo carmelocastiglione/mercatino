@@ -62,7 +62,6 @@
 # TODO
 
 ## Studente
-- Le prenotazioni dei libri dovrebbero essere filtrate per data di consegna (esempio: se un libro è prenotato per una consegna che avverrà tra 2 mesi, non dovrebbe essere mostrato come prenotabile adesso)
 - Quando uno studente prenota un libro, nel caso ci sia una lunga lista di libri disponibili, cosa fare?
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 

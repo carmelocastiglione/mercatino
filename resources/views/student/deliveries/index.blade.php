@@ -47,6 +47,13 @@
     @endif
 
     @if($batches->count() > 0)
+        <!-- Info Box -->
+        <x-info-box 
+            type="info"
+            title="Stampa e porta la ricevuta al mercatino"
+            message="Ricordati di stampare la ricevuta della tua prenotazione e portala al mercatino il giorno stabilito. Puoi ristampare la ricevuta in qualsiasi momento tramite il pulsante Visualizza."
+        />
+
         <div class="space-y-6">
             @foreach($batches as $batch)
                 <x-delivery-batch-card :batch="$batch" />
