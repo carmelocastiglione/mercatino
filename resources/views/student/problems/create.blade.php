@@ -20,12 +20,6 @@
         </div>
     @endif
 
-    @if(session('success'))
-        <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p class="text-green-800 font-medium">{{ session('success') }}</p>
-        </div>
-    @endif
-
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 max-w-2xl">
         <form action="{{ route('student.problems.store') }}" method="POST">
             @csrf

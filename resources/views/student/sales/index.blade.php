@@ -21,41 +21,25 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Acquirente</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Prezzo</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Vendita</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($sales as $listing)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ $listing->book->title }}</p>
-                                    <p class="text-sm text-gray-600">{{ $listing->book->author }}</p>
-                                </div>
+                                <p class="font-medium text-gray-900">{{ $listing->book->title }}</p>
                             </td>
-                            <td class="px-6 py-4">
-                                @php
-                                    $sale = $listing->bookSales->first();
-                                @endphp
-                                @if($sale && $sale->buyer)
-                                    <p class="text-gray-900">{{ $sale->buyer->name }} {{ $sale->buyer->surname }}</p>
-                                @else
-                                    <p class="text-gray-500">-</p>
-                                @endif
+                            <td class="px-6 py-4 font-mono text-gray-600">
+                                {{ $listing->book->isbn }}
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <p class="font-bold text-green-600">€ {{ number_format($listing->price, 2, ',', '.') }}</p>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $listing->updated_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <a href="{{ route('student.sales.show', $listing->id) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold text-sm">
-                                    Dettagli
-                                </a>
                             </td>
                         </tr>
                     @endforeach

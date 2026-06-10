@@ -23,18 +23,4 @@ class PurchasesController extends Controller
 
         return view('student.purchases.index', compact('purchases', 'totalPurchases', 'totalSpent'));
     }
-
-    /**
-     * Display a single purchase detail.
-     */
-    public function show($purchaseId): View
-    {
-        $user = auth()->user();
-        
-        $purchase = $user->purchases()
-            ->with(['bookListing.book', 'soldBy'])
-            ->findOrFail($purchaseId);
-
-        return view('student.purchases.show', compact('purchase'));
-    }
 }

@@ -29,21 +29,4 @@ class SalesController extends Controller
             'totalEarnings' => $totalEarnings,
         ]);
     }
-
-    /**
-     * Display a single sale (show details).
-     */
-    public function show($listingId): View
-    {
-        $user = auth()->user();
-        
-        $listing = $user->bookListings()
-            ->where('status', 'sold')
-            ->with(['book', 'bookSales.buyer'])
-            ->findOrFail($listingId);
-
-        return view('student.sales.show', [
-            'listing' => $listing,
-        ]);
-    }
 }

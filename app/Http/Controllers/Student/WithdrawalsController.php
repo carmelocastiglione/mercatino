@@ -23,18 +23,4 @@ class WithdrawalsController extends Controller
 
         return view('student.withdrawals.index', compact('withdrawals', 'totalToWithdraw', 'totalWithdrawn'));
     }
-
-    /**
-     * Display a single withdrawal detail.
-     */
-    public function show($withdrawalId): View
-    {
-        $user = auth()->user();
-        
-        $withdrawal = $user->withdrawals()
-            ->with(['bookListing.book'])
-            ->findOrFail($withdrawalId);
-
-        return view('student.withdrawals.show', compact('withdrawal'));
-    }
 }

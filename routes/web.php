@@ -92,15 +92,12 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::delete('/batches/{batch}', [StudentDeliveryController::class, 'destroyBatch'])->name('student.batches.delete');
     
     Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
-    Route::get('/sales/{sale}', [StudentSalesController::class, 'show'])->name('student.sales.show');
     
     Route::get('/book-listings', [StudentBookListingsController::class, 'index'])->name('student.book-listings.index');
     
     Route::get('/purchases', [StudentPurchasesController::class, 'index'])->name('student.purchases.index');
-    Route::get('/purchases/{purchase}', [StudentPurchasesController::class, 'show'])->name('student.purchases.show');
     
     Route::get('/withdrawals', [StudentWithdrawalsController::class, 'index'])->name('student.withdrawals.index');
-    Route::get('/withdrawals/{withdrawal}', [StudentWithdrawalsController::class, 'show'])->name('student.withdrawals.show');
     
     Route::get('/notifications', [StudentNotificationController::class, 'index'])->name('student.notifications.index');
     Route::get('/notifications/unread-count', [StudentNotificationController::class, 'getUnreadCount'])->name('student.notifications.unread-count');

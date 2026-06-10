@@ -1,5 +1,5 @@
 # CHANGELOG
-- 2026-06-09: Rivista la sistemazione grafica delle pagine studente prenotazioni consegne, prenotazione vendite
+- 2026-06-09: Rivista la sistemazione grafica delle pagine studente prenotazioni consegne, prenotazione vendite, lista libri, acquisti, vendite e riscossioni
 - 2026-06-09: Per il Viganò l'applicazione è stata approvata dai tecnici e adesso gli studenti possono loggarsi con il loro account scolastico senza inserire la password. La loro email deve essere già presente nel database per poter accedere. Per le altre scuole, invece, è ancora necessario inserire email e password per accedere.
 - 2026-06-08: Riscritto da zero il sistema di notifiche all'utente
 - 2026-06-07: Rivista logica assegnazione codice univoco agli utenti. Adesso il codice è univoco solo all'interno della stessa scuola, permettendo così di avere lo stesso codice per utenti di scuole diverse.

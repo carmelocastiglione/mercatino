@@ -21,34 +21,33 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Importo</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($withdrawals as $withdrawal)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
-                                <div>
-                                    @if($withdrawal->bookListing && $withdrawal->bookListing->book)
-                                        <p class="font-medium text-gray-900">{{ $withdrawal->bookListing->book->title }}</p>
-                                        <p class="text-sm text-gray-600">{{ $withdrawal->bookListing->book->author }}</p>
-                                    @else
-                                        <p class="text-gray-500">-</p>
-                                    @endif
-                                </div>
+                                @if($withdrawal->bookListing && $withdrawal->bookListing->book)
+                                    <p class="font-medium text-gray-900">{{ $withdrawal->bookListing->book->title }}</p>
+                                @else
+                                    <p class="text-gray-500">-</p>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 font-mono text-gray-600">
+                                @if($withdrawal->bookListing && $withdrawal->bookListing->book)
+                                    {{ $withdrawal->bookListing->book->isbn }}
+                                @else
+                                    <p class="text-gray-500">-</p>
+                                @endif
                             </td>
                             <td class="px-6 py-4 text-left">
                                 <p class="font-bold text-orange-600">€ {{ number_format($withdrawal->amount, 2, ',', '.') }}</p>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $withdrawal->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <a href="{{ route('student.withdrawals.show', $withdrawal->id) }}" class="text-orange-600 hover:text-orange-900 font-semibold text-sm">
-                                    Dettagli
-                                </a>
                             </td>
                         </tr>
                     @endforeach

@@ -21,35 +21,25 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Libro</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Venditore</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">ISBN</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Prezzo</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Acquisto</th>
-                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
                     @foreach($purchases as $purchase)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
-                                <div>
-                                    <p class="font-medium text-gray-900">{{ $purchase->bookListing->book->title }}</p>
-                                    <p class="text-sm text-gray-600">{{ $purchase->bookListing->book->author }}</p>
-                                </div>
+                                <p class="font-medium text-gray-900">{{ $purchase->bookListing->book->title }}</p>
                             </td>
-                            <td class="px-6 py-4">
-                                <p class="text-gray-900">{{ $purchase->soldBy->name }} {{ $purchase->soldBy->surname }}</p>
-                                <p class="text-sm text-gray-600">{{ $purchase->soldBy->code }}</p>
+                            <td class="px-6 py-4 font-mono text-gray-600">
+                                {{ $purchase->bookListing->book->isbn }}
                             </td>
                             <td class="px-6 py-4 text-left">
                                 <p class="font-bold text-purple-600">€ {{ number_format($purchase->bookListing->price, 2, ',', '.') }}</p>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $purchase->created_at->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <a href="{{ route('student.purchases.show', $purchase->id) }}" class="text-purple-600 hover:text-purple-900 font-semibold text-sm">
-                                    Dettagli
-                                </a>
                             </td>
                         </tr>
                     @endforeach
