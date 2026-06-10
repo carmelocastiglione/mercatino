@@ -25,7 +25,7 @@ class BookReservationController extends Controller
     }
 
     /**
-     * Display a listing of all pending book reservation batches with stats.
+     * Display a listing of all book reservation batches with stats.
      */
     public function index(): View
     {
@@ -40,13 +40,12 @@ class BookReservationController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $rejectedCount = BookReservationBatch::where('status', 'rejected')
+        $cancelledCount = BookReservationBatch::where('status', 'cancelled')
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        // Filtered batches for table
-        $batches = BookReservationBatch::where('status', 'pending')
-            ->with('user', 'bookReservations.bookListing.book')
+        // All batches for table (no status filter)
+        $batches = BookReservationBatch::with('user', 'bookReservations.bookListing.book')
             ->bySchool(auth()->user()->school_id)
             ->when($query, function ($q) use ($query) {
                 return $q->where(function ($groupQuery) use ($query) {
@@ -66,7 +65,62 @@ class BookReservationController extends Controller
             'batches' => $batches,
             'pendingCount' => $pendingCount,
             'confirmedCount' => $confirmedCount,
-            'rejectedCount' => $rejectedCount,
+            'cancelledCount' => $cancelledCount,
+            'filterQuery' => $query,
+        ]);
+    }
+
+    /**
+     * Display book reservations filtered by batch status.
+     */
+    public function byStatus($status): View
+    {
+        $query = request()->input('q', '');
+
+        // Totals without filters
+        $pendingCount = BookReservationBatch::where('status', 'pending')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        $confirmedCount = BookReservationBatch::where('status', 'confirmed')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        $cancelledCount = BookReservationBatch::where('status', 'cancelled')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        // Batches filtered by status
+        $batches = BookReservationBatch::where('status', $status)
+            ->with('user', 'bookReservations.bookListing.book')
+            ->bySchool(auth()->user()->school_id)
+            ->when($query, function ($q) use ($query) {
+                return $q->where(function ($groupQuery) use ($query) {
+                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                        ->orWhereHas('user', function ($userQuery) use ($query) {
+                            $userQuery->where('surname', 'ilike', "%{$query}%")
+                                ->orWhere('email', 'ilike', "%{$query}%")
+                                ->orWhere('code', 'ilike', "%{$query}%");
+                        });
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $statusLabels = [
+            'pending' => 'In Attesa',
+            'confirmed' => 'Valutate',
+            'cancelled' => 'Cancellate',
+        ];
+
+        return view('staff.book-reservations.index', [
+            'batches' => $batches,
+            'pendingCount' => $pendingCount,
+            'confirmedCount' => $confirmedCount,
+            'cancelledCount' => $cancelledCount,
+            'statusFilter' => $status,
+            'statusLabel' => $statusLabels[$status] ?? $status,
             'filterQuery' => $query,
         ]);
     }

@@ -1,19 +1,42 @@
 @extends('layouts.app-staff')
 
-@section('title', 'Consegne da Approvare')
+@section('title', isset($statusLabel) ? $statusLabel : 'Consegne da Gestire')
 
 @section('content')
     <div class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-900">Consegne da Approvare</h1>
-        <p class="text-gray-600 mt-2">Esamina e approva le consegne dei libri dagli studenti</p>
+        <h1 class="text-4xl font-bold text-gray-900">
+            @if(isset($statusLabel))
+                {{ $statusLabel }}
+            @else
+                Consegne da Gestire
+            @endif
+        </h1>
+        <p class="text-gray-600 mt-2">
+            @if(isset($statusLabel))
+                Esamina le consegne {{ strtolower($statusLabel) }}
+            @else
+                Esamina e approva le consegne dei libri dagli studenti
+            @endif
+        </p>
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <x-stats-card label="Da Approvare" :value="$pendingCount" color="yellow" />
-        <x-stats-card label="Approvate" :value="$approvedCount" color="green" />
-        <x-stats-card label="Rifiutate" :value="$rejectedCount" color="red" />
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <a href="{{ route('staff.deliveries.byStatus', 'pending') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Da Approvare" :value="$pendingCount" color="yellow" />
+        </a>
+        <a href="{{ route('staff.deliveries.byStatus', 'submitted') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Valutate" :value="$submittedCount" color="green" />
+        </a>
     </div>
+
+    @if(isset($statusFilter))
+        <div class="mb-6">
+            <a href="{{ route('staff.deliveries.index') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                ← Torna a tutte le consegne
+            </a>
+        </div>
+    @endif
 
     <!-- SECTION: SEARCH DELIVERIES BY STUDENT -->
     <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6 mb-8">
@@ -96,6 +119,7 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Totale</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Richiesta</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Consegna</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
@@ -124,7 +148,16 @@
                                     <span class="text-gray-400">—</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm space-x-2 flex">
+                            <td class="px-6 py-4 text-sm">
+                                @if($batch->status === 'pending')
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">Da Approvare</span>
+                                @elseif($batch->status === 'submitted')
+                                    <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">Valutata</span>
+                                @else
+                                    <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-xs font-semibold">{{ $batch->status }}</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-sm space-x-2">
                                 <a href="{{ route('staff.deliveries.student', $batch->user_id) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                                     Rivedi
                                 </a>
@@ -144,8 +177,29 @@
             <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <p class="text-gray-600 text-lg">Nessun batch in attesa di approvazione</p>
-            <p class="text-gray-500 text-sm mt-2">Torna qui quando gli studenti ne avranno prenotati</p>
+            <p class="text-gray-600 text-lg mb-6">
+                @if(isset($statusFilter))
+                    @switch($statusFilter)
+                        @case('pending')
+                            Nessun batch da approvare
+                        @break
+                        @case('submitted')
+                            Nessun batch valutato
+                        @break
+                        @default
+                            Nessun batch trovato
+                    @endswitch
+                @else
+                    Nessun batch in attesa di approvazione
+                @endif
+            </p>
+            @if(!isset($statusFilter))
+                <p class="text-gray-500 text-sm">Torna qui quando gli studenti ne avranno prenotati</p>
+            @else
+                <a href="{{ route('staff.deliveries.index') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition font-medium inline-block">
+                    Torna a tutte le consegne
+                </a>
+            @endif
         </div>
     @endif
 

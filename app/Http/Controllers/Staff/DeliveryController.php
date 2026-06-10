@@ -15,7 +15,7 @@ use Illuminate\Http\RedirectResponse;
 class DeliveryController extends Controller
 {
     /**
-     * Display a listing of pending delivery batches (filtered by staff's school).
+     * Display a listing of delivery batches (filtered by staff's school).
      */
     public function index(): View
     {
@@ -26,17 +26,12 @@ class DeliveryController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $approvedCount = BookDeliveryBatch::where('status', 'approved')
+        $submittedCount = BookDeliveryBatch::where('status', 'submitted')
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        $rejectedCount = BookDeliveryBatch::where('status', 'rejected')
-            ->bySchool(auth()->user()->school_id)
-            ->count();
-
-        // Filtered batches for table
-        $batches = BookDeliveryBatch::where('status', 'pending')
-            ->with('user', 'deliveries.book')
+        // All batches for table (no status filter)
+        $batches = BookDeliveryBatch::with('user', 'deliveries.book')
             ->bySchool(auth()->user()->school_id)
             ->when($query, function ($q) use ($query) {
                 return $q->where(function ($groupQuery) use ($query) {
@@ -55,8 +50,56 @@ class DeliveryController extends Controller
         return view('staff.deliveries.index', [
             'batches' => $batches,
             'pendingCount' => $pendingCount,
-            'approvedCount' => $approvedCount,
-            'rejectedCount' => $rejectedCount,
+            'submittedCount' => $submittedCount,
+            'filterQuery' => $query,
+        ]);
+    }
+
+    /**
+     * Display deliveries filtered by batch status.
+     */
+    public function byStatus($status): View
+    {
+        $query = request()->input('q', '');
+
+        // Totals without filters
+        $pendingCount = BookDeliveryBatch::where('status', 'pending')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        $submittedCount = BookDeliveryBatch::where('status', 'submitted')
+            ->bySchool(auth()->user()->school_id)
+            ->count();
+
+        // Batches filtered by status
+        $batches = BookDeliveryBatch::where('status', $status)
+            ->with('user', 'deliveries.book')
+            ->bySchool(auth()->user()->school_id)
+            ->when($query, function ($q) use ($query) {
+                return $q->where(function ($groupQuery) use ($query) {
+                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                        ->orWhereHas('user', function ($userQuery) use ($query) {
+                            $userQuery->where('surname', 'ilike', "%{$query}%")
+                                ->orWhere('email', 'ilike', "%{$query}%")
+                                ->orWhere('code', 'ilike', "%{$query}%");
+                        });
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        $statusLabels = [
+            'pending' => 'Da Approvare',
+            'submitted' => 'Valutate',
+        ];
+
+        return view('staff.deliveries.index', [
+            'batches' => $batches,
+            'pendingCount' => $pendingCount,
+            'submittedCount' => $submittedCount,
+            'statusFilter' => $status,
+            'statusLabel' => $statusLabels[$status] ?? $status,
             'filterQuery' => $query,
         ]);
     }

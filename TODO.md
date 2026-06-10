@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-10: Riviste le pagine dello staff prenotazione consegne e prenotazione vendite, con filtro per status di approvazione
 - 2026-06-09: Rivista la sistemazione grafica delle pagine studente prenotazioni consegne, prenotazione vendite, lista libri, acquisti, vendite e riscossioni
 - 2026-06-09: Per il Viganò l'applicazione è stata approvata dai tecnici e adesso gli studenti possono loggarsi con il loro account scolastico senza inserire la password. La loro email deve essere già presente nel database per poter accedere. Per le altre scuole, invece, è ancora necessario inserire email e password per accedere.
 - 2026-06-08: Riscritto da zero il sistema di notifiche all'utente
@@ -66,7 +67,6 @@
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
-- Prenotazione consegne e acquisti: mettere prenotazioni approvate / rifiutate in lista index
 - Nella sezione ritiri, aggiungere chi deve ancora ritirare i soldi dalle vendite (e inviare una notifica)
 - Aggiungere consegna materiale scolastico (non libri): se una scuola vuole consegnare anche materiale scolastico (es. camici) dovrebbe essere possibile farlo tramite una prenotazione simile a quella dei libri. Chiedere se serve
 - Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)

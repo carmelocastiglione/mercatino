@@ -183,6 +183,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Deliveries Management
     Route::get('/deliveries', [StaffDeliveryController::class, 'index'])->name('staff.deliveries.index');
+    Route::get('/deliveries/status/{status}', [StaffDeliveryController::class, 'byStatus'])
+        ->where('status', 'pending|submitted')
+        ->name('staff.deliveries.byStatus');
     Route::get('/deliveries/student/{studentId}', [StaffDeliveryController::class, 'studentDeliveries'])->name('staff.deliveries.student');
     Route::get('/deliveries/{delivery}', [StaffDeliveryController::class, 'show'])->name('staff.deliveries.show');
     Route::put('/deliveries/{delivery}/approve', [StaffDeliveryController::class, 'approve'])->name('staff.deliveries.approve');
@@ -279,6 +282,9 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
+    Route::get('/book-reservations/status/{status}', [StaffBookReservationController::class, 'byStatus'])
+        ->where('status', 'pending|confirmed|cancelled')
+        ->name('staff.book-reservations.byStatus');
     Route::get('/book-reservations/search-students', [StaffBookReservationController::class, 'searchStudents'])->name('staff.book-reservations.search-students');
     Route::get('/book-reservations/student/{studentId}', [StaffBookReservationController::class, 'studentReservations'])->name('staff.book-reservations.student');
     Route::get('/book-reservations/prepare-sales', [StaffBookReservationController::class, 'prepareSales'])->name('staff.book-reservations.prepare-sales');
