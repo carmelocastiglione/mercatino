@@ -1,31 +1,37 @@
 @extends('layouts.app-staff')
 
-@section('title', 'Riscossioni')
+@section('title', 'Riscossioni e Ritiri')
 
 @section('content')
     <div class="mb-8">
         <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">Riscossioni</h1>
-            <p class="text-gray-600 mt-2">Gestione delle riscossioni degli studenti</p>
+            <h1 class="text-4xl font-bold text-gray-900">Riscossioni e ritiri</h1>
+            <p class="text-gray-600 mt-2">Gestione delle riscossioni e dei ritiri degli studenti</p>
         </div>
 
         <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <x-stats-card label="Totale Ricavi Vendite" :value="$totalEarned" color="green" formatted />
             <x-stats-card label="Totale Da Riscuotere" :value="$totalAvailable" color="blue" formatted />
             <x-stats-card label="Totale Riscosso" :value="$totalWithdrawn" color="red" formatted />
+            <x-stats-card label="Libri da Ritirare" :value="$unsoldToPickup" color="yellow" />
         </div>
 
         <!-- Progress Bar -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-semibold text-gray-900">Progresso Riscossioni</h3>
-                <span class="text-sm font-medium text-gray-600">{{ $usersWithdrawn }} / {{ $usersWithSoldBooks }} utenti</span>
+                <h3 class="text-lg font-semibold text-gray-900">Progresso riscossioni e ritiri</h3>
+                <span class="text-sm font-medium text-gray-600">{{ $usersCompleted }} / {{ $usersCompleted + $usersWithPending }} utenti</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-3">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-300" style="width: {{ $withdrawalProgress }}%"></div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-300" style="width: {{ $overallProgress }}%"></div>
             </div>
-            <p class="text-sm text-gray-600 mt-3">{{ round($withdrawalProgress) }}% degli utenti con libri venduti ha ritirato i propri guadagni</p>
+            <div class="flex items-center justify-between mt-3">
+                <p class="text-sm text-gray-600">{{ round($overallProgress) }}% degli utenti ha completato sia il ritiro dei guadagni che della merce invenduta</p>
+                <a href="{{ route('staff.withdrawals.pending') }}" class="text-sm text-indigo-600 hover:text-indigo-900 font-semibold">
+                    Lista studenti che devono ancora ritirare →
+                </a>
+            </div>
         </div>
 
         <!-- SECTION: SEARCH SELLERS FOR WITHDRAWAL -->
@@ -89,6 +95,7 @@
                         <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Totale Vendite</th>
                         <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Già Riscosso</th>
                         <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Da Riscuotere</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Libri da Ritirare</th>
                         <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
                 </thead>
@@ -116,6 +123,15 @@
                                 </strong>
                             </td>
                             <td class="px-6 py-4 text-center text-sm">
+                                @if($seller->booksToPickup > 0)
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                        {{ $seller->booksToPickup }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center text-sm">
                                 <a href="{{ route('staff.withdrawals.process-seller', $seller->id) }}" class="text-indigo-600 hover:text-indigo-900 font-semibold">
                                     Visualizza
                                 </a>
@@ -123,7 +139,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                                 Nessun venditore con vendite trovato
                             </td>
                         </tr>

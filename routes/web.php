@@ -255,6 +255,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Withdrawals Management - Riscossioni
     Route::get('/withdrawals', [StaffWithdrawalController::class, 'index'])->name('staff.withdrawals.index');
+    Route::get('/withdrawals/pending', [StaffWithdrawalController::class, 'pendingWithdrawals'])->name('staff.withdrawals.pending');
     Route::get('/withdrawals/create', [StaffWithdrawalController::class, 'create'])->name('staff.withdrawals.create');
     Route::get('/withdrawals/search-sellers', [StaffWithdrawalController::class, 'searchSellers'])->name('staff.withdrawals.search-sellers');
     Route::get('/withdrawals/{user}/process', [StaffWithdrawalController::class, 'processSeller'])->name('staff.withdrawals.process-seller');
