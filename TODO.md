@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-10: Aggiunti grafici pagina staff
 - 2026-06-10: Aggiunta nella pagina riscossione la colonna "Libri da Ritirare" che mostra il numero di libri non venduti che lo studente deve ancora ritirare. Questa informazione è utile per lo staff per tenere traccia dei libri che devono essere restituiti agli studenti e per gestire meglio le operazioni di ritiro. E' stata aggiunta anche una pagina con la lista degli studenti che devono ancora ritirare soldi e/o libri.
 - 2026-06-10: Riviste le pagine dello staff prenotazione consegne e prenotazione vendite, con filtro per status di approvazione
 - 2026-06-09: Rivista la sistemazione grafica delle pagine studente prenotazioni consegne, prenotazione vendite, lista libri, acquisti, vendite e riscossioni
@@ -79,9 +80,7 @@
 ## Miglioramenti Generali
 - Aggiungere log nel codice per facilitare il debug e monitorare le operazioni
 - Ampliare sistema di notifiche (scegliere quali)
-- Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Nel layout, mettere le notifice di successo o errore sotto il titolo e non sopra (esempio: quando si approva una prenotazione, mostrare la notifica sotto il titolo "Prenotazioni")
-- Pagina profilo dove modificare le proprie informazioni (quali? password e?)
 - Per ogni libro, specificare il tipo (esempio: fisico, digitale). Chiedere: chi decide la tipologia del libro? Lo staff, lo studente quando lo inserisce, o deciso al momento dell'import? Inoltre, tipi differenti non hanno isbn differenti?
 - Controllare che la versione mobile non abbia problemi di visualizzazione
 
@@ -94,3 +93,5 @@
 - Aggiungere filtri per libro
 - Ogni libro dovrebbe essere associato ad un anno scolastico (serve? alternativa: ogni anno ripulire tutto il database e ricominciare da zero)
 - Aggiungere possibilità di contattare in qualche modo (notifica, mail) gli studenti che devono ancora ritirare libri o riscuotere soldi
+- Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
+- Pagina profilo dove modificare le proprie informazioni (quali? password e?)
