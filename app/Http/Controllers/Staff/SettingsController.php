@@ -34,6 +34,14 @@ class SettingsController extends Controller
         if ($request->has('referring_name')) {
             $school->setSetting('referring_name', $request->input('referring_name', ''));
         }
+
+        if ($request->has('online_opening_date')) {
+            $school->setSetting('online_opening_date', $request->input('online_opening_date', ''));
+        }
+
+        if ($request->has('online_booking_date')) {
+            $school->setSetting('online_booking_date', $request->input('online_booking_date', ''));
+        }
         
         return redirect()->route('staff.settings.general')->with('success', 'Impostazioni salvate con successo!');
     }

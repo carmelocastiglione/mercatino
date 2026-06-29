@@ -7,6 +7,7 @@ use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class GoogleController extends Controller
 {
@@ -61,6 +62,28 @@ class GoogleController extends Controller
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
+            
+            // Controlli solo per gli studenti
+            if ($user->role === 'studente' && $user->school) {
+                $school = $user->school;
+                
+                // Controlla se la scuola ha abilitate le vendite online
+                if (!$school->hasFeatureEnabled('enable_online_sales')) {
+                    Auth::logout();
+                    return redirect('/login')->with('error', 'Le vendite online non sono abilitate per la tua scuola.');
+                }
+
+                // Controlla se la data odierna è prima della data di apertura negozio online
+                $onlineOpeningDate = $school->getSetting('online_opening_date');
+                if ($onlineOpeningDate) {
+                    $openingDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $onlineOpeningDate);
+                    if (Carbon::now() < $openingDateTime) {
+                        Auth::logout();
+                        $formattedDate = $openingDateTime->format('d/m/Y H:i');
+                        return redirect('/login')->with('error', "Il negozio online aprirà il {$formattedDate}. Torna più tardi.");
+                    }
+                }
+            }
             
             $user = Auth::user();
             $redirect = match($user->role) {

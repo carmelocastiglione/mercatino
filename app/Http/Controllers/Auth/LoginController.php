@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 /**
  * LoginController
@@ -55,6 +56,33 @@ class LoginController extends Controller
             $request->session()->regenerate();
             
             $user = Auth::user();
+
+            // Controlli solo per gli studenti
+            if ($user->role === 'studente' && $user->school) {
+                $school = $user->school;
+                
+                // Controlla se la scuola ha abilitate le vendite online
+                if (!$school->hasFeatureEnabled('enable_online_sales')) {
+                    Auth::logout();
+                    return back()->withErrors([
+                        'email' => 'Le vendite online non sono abilitate per la tua scuola.',
+                    ])->onlyInput('email');
+                }
+
+                // Controlla se la data odierna è prima della data di apertura negozio online
+                $onlineOpeningDate = $school->getSetting('online_opening_date');
+                if ($onlineOpeningDate) {
+                    $openingDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $onlineOpeningDate);
+                    if (Carbon::now() < $openingDateTime) {
+                        Auth::logout();
+                        $formattedDate = $openingDateTime->format('d/m/Y H:i');
+                        return back()->withErrors([
+                            'email' => "Il negozio online aprirà il {$formattedDate}. Torna più tardi.",
+                        ])->onlyInput('email');
+                    }
+                }
+            }
+            
             $redirect = match($user->role) {
                 'admin' => '/admin',
                 'studente' => '/student',

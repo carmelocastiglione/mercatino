@@ -12,6 +12,7 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 
 class BookReservationController extends Controller
 {
@@ -70,8 +71,24 @@ class BookReservationController extends Controller
     /**
      * Show the form for creating a new book reservation.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        $user = auth()->user();
+        $school = $user->school;
+
+        // Controlla se la scuola ha la data di prenotazione online impostata
+        if ($school) {
+            $onlineBookingDate = $school->getSetting('online_booking_date');
+            if ($onlineBookingDate) {
+                $bookingDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $onlineBookingDate);
+                if (Carbon::now() < $bookingDateTime) {
+                    $formattedDate = $bookingDateTime->format('d/m/Y H:i');
+                    return redirect()->route('student.book-reservations.index')
+                        ->with('error', "Le prenotazioni di libri da acquistare saranno disponibili dal {$formattedDate}.");
+                }
+            }
+        }
+
         return view('student.book-reservations.create');
     }
 

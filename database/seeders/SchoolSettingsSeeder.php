@@ -21,6 +21,8 @@ class SchoolSettingsSeeder extends Seeder
         if ($vigano) {
             $vigano->setSetting('enable_online_sales', 'true');
             $vigano->setSetting('referring_name', 'COMITATO GENITORI ISTITUTO TECNICO VIGANO\' DI MERATE (LC)');
+            $vigano->setSetting('online_opening_date', '2026-07-01T15:00');
+            $vigano->setSetting('online_booking_date', '2026-07-17T15:00');
         }
 
         // Agnesi settings
