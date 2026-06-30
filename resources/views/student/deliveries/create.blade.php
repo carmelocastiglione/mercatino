@@ -100,9 +100,39 @@
 
                 <!-- Condizioni -->
                 <div class="mb-8">
-                    <label class="block text-sm font-semibold text-gray-900 mb-2">
-                        Condizioni del libro <span class="text-red-600">*</span>
-                    </label>
+                    <div class="flex items-center gap-2 mb-2 relative group">
+                        <label class="block text-sm font-semibold text-gray-900">
+                            Condizioni del libro <span class="text-red-600">*</span>
+                        </label>
+                        <!-- Info Icon -->
+                        <div class="relative inline-block">
+                            <button type="button" class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-300 text-white text-xs font-bold hover:bg-indigo-400 transition" onclick="event.preventDefault()">
+                                i
+                            </button>
+                            <!-- Tooltip -->
+                            <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 hidden group-hover:block w-64 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl z-20 pointer-events-none">
+                                <div class="space-y-2">
+                                    <div>
+                                        <span class="font-semibold">Come Nuovo:</span> Il libro non presenta sottolineature o scritte di nessun tipo, non ha esercizi svolti, la copertina è integra e nessuna pagina è strappata o mancante. Sono presenti tutti gli eventuali allegati.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Buona:</span> Il libro presenta sottolineature a matita, gli esercizi sono svolti a matita, la copertina è integra e qualche pagina è strappata o mancante. Mancano alcuni o tutti gli eventuali allegati.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Discreta:</span> Il libro presenta evidenziature colorate, esercizi svolti in matita o penna. La copertina è integra e qualche pagina è strappata o mancante. Mancano alcuni o tutti gli eventuali allegati.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Scarsa:</span> Il libro presenta evidenziature e scritte colorate, esercizi svolti in penna, la copertina NON è integra e ci sono pagine strappate o mancanti. Mancano tutti gli eventuali allegati.
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold">Nota:</span> Ci riserviamo il diritto di non accettare libri in condizioni troppo compromesse.
+                                    </div>
+                                </div>
+                                <!-- Arrow -->
+                                <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         @foreach(['like-new' => 'Come Nuovo', 'good' => 'Buona', 'fair' => 'Discreta', 'poor' => 'Scarsa'] as $value => $label)
                             <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
