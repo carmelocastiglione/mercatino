@@ -1,4 +1,6 @@
 # CHANGELOG
+- 2026-07-01: Sistemata visualizzazione di tutte le ricevute in versione mobile. Adesso le ricevute sono visualizzate correttamente su tutti i dispositivi, senza problemi di layout o di taglio dei contenuti.
+- 2026-06-30: Aggiunto tooltip con spiegazione delle condizioni dei libri nella pagina di prenotazione consegna.
 - 2026-06-30: Aggiunta faq registrazione utenti in home. Tolto disclaimer su possibile variazione del prezzo in fase di prenotazione consegna
 - 2026-06-29: Aggiunta la possibilità di abilitare l'accesso online da una data e ora precisa per le scuole che hanno l'online abilitato. Questo permette di controllare quando gli studenti possono accedere al sistema per prenotare libri o effettuare vendite online. Per la prenotazione dei libri da acquistare è possibile impostare una data differente da quella di accesso, in modo da permettere agli studenti di accedere al sistema prima della data di prenotazione dei libri in vendita. Lo staff e gli admin possono accedere al sistema in qualsiasi momento, indipendentemente dalle date impostate.
 - 2026-06-10: Aggiunti grafici pagina staff
@@ -67,10 +69,18 @@
 # TODO
 
 ## Studente
+- Aggiunta scelta giorno ritiro libri prenotati per la consegna (es. se la scuola ha più giorni di ritiro, lo studente può scegliere il giorno in cui ritirare i libri)
+- Controllare numero libri venduti dagli studenti nella pagina del suo riepilogo (forse c'è un bug)
+
 - Quando uno studente prenota un libro, nel caso ci sia una lunga lista di libri disponibili, cosa fare?
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
+- Notificare lo staff se una prenotazione è stata cancellata
+- Creare pagina report (?) prenotazioni di acquisto per velocizzare la preparazione dei libri
+- Nella pagina riscossini, aggiungere conferme sui bottoni di riscossione e ritiro libri non venduti (es. "Sei sicuro di voler riscossione i soldi per i libri non venduti?") per evitare errori
+- Prezzo fisso camice 8€ (come?)
+
 - Aggiungere consegna materiale scolastico (non libri): se una scuola vuole consegnare anche materiale scolastico (es. camici) dovrebbe essere possibile farlo tramite una prenotazione simile a quella dei libri. Chiedere se serve
 - Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)

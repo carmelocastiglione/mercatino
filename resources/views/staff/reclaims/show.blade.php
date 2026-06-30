@@ -5,16 +5,16 @@
 @section('content')
     <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-4xl font-bold text-gray-900">Dettagli Reso</h1>
                 <p class="text-gray-600 mt-2">Data: {{ $reclaim->created_at->format('d/m/Y H:i') }}</p>
             </div>
-            <div class="flex gap-2 print:hidden">
-                <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+            <div class="flex flex-col md:flex-row gap-2 print:hidden">
+                <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-center">
                     Stampa
                 </button>
-                <a href="{{ route('staff.reclaims.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition">
+                <a href="{{ route('staff.reclaims.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
                     Torna ai resi
                 </a>
             </div>
@@ -30,11 +30,11 @@
 
             <x-information-note message="Se approvi il reso, il libro sarà rimesso in vendita e il compratore riceverà la conferma. Se rifiuti, libro e vendita restano invariati." />
 
-            <div class="flex gap-4 print:hidden">
+            <div class="flex flex-col md:flex-row gap-4 print:hidden">
                 <a href="{{ route('staff.reclaims.index') }}" class="flex-1 px-6 py-4 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
                     Torna ai resi
                 </a>
-                <button onclick="handlePrint()" class="flex-1 px-6 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+                <button onclick="handlePrint()" class="flex-1 px-6 py-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-center">
                     Stampa Riepilogo
                 </button>
             </div>
@@ -169,18 +169,41 @@
                     <html>
                     <head>
                         <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Dettagli Reso</title>
                         <script src="https://cdn.tailwindcss.com"><\/script>
                         <style>
+                            * {
+                                box-sizing: border-box;
+                            }
+                            html, body {
+                                width: 100%;
+                                height: 100%;
+                            }
                             body {
                                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                                 padding: 40px;
                                 background: white;
+                                margin: 0;
                             }
                             .print-content {
                                 max-width: 900px;
                                 margin: 0 auto;
+                            }
+                            /* Forza SEMPRE il layout desktop indipendentemente dal viewport */
+                            .flex {
+                                display: flex !important;
+                            }
+                            .flex-col {
+                                flex-direction: column;
+                            }
+                            .md\\:flex-row {
+                                flex-direction: row !important;
+                            }
+                            .md\\:items-center {
+                                align-items: center !important;
+                            }
+                            .md\\:justify-between {
+                                justify-content: space-between !important;
                             }
                             @media print {
                                 body {
@@ -189,6 +212,11 @@
                                 @page {
                                     margin: 0.5cm;
                                     size: A4;
+                                }
+                                * {
+                                    color: black !important;
+                                    background: white !important;
+                                    box-shadow: none !important;
                                 }
                             }
                         </style>
@@ -199,10 +227,17 @@
                         </div>
                         <script>
                             setTimeout(() => {
-                                const header = document.querySelector('.mb-8.flex');
-                                if (header) {
+                                // Nascondi il header
+                                const header = document.querySelector('.mb-8');
+                                if (header && header.classList.contains('flex')) {
                                     header.style.display = 'none';
                                 }
+                                
+                                // Forza flex-row per i container flex
+                                document.querySelectorAll('.md\\\\:flex-row').forEach(el => {
+                                    el.style.flexDirection = 'row';
+                                });
+                                
                                 window.print();
                             }, 500);
 

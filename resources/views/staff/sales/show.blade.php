@@ -5,16 +5,16 @@
 @section('content')
     <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
+        <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-4xl font-bold text-gray-900">Riepilogo Vendite</h1>
                 <p class="text-gray-600 mt-2">Data: {{ $batch->created_at->format('d/m/Y H:i') }}</p>
             </div>
-            <div class="flex gap-2 print:hidden">
-                <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">
+            <div class="flex flex-col md:flex-row gap-2 print:hidden">
+                <button onclick="handlePrint()" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition text-center">
                     Stampa
                 </button>
-                <a href="{{ route('staff.sales.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition">
+                <a href="{{ route('staff.sales.index') }}" class="px-6 py-3 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
                     Torna alle vendite
                 </a>
             </div>
@@ -228,18 +228,56 @@
                     <html>
                     <head>
                         <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Riepilogo Vendite</title>
                         <script src="https://cdn.tailwindcss.com"><\/script>
                         <style>
+                            * {
+                                box-sizing: border-box;
+                            }
+                            html, body {
+                                width: 100%;
+                                height: 100%;
+                            }
                             body {
                                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
                                 padding: 40px;
                                 background: white;
+                                margin: 0;
                             }
                             .print-content {
                                 max-width: 900px;
                                 margin: 0 auto;
+                            }
+                            /* Forza SEMPRE il layout desktop indipendentemente dal viewport */
+                            .grid {
+                                display: grid !important;
+                            }
+                            .grid-cols-1 {
+                                grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+                            }
+                            .md\\:grid-cols-3 {
+                                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+                            }
+                            .md\\:col-span-2 {
+                                grid-column: span 2 !important;
+                            }
+                            .md\\:grid-cols-2 {
+                                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                            }
+                            .flex {
+                                display: flex !important;
+                            }
+                            .flex-col {
+                                flex-direction: column;
+                            }
+                            .md\\:flex-row {
+                                flex-direction: row !important;
+                            }
+                            .md\\:items-center {
+                                align-items: center !important;
+                            }
+                            .md\\:justify-between {
+                                justify-content: space-between !important;
                             }
                             @media print {
                                 body {
@@ -249,6 +287,11 @@
                                     margin: 0.5cm;
                                     size: A4;
                                 }
+                                * {
+                                    color: black !important;
+                                    background: white !important;
+                                    box-shadow: none !important;
+                                }
                             }
                         </style>
                     </head>
@@ -257,12 +300,32 @@
                             ${content}
                         </div>
                         <script>
-                            // Nascondi il header con i pulsanti quando la tab si apre
+                            // Forza il layout desktop modificando il DOM
                             setTimeout(() => {
-                                const header = document.querySelector('.mb-8.flex');
-                                if (header) {
+                                // Trova il header e nascondilo
+                                const header = document.querySelector('.mb-8');
+                                if (header && header.classList.contains('flex')) {
                                     header.style.display = 'none';
                                 }
+                                
+                                // Forza flex-row per i container flex
+                                document.querySelectorAll('.md\\\\:flex-row').forEach(el => {
+                                    el.style.flexDirection = 'row';
+                                });
+                                
+                                // Forza grid columns per i grid
+                                document.querySelectorAll('.md\\\\:grid-cols-3').forEach(el => {
+                                    el.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                                });
+                                
+                                document.querySelectorAll('.md\\\\:grid-cols-2').forEach(el => {
+                                    el.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+                                });
+                                
+                                document.querySelectorAll('.md\\\\:col-span-2').forEach(el => {
+                                    el.style.gridColumn = 'span 2';
+                                });
+                                
                                 window.print();
                             }, 500);
 
