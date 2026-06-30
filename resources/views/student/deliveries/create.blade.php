@@ -139,7 +139,7 @@
                         </div>
                     </div>
 
-                    <!-- Info box -->
+                    <!-- Info box 
                     <div class="mt-6">
                         <x-info-box
                             type="info"
@@ -147,6 +147,7 @@
                             message="Il prezzo è indicativo e potrebbe subire modifiche in base alle reali condizioni del libro a discrezione dello staff."
                         />
                     </div>
+                    -->
                 </div>
 
                 <!-- Aggiungi al carrello -->

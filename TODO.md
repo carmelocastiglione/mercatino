@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-06-30: Aggiunta faq registrazione utenti in home. Tolto disclaimer su possibile variazione del prezzo in fase di prenotazione consegna
 - 2026-06-29: Aggiunta la possibilità di abilitare l'accesso online da una data e ora precisa per le scuole che hanno l'online abilitato. Questo permette di controllare quando gli studenti possono accedere al sistema per prenotare libri o effettuare vendite online. Per la prenotazione dei libri da acquistare è possibile impostare una data differente da quella di accesso, in modo da permettere agli studenti di accedere al sistema prima della data di prenotazione dei libri in vendita. Lo staff e gli admin possono accedere al sistema in qualsiasi momento, indipendentemente dalle date impostate.
 - 2026-06-10: Aggiunti grafici pagina staff
 - 2026-06-10: Aggiunta nella pagina riscossione la colonna "Libri da Ritirare" che mostra il numero di libri non venduti che lo studente deve ancora ritirare. Questa informazione è utile per lo staff per tenere traccia dei libri che devono essere restituiti agli studenti e per gestire meglio le operazioni di ritiro. E' stata aggiunta anche una pagina con la lista degli studenti che devono ancora ritirare soldi e/o libri.
@@ -96,3 +97,4 @@
 - Aggiungere possibilità di contattare in qualche modo (notifica, mail) gli studenti che devono ancora ritirare libri o riscuotere soldi
 - Implementare notifiche via email (Mailtrap: 150 email al giorno gratis, 4000 al mese)
 - Pagina profilo dove modificare le proprie informazioni (quali? password e?)
+- Controllare la generazione del codice per staff e admin: è necessaria? Adesso bisogna prima importare gli studenti e poi creare staff e admin, altrimenti il codice generato per staff e admin potrebbe essere uguale a quello di uno studente.

@@ -174,7 +174,7 @@
                     </button>
                     <div id="faq-1" class="faq-content hidden px-6 py-4 bg-gray-50 border-t border-gray-200">
                         <p class="text-gray-700">
-                            La registrazione è disabilitata. Se sei uno studente del Viganò, puoi accedere ai servizi del mercatino usando il login tramite l'account della scuola. 
+                            La registrazione è disabilitata. Se sei uno studente del Viganò, puoi accedere ai servizi del mercatino usando il login tramite l'account della scuola. Se sei un nuovo studente e vuoi prenotare i libri da acquistare, contatta il comitato genitori della scuola per avere le credenziali di accesso.
                         </p>
                     </div>
                 </div>
