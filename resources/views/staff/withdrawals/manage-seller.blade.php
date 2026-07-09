@@ -49,6 +49,18 @@
             </a>
         </div>
 
+        <!-- Complete Withdrawal Button -->
+        @if(count($soldBooks) > 0 || count($unsoldBooks) > 0)
+            <div class="mb-8">
+                <form action="{{ route('staff.withdrawals.process-complete', $seller->id) }}" method="POST" onsubmit="return confirm('Sei sicuro? Questo processerà TUTTI i libri venduti e non venduti.');">
+                    @csrf
+                    <button type="submit" class="w-full px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold text-lg rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2">
+                        <span>Processa tutto ({{count($soldBooks) + count($unsoldBooks)}} libri)</span>
+                    </button>
+                </form>
+            </div>
+        @endif
+
         <!-- Messages -->
         @if($errors->any())
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700">

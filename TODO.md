@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-07-09: Nella pagina delle riscossioni dello staff, adesso è possibile con un solo pulsante riscuotere soldi e libri non venduti
 - 2026-07-09: Aggiunto conteggio libri venduti e acquisiti nella pagina dello staff
 - 2026-07-01: Sistemata visualizzazione di tutte le ricevute in versione mobile. Adesso le ricevute sono visualizzate correttamente su tutti i dispositivi, senza problemi di layout o di taglio dei contenuti.
 - 2026-06-30: Aggiunto tooltip con spiegazione delle condizioni dei libri nella pagina di prenotazione consegna.

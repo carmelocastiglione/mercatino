@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalController extends Controller
 {
@@ -26,10 +27,18 @@ class WithdrawalController extends Controller
         $query = request()->input('q', '');
 
         // Get all users that have book listings from staff's school
+        // Using addSelect with subqueries to avoid N+1 queries
         $sellers = User::whereHas('bookListings.book', function ($queryBuilder) use ($schoolId) {
                 $queryBuilder->bySchool($schoolId);
             })
             ->where('school_id', $schoolId)
+            ->addSelect([
+                'books_to_pickup' => BookListing::selectRaw('COUNT(*)')
+                    ->whereColumn('seller_id', 'users.id')
+                    ->bySchool($schoolId)
+                    ->whereIn('status', ['available', 'reserved'])
+                    ->where('leave', false)
+            ])
             ->when($query, function ($queryBuilder) use ($query) {
                 return $queryBuilder->where(function ($queryBuilder) use ($query) {
                     $queryBuilder->where('surname', 'ilike', "%{$query}%")
@@ -43,18 +52,13 @@ class WithdrawalController extends Controller
                         });
                 });
             })
-            ->with(['bookListings.book', 'bookListings.bookSales', 'withdrawals'])
             ->latest('updated_at')
             ->paginate(15)
             ->withQueryString();
 
-        // Add booksToPickup count to each seller
-        $sellers->getCollection()->transform(function($seller) use ($schoolId) {
-            $seller->booksToPickup = BookListing::where('seller_id', $seller->id)
-                ->bySchool($schoolId)
-                ->whereIn('status', ['available', 'reserved'])
-                ->where('leave', false)
-                ->count();
+        // Add booksToPickup as an attribute (from subquery result)
+        $sellers->getCollection()->transform(function($seller) {
+            $seller->booksToPickup = $seller->books_to_pickup ?? 0;
             return $seller;
         });
 
@@ -62,7 +66,7 @@ class WithdrawalController extends Controller
         $totalEarned = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
             ->join('books', 'book_listings.book_id', '=', 'books.id')
             ->where('books.school_id', $schoolId)
-            ->whereNull('book_sales.reclaim_id')  // Escludere i libri resi
+            ->whereNull('book_sales.reclaim_id')
             ->sum('book_listings.price_sell');
 
         // Calculate total amounts - Totale Riscosso (sum of amounts from withdrawals)
@@ -75,7 +79,7 @@ class WithdrawalController extends Controller
         $totalAvailable = BookListing::join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
             ->join('books', 'book_listings.book_id', '=', 'books.id')
             ->where('books.school_id', $schoolId)
-            ->whereNull('book_sales.reclaim_id')  // Escludere i libri resi
+            ->whereNull('book_sales.reclaim_id')
             ->sum('book_listings.price');
 
         // Calculate progress: users who have withdrawn vs users who have sold books
@@ -85,88 +89,37 @@ class WithdrawalController extends Controller
             ->distinct('book_listings.seller_id')
             ->count('book_listings.seller_id');
 
-        // Users who have withdrawn money for ALL their sold books
-        $usersWithdrawn = User::where('school_id', $schoolId)
+        // Get aggregated data for users in SQL instead of PHP loop
+        $usersData = \DB::table('users')
+            ->leftJoin('book_listings', 'users.id', '=', 'book_listings.seller_id')
+            ->leftJoin('books', 'book_listings.book_id', '=', 'books.id')
+            ->leftJoin('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+            ->leftJoin('withdrawals', 'book_listings.id', '=', 'withdrawals.book_listing_id')
+            ->where('users.school_id', $schoolId)
+            ->where('books.school_id', $schoolId)
+            ->groupBy('users.id')
+            ->selectRaw('users.id,
+                COUNT(DISTINCT CASE WHEN book_sales.id IS NOT NULL THEN book_sales.book_listing_id END) as sold_count,
+                COUNT(DISTINCT CASE WHEN withdrawals.id IS NOT NULL THEN withdrawals.id END) as withdrawn_count,
+                COUNT(DISTINCT CASE WHEN book_listings.status IN (\'available\', \'reserved\') AND book_listings.leave = false THEN book_listings.id END) as unsold_count,
+                COUNT(DISTINCT CASE WHEN book_listings.status NOT IN (\'withdrawn\', \'reclaim\', \'archived\') THEN book_listings.id END) as incomplete_count,
+                COUNT(DISTINCT book_listings.id) as total_books')
             ->get()
-            ->filter(function($user) use ($schoolId) {
-                // Count sold books for this user in this school
-                $soldCount = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
-                    ->count();
-                
-                // Count withdrawals for this user (filtered by school via book listings)
-                $withdrawnCount = Withdrawal::where('user_id', $user->id)
-                    ->whereHas('bookListing.book', function($q) use ($schoolId) {
-                        $q->where('school_id', $schoolId);
-                    })
-                    ->count();
-                
-                return $soldCount > 0 && $soldCount === $withdrawnCount;
-            })
-            ->count();
+            ->keyBy('id');
 
-        $withdrawalProgress = $usersWithSoldBooks > 0 ? ($usersWithdrawn / $usersWithSoldBooks) * 100 : 0;
+        // Calculate statistics from aggregated data
+        $usersCompleted = $usersData->filter(function($user) {
+            return $user->total_books > 0 && $user->incomplete_count === 0;
+        })->count();
 
-        // OVERALL PROGRESS: considering both money withdrawals AND unsold books to pick up
-        // Count users with pending actions (either sold books not withdrawn OR unsold books to pick up)
-        $usersWithPending = User::where('school_id', $schoolId)
-            ->get()
-            ->filter(function($user) use ($schoolId) {
-                // Count sold books
-                $soldCount = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
-                    ->count();
-                
-                // Count withdrawn
-                $withdrawnCount = Withdrawal::where('user_id', $user->id)
-                    ->whereHas('bookListing.book', function($q) use ($schoolId) {
-                        $q->where('school_id', $schoolId);
-                    })
-                    ->count();
-                
-                // Count unsold books to pick up
-                $unsoldCount = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->whereIn('status', ['available', 'reserved'])
-                    ->where('leave', false)
-                    ->count();
-                
-                // User has pending actions if: has sold books not withdrawn OR has unsold books to pick up
-                $hasPendingWithdrawal = $soldCount > $withdrawnCount;
-                $hasPendingPickup = $unsoldCount > 0;
-                
-                return $hasPendingWithdrawal || $hasPendingPickup;
-            })
-            ->count();
+        $usersWithPending = $usersData->filter(function($user) {
+            $hasPendingWithdrawal = $user->sold_count > 0 && $user->sold_count > $user->withdrawn_count;
+            $hasPendingPickup = $user->unsold_count > 0;
+            return $hasPendingWithdrawal || $hasPendingPickup;
+        })->count();
 
-        // Count users who completed everything: all sold books withdrawn AND all unsold books picked up
-        $usersCompleted = User::where('school_id', $schoolId)
-            ->get()
-            ->filter(function($user) use ($schoolId) {
-                // Count all book listings for this user
-                $totalBooks = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->count();
-                
-                // If user has no books at all, not completed (nothing to do)
-                if ($totalBooks === 0) {
-                    return false;
-                }
-                
-                // Count books NOT in a completed state (withdrawn = sold+paid, reclaim/archived = unsold+picked)
-                $booksNotCompleted = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->whereNotIn('status', ['withdrawn', 'reclaim', 'archived'])
-                    ->count();
-                
-                // User is completed if ALL their books are in a completed state
-                return $booksNotCompleted === 0;
-            })
-            ->count();
-
-        $overallProgress = $usersWithPending > 0 ? ($usersCompleted / ($usersCompleted + $usersWithPending)) * 100 : 0;
+        $withdrawalProgress = $usersWithSoldBooks > 0 ? (($usersWithSoldBooks - $usersWithPending) / $usersWithSoldBooks) * 100 : 0;
+        $overallProgress = ($usersCompleted + $usersWithPending) > 0 ? ($usersCompleted / ($usersCompleted + $usersWithPending)) * 100 : 0;
 
         // Count unsold books to pick up (available/reserved books with leave=false)
         $unsoldToPickup = BookListing::bySchool($schoolId)
@@ -179,7 +132,6 @@ class WithdrawalController extends Controller
             'totalEarned' => $totalEarned,
             'totalWithdrawn' => $totalWithdrawn,
             'totalAvailable' => $totalAvailable,
-            'usersWithdrawn' => $usersWithdrawn,
             'usersWithSoldBooks' => $usersWithSoldBooks,
             'withdrawalProgress' => $withdrawalProgress,
             'usersCompleted' => $usersCompleted,
@@ -235,54 +187,49 @@ class WithdrawalController extends Controller
     {
         $schoolId = auth()->user()->school_id;
 
-        // Get all users and calculate who still needs to withdraw or pick up books
-        $pendingUsers = User::where('school_id', $schoolId)
-            ->get()
-            ->filter(function($user) use ($schoolId) {
-                // Count sold books for this user in this school
-                $soldCount = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
-                    ->count();
-                
-                // Count withdrawals for this user (filtered by school via book listings)
-                $withdrawnCount = Withdrawal::where('user_id', $user->id)
-                    ->whereHas('bookListing.book', function($q) use ($schoolId) {
-                        $q->where('school_id', $schoolId);
-                    })
-                    ->count();
-                
-                // Count unsold books to pick up
-                $unsoldCount = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->whereIn('status', ['available', 'reserved'])
-                    ->where('leave', false)
-                    ->count();
-                
-                // User has pending actions if: has sold books not withdrawn OR has unsold books to pick up
-                $hasPendingWithdrawal = $soldCount > $withdrawnCount;
-                $hasPendingPickup = $unsoldCount > 0;
-                
+        // Single aggregated query to get all users with their book counts
+        $usersData = DB::table('users')
+            ->leftJoin('book_listings', 'users.id', '=', 'book_listings.seller_id')
+            ->leftJoin('books', 'book_listings.book_id', '=', 'books.id')
+            ->leftJoin('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
+            ->leftJoin('withdrawals', function($join) {
+                $join->on('book_listings.id', '=', 'withdrawals.book_listing_id');
+            })
+            ->where('users.school_id', $schoolId)
+            ->where('books.school_id', $schoolId)
+            ->groupBy('users.id', 'users.name', 'users.surname', 'users.email', 'users.code', 'users.school_id')
+            ->selectRaw('
+                users.id,
+                users.name,
+                users.surname,
+                users.email,
+                users.code,
+                users.school_id,
+                COUNT(DISTINCT CASE WHEN book_sales.id IS NOT NULL THEN book_sales.book_listing_id END) as sold_count,
+                COUNT(DISTINCT CASE WHEN withdrawals.id IS NOT NULL THEN withdrawals.id END) as withdrawn_count,
+                COUNT(DISTINCT CASE WHEN book_listings.status IN (\'available\', \'reserved\') AND book_listings.leave = false THEN book_listings.id END) as unsold_count
+            ')
+            ->get();
+
+        // Filter users with pending withdrawals or pickups
+        $pendingUsers = $usersData
+            ->filter(function($user) {
+                $hasPendingWithdrawal = $user->sold_count > $user->withdrawn_count;
+                $hasPendingPickup = $user->unsold_count > 0;
                 return $hasPendingWithdrawal || $hasPendingPickup;
             })
-            ->map(function($user) use ($schoolId) {
-                // Add pending counts to each user
-                $user->pendingWithdrawal = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->join('book_sales', 'book_listings.id', '=', 'book_sales.book_listing_id')
-                    ->count() - Withdrawal::where('user_id', $user->id)
-                    ->whereHas('bookListing.book', function($q) use ($schoolId) {
-                        $q->where('school_id', $schoolId);
-                    })
-                    ->count();
-                
-                $user->pendingBooks = BookListing::where('seller_id', $user->id)
-                    ->bySchool($schoolId)
-                    ->whereIn('status', ['available', 'reserved'])
-                    ->where('leave', false)
-                    ->count();
-                
-                return $user;
+            ->map(function($user) {
+                // Convert to object with pending counts
+                $userData = new \stdClass();
+                $userData->id = $user->id;
+                $userData->name = $user->name;
+                $userData->surname = $user->surname;
+                $userData->email = $user->email;
+                $userData->code = $user->code;
+                $userData->school_id = $user->school_id;
+                $userData->pendingWithdrawal = max(0, $user->sold_count - $user->withdrawn_count);
+                $userData->pendingBooks = $user->unsold_count;
+                return $userData;
             })
             ->sortBy(function($user) {
                 return $user->surname . ' ' . $user->name;
@@ -693,6 +640,99 @@ class WithdrawalController extends Controller
 
         return view('staff.withdrawals.pickup-summary', [
             'batch' => $pickupBatch,
+        ]);
+    }
+
+    /**
+     * Process all books (sold and unsold) for a seller in one operation.
+     */
+    public function processComplete(User $user): View|RedirectResponse
+    {
+        $staffSchoolId = auth()->user()->school_id;
+
+        // Verify seller belongs to staff's school
+        if ($user->school_id !== $staffSchoolId) {
+            return redirect()->back()->with('error', 'Non autorizzato');
+        }
+
+        // Get all sold books
+        $soldBooks = BookListing::where('seller_id', $user->id)
+            ->bySchool($staffSchoolId)
+            ->where('status', 'sold')
+            ->get();
+
+        // Get all unsold books (available/reserved)
+        $unsoldBooks = BookListing::where('seller_id', $user->id)
+            ->bySchool($staffSchoolId)
+            ->whereIn('status', ['available', 'reserved'])
+            ->get();
+
+        // Create withdrawal batch for sold books
+        $withdrawalBatch = null;
+        $totalWithdrawn = 0;
+        $withdrawCount = 0;
+
+        if ($soldBooks->count() > 0) {
+            $withdrawalBatch = WithdrawalBatch::create([
+                'user_id' => $user->id,
+                'total_amount' => 0,
+            ]);
+
+            foreach ($soldBooks as $listing) {
+                Withdrawal::create([
+                    'user_id' => $user->id,
+                    'book_listing_id' => $listing->id,
+                    'withdrawal_batch_id' => $withdrawalBatch->id,
+                    'amount' => $listing->price,
+                ]);
+                
+                $totalWithdrawn += $listing->price;
+                $listing->update(['status' => 'withdrawn']);
+                $withdrawCount++;
+            }
+
+            $withdrawalBatch->update(['total_amount' => $totalWithdrawn]);
+        }
+
+        // Create pickup batch for unsold books
+        $pickupBatch = null;
+        $archivedCount = 0;
+
+        if ($unsoldBooks->count() > 0) {
+            $pickupBatch = PickupBatch::create([
+                'user_id' => $user->id,
+            ]);
+
+            foreach ($unsoldBooks as $listing) {
+                Pickup::create([
+                    'user_id' => $user->id,
+                    'book_listing_id' => $listing->id,
+                    'pickup_batch_id' => $pickupBatch->id,
+                    'leave' => $listing->leave,
+                ]);
+
+                // Set status based on leave field
+                $newStatus = $listing->leave ? 'reclaim' : 'archived';
+                $listing->update(['status' => $newStatus]);
+                $archivedCount++;
+            }
+        }
+
+        // Load relationships for display
+        if ($withdrawalBatch) {
+            $withdrawalBatch->load(['withdrawals.bookListing.book', 'user']);
+        }
+        if ($pickupBatch) {
+            $pickupBatch->load(['pickups.bookListing.book', 'user']);
+        }
+
+        return view('staff.withdrawals.complete-summary', [
+            'seller' => $user,
+            'withdrawalBatch' => $withdrawalBatch,
+            'pickupBatch' => $pickupBatch,
+            'withdrawCount' => $withdrawCount,
+            'totalWithdrawn' => $totalWithdrawn,
+            'archivedCount' => $archivedCount,
         ]);
     }
 
