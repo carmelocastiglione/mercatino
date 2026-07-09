@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-07-09: Aggiunto conteggio libri venduti e acquisiti nella pagina dello staff
 - 2026-07-01: Sistemata visualizzazione di tutte le ricevute in versione mobile. Adesso le ricevute sono visualizzate correttamente su tutti i dispositivi, senza problemi di layout o di taglio dei contenuti.
 - 2026-06-30: Aggiunto tooltip con spiegazione delle condizioni dei libri nella pagina di prenotazione consegna.
 - 2026-06-30: Aggiunta faq registrazione utenti in home. Tolto disclaimer su possibile variazione del prezzo in fase di prenotazione consegna
@@ -76,8 +77,8 @@
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
-- Notificare lo staff se una prenotazione è stata cancellata
-- Creare pagina report (?) prenotazioni di acquisto per velocizzare la preparazione dei libri
+- Notificare lo staff se una prenotazione è stata cancellata (serve? attualmente è impossibile visto che una prenotazione cancellata viene eliminata direttamente dal database)
+- Creare pagina report (?) prenotazioni di acquisto per velocizzare la preparazione dei libri (non esiste già la lista delle prenotazioni?)
 - Nella pagina riscossini, aggiungere conferme sui bottoni di riscossione e ritiro libri non venduti (es. "Sei sicuro di voler riscossione i soldi per i libri non venduti?") per evitare errori
 - Prezzo fisso camice 8€ (come?)
 

@@ -26,6 +26,10 @@ class AcquisitionController extends Controller
         $totalAcquisitionsCount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->count();
 
+        $totalBooksCount = BookListing::whereHas('acquisition.bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->whereHas('book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->count();
+
         $totalAcquisitionsAmount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
             ->sum('total_price');
 
@@ -47,6 +51,7 @@ class AcquisitionController extends Controller
         return view('staff.acquisitions.index', [
             'acquisitions' => $acquisitions,
             'totalAcquisitionsCount' => $totalAcquisitionsCount,
+            'totalBooksCount' => $totalBooksCount,
             'totalAcquisitionsAmount' => $totalAcquisitionsAmount,
             'filterQuery' => $query,
         ]);

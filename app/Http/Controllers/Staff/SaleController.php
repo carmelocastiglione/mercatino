@@ -27,6 +27,10 @@ class SaleController extends Controller
         // Totals without filters
         $totalBatchesCount = BookSaleBatch::bySchool(auth()->user()->school_id)->count();
         
+        $totalBooksCount = BookSale::whereHas('batch', function ($q) {
+            $q->bySchool(auth()->user()->school_id);
+        })->count();
+        
         $totalRevenue = BookSaleBatch::bySchool(auth()->user()->school_id)
             ->sum('total_price');
 
@@ -48,6 +52,7 @@ class SaleController extends Controller
         return view('staff.sales.index', [
             'batches' => $batches,
             'totalBatchesCount' => $totalBatchesCount,
+            'totalBooksCount' => $totalBooksCount,
             'totalRevenue' => $totalRevenue,
             'filterQuery' => $query,
         ]);

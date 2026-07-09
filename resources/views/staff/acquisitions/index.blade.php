@@ -14,8 +14,9 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <x-stats-card label="Acquisizioni Totali" :value="$totalAcquisitionsCount" color="indigo" />
+        <x-stats-card label="Libri Acquisiti" :value="$totalBooksCount" color="indigo" />
         <x-stats-card label="Importo Totale" :value="$totalAcquisitionsAmount" color="indigo" formatted />
     </div>
 
