@@ -61,6 +61,25 @@
 
             <x-information-note message="L'acquisizione è stata registrata correttamente. Stampa questo riepilogo e consegnalo allo studente come ricevuta." />
 
+            <!-- Withdrawal and Return Notice -->
+            <div class="bg-white border-l-4 border-blue-500 rounded-lg p-8 shadow-sm">
+                <div class="mb-4">
+                    <h3 class="text-lg font-bold text-gray-900">Modalità di ritiro</h3>
+                </div>
+                <div class="text-gray-700 space-y-3 text-sm leading-relaxed">
+                    <p>
+                        Il ritiro dell'incasso e dell'invenduto avverrà nei giorni <strong>{{ $withdrawDatesText }}</strong> con il foglio e, eventualmente, muniti di delega.
+                        Dopo tale data non ci saranno ulteriori modalità di ritiro di denaro e libri invenduti.
+                        Non si risponde per eventuali furti.
+                    </p>
+                    @if($referringName)
+                        <p>
+                            Per info scrivere a <strong>{{ $referringName }}</strong>
+                        </p>
+                    @endif
+                </div>
+            </div>
+
             <div class="flex gap-4 print:hidden">
                 <a href="{{ route('staff.acquisitions.index') }}" class="flex-1 px-6 py-4 bg-gray-600 text-white font-medium rounded-lg hover:bg-gray-700 transition text-center">
                     Torna alle acquisizioni

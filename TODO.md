@@ -1,4 +1,5 @@
 # CHANGELOG
+- Aggiunto disclaimer nella pagina di stampa acquisizioni con le date di ritiro.
 - 2026-07-09: Aggiunto export CSV per tutti i libri acquisiti a prescindere dallo status.
 - 2026-07-09: Nella pagina delle riscossioni dello staff, adesso è possibile con un solo pulsante riscuotere soldi e libri non venduti
 - 2026-07-09: Aggiunto conteggio libri venduti e acquisiti nella pagina dello staff

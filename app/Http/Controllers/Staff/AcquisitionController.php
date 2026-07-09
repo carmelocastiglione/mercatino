@@ -376,6 +376,12 @@ class AcquisitionController extends Controller
             ->orderBy('scheduled_date')
             ->get();
         
+        // Format withdrawal dates
+        $activeDates = $withdrawDates->map(fn($date) => $date->scheduled_date->format('d/m/Y'))->toArray();
+        $withdrawDatesText = !empty($activeDates) 
+            ? implode(', ', $activeDates)
+            : 'stabiliti dalla scuola';
+        
         $referringName = $school->getSetting('referring_name');
         
         return view('staff.acquisitions.show', [
@@ -384,6 +390,7 @@ class AcquisitionController extends Controller
             'referringName' => $referringName,
             'city' => $school->city,
             'withdrawDates' => $withdrawDates,
+            'withdrawDatesText' => $withdrawDatesText,
         ]);
     }
 
