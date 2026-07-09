@@ -30,6 +30,12 @@ class ExportService
             'columns' => ['Titolo', 'Autore', 'ISBN', 'Prezzo Originale', 'Data Creazione'],
             'fields' => ['title', 'author', 'isbn', 'original_price', 'created_at'],
         ],
+        'libri_acquisiti' => [
+            'label' => 'Libri acquisiti (tutti)',
+            'query' => 'getAcquiredListings',
+            'columns' => ['ISBN', 'Titolo', 'Condizione', 'Prezzo acquisizione', 'Prezzo vendita', 'Lascia', 'Venditore Codice', 'Venditore Nome', 'Venditore Cognome', 'Stato', 'Prenotante Codice', 'Prenotante Nome', 'Prenotante Cognome', 'Acquirente Codice', 'Acquirente Nome', 'Acquirente Cognome', 'Data Creazione'],
+            'fields' => ['isbn', 'title', 'condition', 'price', 'price_sell', 'leave', 'seller_code', 'seller_name', 'seller_surname', 'status', 'reserver_code', 'reserver_name', 'reserver_surname', 'buyer_code', 'buyer_name', 'buyer_surname', 'created_at'],
+        ],
         'libri_disponibili' => [
             'label' => 'Libri disponibili',
             'query' => 'getAvailableListings',
@@ -143,7 +149,7 @@ class ExportService
     }
 
     /**
-     * Recupera i libri della scuola
+     * Recupera i libri del catalogo
      */
     private static function getBooks(int $schoolId): Collection
     {
@@ -158,6 +164,60 @@ class ExportService
                 'created_at' => $book->created_at?->format('d/m/Y H:i') ?? '',
             ]);
     }
+
+    /**
+     * Recupera TUTTI i libri acquisiti (book_listings con qualsiasi status)
+     */
+    private static function getAcquiredListings(int $schoolId): Collection
+    {
+        return BookListing::whereHas('book', function ($q) use ($schoolId) {
+                $q->where('school_id', $schoolId);
+            })
+            ->with(['book', 'seller'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($listing) {
+                $reserver = null;
+                $buyer = null;
+                
+                // Se prenotato, recupera il prenotante
+                if ($listing->status === 'reserved') {
+                    $reservation = BookReservation::where('book_listing_id', $listing->id)->first();
+                    if ($reservation && $reservation->batch) {
+                        $reserver = $reservation->batch->user;
+                    }
+                }
+                
+                // Se venduto O riscosso, recupera l'acquirente
+                if ($listing->status === 'sold' || $listing->status === 'withdrawn') {
+                    $sale = BookSale::where('book_listing_id', $listing->id)->first();
+                    if ($sale && $sale->buyer) {
+                        $buyer = $sale->buyer;
+                    }
+                }
+                
+                return [
+                    'isbn' => $listing->book->isbn,
+                    'title' => $listing->book->title,
+                    'condition' => self::formatCondition($listing->condition),
+                    'price' => number_format($listing->price, 2, ',', '.'),
+                    'price_sell' => number_format($listing->price_sell, 2, ',', '.'),
+                    'leave' => $listing->leave ? 'Sì' : 'No',
+                    'seller_code' => $listing->seller->code,
+                    'seller_name' => $listing->seller->name,
+                    'seller_surname' => $listing->seller->surname,
+                    'status' => self::formatStatus($listing->status),
+                    'reserver_code' => $reserver?->code ?? '',
+                    'reserver_name' => $reserver?->name ?? '',
+                    'reserver_surname' => $reserver?->surname ?? '',
+                    'buyer_code' => $buyer?->code ?? '',
+                    'buyer_name' => $buyer?->name ?? '',
+                    'buyer_surname' => $buyer?->surname ?? '',
+                    'created_at' => $listing->created_at?->format('d/m/Y H:i') ?? '',
+                ];
+            });
+    }
+
 
     /**
      * Recupera i libri prenotati (book_listings con status='reserved')
@@ -360,5 +420,21 @@ class ExportService
             'poor' => 'Usato',
         ];
         return $conditions[$condition] ?? $condition;
+    }
+
+    /**
+     * Formatta lo stato del libro in italiano
+     */
+    private static function formatStatus(string $status): string
+    {
+        $statuses = [
+            'available' => 'Disponibile',
+            'reserved' => 'Prenotato',
+            'sold' => 'Venduto',
+            'withdrawn' => 'Riscosso',
+            'reclaim' => 'Ritirato',
+            'archived' => 'Ceduto',
+        ];
+        return $statuses[$status] ?? $status;
     }
 }
