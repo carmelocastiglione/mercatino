@@ -166,6 +166,12 @@
                                             <a href="{{ route('staff.withdrawals.show-batch', $batch->id) }}" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded transition-colors">
                                                 Riepilogo
                                             </a>
+                                            <button 
+                                                type="button"
+                                                class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded transition-colors"
+                                                onclick="confirmDeleteBatch({{ $batch->id }}, '{{ $batch->ean13 }}', {{ $batch->withdrawals->count() }}, {{ $batch->total_amount }})">
+                                                🗑️ Elimina
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -208,6 +214,12 @@
             @endif
         </div>
 
+        <!-- Hidden form for batch deletion -->
+        <form id="deleteWithdrawalBatchForm" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+
         <script>
             function toggleDetails(batchId) {
                 const detailsRow = document.getElementById('details-' + batchId);
@@ -215,6 +227,25 @@
                     detailsRow.classList.remove('hidden');
                 } else {
                     detailsRow.classList.add('hidden');
+                }
+            }
+
+            function confirmDeleteBatch(batchId, ean13, booksCount, totalAmount) {
+                const message = `⚠️ ATTENZIONE!\n\nStai per eliminare l'INTERA RISCOSSIONE:\n\n` +
+                    `Codice: ${ean13}\n` +
+                    `Libri: ${booksCount}\n` +
+                    `Importo: €${Number(totalAmount).toFixed(2).replace('.', ',')}\n\n` +
+                    `Questa azione:\n` +
+                    `✓ Eliminerà TUTTI i ${booksCount} libro/i del batch\n` +
+                    `✓ I libri torneranno "riscuotibili"\n` +
+                    `✓ La vendita rimarrà registrata\n` +
+                    `✓ NON può essere annullata\n\n` +
+                    `Sei sicuro di voler procedere?`;
+
+                if (confirm(message)) {
+                    const form = document.getElementById('deleteWithdrawalBatchForm');
+                    form.action = `/staff/withdrawal-batches/${batchId}`;
+                    form.submit();
                 }
             }
         </script>
@@ -338,6 +369,9 @@
                                         <a href="{{ route('staff.withdrawals.pickup-summary', $batch->id) }}" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded transition-colors inline-block">
                                             Riepilogo
                                         </a>
+                                        <button onclick="confirmDeletePickupBatch({{ $batch->id }}, '{{ $batch->ean13 }}', {{ $batch->pickups->count() }})" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded transition-colors">
+                                            Elimina
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr id="pickup-details-{{ $batch->id }}" class="hidden">
@@ -387,6 +421,12 @@
             @endif
         </div>
 
+        <!-- Hidden form for pickup batch deletion -->
+        <form id="deletePickupBatchForm" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+
         <script>
             function toggleDetails(batchId) {
                 const detailsRow = document.getElementById('details-' + batchId);
@@ -405,7 +445,25 @@
                     detailsRow.classList.add('hidden');
                 }
             }
+
+            function confirmDeletePickupBatch(batchId, ean13, booksCount) {
+                const message = `⚠️ ATTENZIONE!\n\nStai per eliminare l'INTERO STORICO INVENDUTI:\n\n` +
+                    `Codice: ${ean13}\n` +
+                    `Libri: ${booksCount}\n\n` +
+                    `Questa azione:\n` +
+                    `✓ Eliminerà TUTTI i ${booksCount} libro/i del batch\n` +
+                    `✓ I libri torneranno disponibili per il ritiro/archiviazione\n` +
+                    `✓ NON può essere annullata\n\n` +
+                    `Sei sicuro di voler procedere?`;
+
+                if (confirm(message)) {
+                    const form = document.getElementById('deletePickupBatchForm');
+                    form.action = `/staff/pickup-batches/${batchId}`;
+                    form.submit();
+                }
+            }
         </script>
+
 
     </div>
 </div>

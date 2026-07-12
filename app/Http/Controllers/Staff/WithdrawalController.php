@@ -759,4 +759,77 @@ class WithdrawalController extends Controller
     {
         //
     }
+
+    /**
+     * Delete an entire withdrawal batch and restore book listings to 'sold' status.
+     */
+    public function destroyWithdrawalBatch(WithdrawalBatch $withdrawalBatch): RedirectResponse
+    {
+        try {
+            $staffSchoolId = auth()->user()->school_id;
+
+            // Verify seller belongs to staff's school
+            if ($withdrawalBatch->user->school_id !== $staffSchoolId) {
+                abort(403, 'Non autorizzato');
+            }
+
+            // Get all withdrawals before deletion
+            $withdrawals = $withdrawalBatch->withdrawals()->with('bookListing')->get();
+
+            // Restore all book listings to 'sold' status
+            foreach ($withdrawals as $withdrawal) {
+                $withdrawal->bookListing->update(['status' => 'sold']);
+            }
+
+            // Delete all withdrawals in this batch
+            Withdrawal::where('withdrawal_batch_id', $withdrawalBatch->id)->delete();
+
+            // Delete the batch
+            $withdrawalBatch->delete();
+
+            return redirect()->route('staff.withdrawals.process-seller', $withdrawalBatch->user_id)
+                ->with('success', 'Riscossione cancellata con successo. Tutti i libri tornano riscuotibili.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Errore durante la cancellazione: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an entire pickup batch (storico invenduti) - hard delete
+     */
+    public function destroyPickupBatch(PickupBatch $pickupBatch): RedirectResponse
+    {
+        try {
+            $staffSchoolId = auth()->user()->school_id;
+            $userId = $pickupBatch->user_id;
+
+            // Verify batch belongs to staff's school
+            if ($pickupBatch->user->school_id !== $staffSchoolId) {
+                abort(403, 'Non autorizzato');
+            }
+
+            // Load pickups with relationships
+            $pickupBatch->load('pickups.bookListing');
+
+            // Restore book listings to 'available' status
+            // Both 'reclaim' (leave=false) and 'archived' (leave=true) books go back to available
+            foreach ($pickupBatch->pickups as $pickup) {
+                $pickup->bookListing->update(['status' => 'available']);
+            }
+
+            // Delete all pickup records
+            Pickup::where('pickup_batch_id', $pickupBatch->id)->delete();
+
+            // Delete the batch itself
+            $pickupBatch->delete();
+
+            return redirect()->route('staff.withdrawals.process-seller', $userId)
+                ->with('success', 'Storico invenduti cancellato con successo. Tutti i libri tornano disponibili per il ritiro/archiviazione.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Errore durante la cancellazione: ' . $e->getMessage());
+        }
+    }
 }
+

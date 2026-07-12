@@ -321,7 +321,14 @@ class SaleController extends Controller
             $batch = BookSaleBatch::where('school_id', $staffSchoolId)->findOrFail($batchId);
 
             // Get all sales before deletion
-            $sales = $batch->sales()->with('bookListing.seller')->get();
+            $sales = $batch->sales()->with('bookListing.seller', 'bookListing.book')->get();
+
+            // Check if any book has been withdrawn (riscosso)
+            foreach ($sales as $sale) {
+                if ($sale->bookListing->withdrawal()->exists()) {
+                    return back()->with('error', "Impossibile eliminare: il libro \"{$sale->bookListing->book->title}\" è stato già riscosso. Se vuoi annullare, elimina prima la riscossione.");
+                }
+            }
 
             // Restore all book listings to 'available' status and notify sellers
             foreach ($sales as $sale) {

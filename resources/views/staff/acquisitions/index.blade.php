@@ -13,6 +13,43 @@
         </a>
     </div>
 
+    <!-- Error Messages -->
+    @if ($errors->any())
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Errore</h3>
+                    <div class="mt-2 text-sm text-red-700 whitespace-pre-wrap">
+                        @foreach ($errors->all() as $error)
+                            <p class="mb-1">{!! nl2br(e($error)) !!}</p>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Errore</h3>
+                    <p class="mt-2 text-sm text-red-700 whitespace-pre-wrap">{!! nl2br(e(session('error'))) !!}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <x-stats-card label="Acquisizioni Totali" :value="$totalAcquisitionsCount" color="indigo" />
@@ -110,6 +147,9 @@
                                     <a href="{{ route('staff.acquisitions.show', $acquisition->id) }}" class="px-4 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition inline-block">
                                         👁️ Visualizza
                                     </a>
+                                    <button onclick="confirmDeleteAcquisition({{ $acquisition->id }}, '{{ $acquisition->ean13 }}', {{ $acquisition->bookListings->count() }}, '{{ number_format($acquisition->total_price, 2) }}')" class="ml-2 px-4 py-2 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition inline-block">
+                                        🗑️ Elimina
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -131,4 +171,31 @@
             </a>
         </div>
     @endif
+
+    <!-- Hidden form for acquisition deletion -->
+    <form id="deleteAcquisitionForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <script>
+        function confirmDeleteAcquisition(acquisitionId, ean13, booksCount, totalPrice) {
+            const message = `⚠️ ATTENZIONE!\n\nStai per eliminare l'INTERA ACQUISIZIONE:\n\n` +
+                `Codice: ${ean13}\n` +
+                `Libri: ${booksCount}\n` +
+                `Importo: €${totalPrice}\n\n` +
+                `Questa azione:\n` +
+                `✓ Eliminerà TUTTI i ${booksCount} libro/i dell'acquisizione\n` +
+                `✓ I resi verranno eliminati automaticamente\n` +
+                `✓ Se ci sono vendite, prenotazioni, riscossioni o ritiri, l'operazione sarà bloccata\n` +
+                `✓ NON può essere annullata\n\n` +
+                `Sei sicuro di voler procedere?`;
+
+            if (confirm(message)) {
+                const form = document.getElementById('deleteAcquisitionForm');
+                form.action = `/staff/acquisitions/${acquisitionId}`;
+                form.submit();
+            }
+        }
+    </script>
 @endsection

@@ -9,6 +9,11 @@ use App\Models\BookDelivery;
 use App\Models\Acquisition;
 use App\Models\BookListing;
 use App\Models\User;
+use App\Models\BookSale;
+use App\Models\Reclaim;
+use App\Models\BookReservation;
+use App\Models\Withdrawal;
+use App\Models\Pickup;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -402,5 +407,95 @@ class AcquisitionController extends Controller
         $listing->update(['status' => 'sold']);
 
         return back()->with('success', 'Libro marcato come venduto!');
+    }
+
+    /**
+     * Destroy an acquisition (hard delete with dependency checks)
+     * 
+     * Logica di eliminazione:
+     * - BookSale: BLOCCA (devi prima eliminare la vendita)
+     * - Reclaim: ELIMINA DIRETTAMENTE
+     * - BookReservation: BLOCCA (devi prima vendere il libro)
+     * - Withdrawal: BLOCCA (devi prima eliminare la riscossione)
+     * - Pickup: BLOCCA (devi prima eliminare il ritiro)
+     */
+    public function destroyAcquisition(Acquisition $acquisition): RedirectResponse
+    {
+        try {
+            $staffSchoolId = auth()->user()->school_id;
+
+            // Verify acquisition belongs to staff's school
+            if ($acquisition->seller->school_id !== $staffSchoolId) {
+                abort(403, 'Non autorizzato');
+            }
+
+            // Load all book listings with their dependencies
+            $acquisition->load([
+                'bookListings.bookSales',
+                'bookListings.reclaim',
+                'bookListings.bookReservations',
+                'bookListings.withdrawal',
+                'bookListings.pickups',
+            ]);
+
+            // Check for dependencies
+            $blockedByDependency = false;
+            $blockedReasons = [];
+
+            foreach ($acquisition->bookListings as $listing) {
+                // 1. BookSale - BLOCCA
+                if ($listing->bookSales->count() > 0) {
+                    $blockedByDependency = true;
+                    $blockedReasons[] = "Libro \"{$listing->book->title}\" ha vendite registrate. Elimina prima la vendita.";
+                }
+
+                // 2. Reclaim - ELIMINA DIRETTAMENTE (verrà gestito dopo)
+                // (non blocca)
+
+                // 3. BookReservation - BLOCCA
+                if ($listing->bookReservations->count() > 0) {
+                    $blockedByDependency = true;
+                    $blockedReasons[] = "Libro \"{$listing->book->title}\" ha prenotazioni. Vendi il libro o rifiuta le prenotazioni prima.";
+                }
+
+                // 4. Withdrawal - BLOCCA
+                if ($listing->withdrawal->count() > 0) {
+                    $blockedByDependency = true;
+                    $blockedReasons[] = "Libro \"{$listing->book->title}\" ha riscossioni registrate. Elimina la riscossione prima.";
+                }
+
+                // 5. Pickup - BLOCCA
+                if ($listing->pickups->count() > 0) {
+                    $blockedByDependency = true;
+                    $blockedReasons[] = "Libro \"{$listing->book->title}\" è nel ritiro invenduti. Elimina il ritiro prima.";
+                }
+            }
+
+            // If blocked, return error
+            if ($blockedByDependency) {
+                return back()->withErrors([
+                    'error' => 'Impossibile eliminare l\'acquisizione:' . "\n" . implode("\n", $blockedReasons)
+                ]);
+            }
+
+            // Delete Reclaims directly (no blocking)
+            foreach ($acquisition->bookListings as $listing) {
+                Reclaim::where('book_listing_id', $listing->id)->delete();
+            }
+
+            // Delete BookListings (cascade will handle Pickups due to cascadeOnDelete)
+            foreach ($acquisition->bookListings as $listing) {
+                $listing->forceDelete(); // Hard delete, bypassing SoftDeletes
+            }
+
+            // Delete the acquisition itself
+            $acquisition->delete();
+
+            return redirect()->route('staff.acquisitions.index')
+                ->with('success', 'Acquisizione eliminata con successo.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Errore durante la cancellazione: ' . $e->getMessage());
+        }
     }
 }
