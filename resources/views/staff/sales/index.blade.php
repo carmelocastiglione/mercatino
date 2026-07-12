@@ -96,9 +96,17 @@
                                     {{ $batch->created_at->format('d/m/Y H:i') }}
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('staff.sales.show', $batch->id) }}" class="px-4 py-2 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition inline-block">
-                                        👁️ Visualizza
-                                    </a>
+                                    <div class="flex gap-2 justify-center">
+                                        <a href="{{ route('staff.sales.show', $batch->id) }}" class="px-4 py-2 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition inline-block">
+                                            👁️ Visualizza
+                                        </a>
+                                        <button 
+                                            type="button"
+                                            class="px-4 py-2 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 transition"
+                                            onclick="confirmDeleteBatch({{ $batch->id }}, '{{ $batch->ean13 }}', {{ $batch->sales->count() }})">
+                                            🗑️ Elimina
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -120,4 +128,30 @@
             </a>
         </div>
     @endif
+
+    <!-- Hidden form for batch deletion -->
+    <form id="deleteBatchForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+
+    <script>
+        function confirmDeleteBatch(batchId, ean13, booksCount) {
+            const message = `⚠️ ATTENZIONE!\n\nStai per eliminare l'INTERA TRANSAZIONE:\n\n` +
+                `Codice: ${ean13}\n` +
+                `Libri: ${booksCount}\n\n` +
+                `Questa azione:\n` +
+                `✓ Eliminerà TUTTI i ${booksCount} libro/i del batch\n` +
+                `✓ Ripristinerà i libri come "disponibili"\n` +
+                `✓ Notificherà l'acquirente della cancellazione\n` +
+                `✓ NON può essere annullata\n\n` +
+                `Sei sicuro di voler procedere?`;
+
+            if (confirm(message)) {
+                const form = document.getElementById('deleteBatchForm');
+                form.action = `/staff/sales/${batchId}`;
+                form.submit();
+            }
+        }
+    </script>
 @endsection

@@ -7,7 +7,9 @@ use App\Models\BookSale;
 use App\Models\BookSaleBatch;
 use App\Models\BookListing;
 use App\Models\User;
+use App\Models\Reclaim;
 use App\Services\NotificationService;
+use App\Notifications\BookSaleCancelledNotification;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -304,5 +306,47 @@ class SaleController extends Controller
 
         return redirect()->route('staff.sales.index')
             ->with('success', 'Vendita registrata con successo!');
+    }
+
+    /**
+     * Delete an entire batch of sales and restore listings.
+     * Also deletes associated reclaims if present.
+     */
+    public function destroyBatch($batchId): RedirectResponse
+    {
+        try {
+            $staffSchoolId = auth()->user()->school_id;
+
+            // Find the batch and verify it belongs to this school
+            $batch = BookSaleBatch::where('school_id', $staffSchoolId)->findOrFail($batchId);
+
+            // Get all sales before deletion
+            $sales = $batch->sales()->with('bookListing.seller')->get();
+
+            // Restore all book listings to 'available' status and notify sellers
+            foreach ($sales as $sale) {
+                // If the sale has an associated reclaim, delete it first
+                if ($sale->reclaim_id) {
+                    Reclaim::where('id', $sale->reclaim_id)->delete();
+                }
+
+                $sale->bookListing->update(['status' => 'available']);
+                // Notify the seller of each book that was cancelled
+                $sale->bookListing->seller->notify(new BookSaleCancelledNotification($sale));
+            }
+
+            // Delete all sales in this batch
+            BookSale::where('book_sale_batch_id', $batchId)->delete();
+
+            // Delete the batch
+            $batch->delete();
+
+            return redirect()->route('staff.sales.index')
+                ->with('success', 'Vendita cancellata con successo. Tutti i libri tornano disponibili.');
+
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Errore durante la cancellazione: ' . $e->getMessage());
+        }
     }
 }
