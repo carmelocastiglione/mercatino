@@ -1,8 +1,9 @@
 # CHANGELOG
-- Aggiunta la possibilità di eliminare un'acquisizione, con la condizione che i libri non siano stati ancora venduti, prenotati o ritirati dallo studente. In questi casi, non sarà possibile eliminare l'acquisizione e verrà mostrato un messaggio di errore.
-- Aggiunta la possibilità di eliminare le transazioni di riscossione e ritiro libri non venduti. Adesso lo staff può eliminare una transazione di riscossione o ritiro libri non venduti.
-- Aggiunta possibilità di eliminare le vendite effettuate, con la condizione che i libri non siano stati ancora ritirati dallo studente. Se un libro è stato già ritirato, non sarà possibile eliminare la vendita e verrà mostrato un messaggio di errore. Bisognerà prima eliminare la transazione
-- Aggiunto disclaimer nella pagina di stampa acquisizioni con le date di ritiro.
+- 2026-07-12: Per le prenotazioni online, è possibile selezionare una data di ritiro.
+- 2026-07-12: Aggiunta la possibilità di eliminare un'acquisizione, con la condizione che i libri non siano stati ancora venduti, prenotati o ritirati dallo studente. In questi casi, non sarà possibile eliminare l'acquisizione e verrà mostrato un messaggio di errore.
+- 2026-07-12: Aggiunta la possibilità di eliminare le transazioni di riscossione e ritiro libri non venduti. Adesso lo staff può eliminare una transazione di riscossione o ritiro libri non venduti.
+- 2026-07-12: Aggiunta possibilità di eliminare le vendite effettuate, con la condizione che i libri non siano stati ancora ritirati dallo studente. Se un libro è stato già ritirato, non sarà possibile eliminare la vendita e verrà mostrato un messaggio di errore. Bisognerà prima eliminare la transazione
+- 2026-07-09: Aggiunto disclaimer nella pagina di stampa acquisizioni con le date di ritiro.
 - 2026-07-09: Aggiunto export CSV per tutti i libri acquisiti a prescindere dallo status.
 - 2026-07-09: Nella pagina delle riscossioni dello staff, adesso è possibile con un solo pulsante riscuotere soldi e libri non venduti
 - 2026-07-09: Aggiunto conteggio libri venduti e acquisiti nella pagina dello staff

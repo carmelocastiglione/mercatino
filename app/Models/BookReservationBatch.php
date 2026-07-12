@@ -24,6 +24,7 @@ class BookReservationBatch extends Model
         'rejected_at',
         'cancelled_at',
         'ean13',
+        'scheduled_reservation_date_id',
     ];
 
     protected $casts = [
@@ -62,6 +63,14 @@ class BookReservationBatch extends Model
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    /**
+     * Get the scheduled reservation date for this batch.
+     */
+    public function scheduledReservationDate(): BelongsTo
+    {
+        return $this->belongsTo(SchoolReservationDate::class, 'scheduled_reservation_date_id');
     }
 
     /**

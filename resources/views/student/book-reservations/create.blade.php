@@ -87,6 +87,7 @@
                     </label>
                     
                     <div id="book_listing_ids_container"></div>
+                    <input type="hidden" name="scheduled_reservation_date_id" id="scheduled_reservation_date_id_hidden">
                     
                     <div id="selected_books_list" class="space-y-2">
                         <div class="p-4 text-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg">
@@ -103,6 +104,19 @@
         <div>
             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200 sticky top-4">
                 <h3 class="font-bold text-lg text-gray-900 mb-4">Riepilogo Prenotazione</h3>
+                
+                <!-- Data di ritiro -->
+                <div class="mb-6">
+                    <label for="scheduled_reservation_date_id" class="block text-sm font-semibold text-gray-900 mb-2">
+                        Data di ritiro
+                    </label>
+                    <select id="scheduled_reservation_date_id" name="scheduled_reservation_date_id" class="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">-- Seleziona data --</option>
+                    </select>
+                    <p id="no_reservation_dates_message" class="text-center text-sm text-gray-600 mt-2 hidden">
+                        <span class="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">ℹ️ Nessuna data disponibile</span>
+                    </p>
+                </div>
                 
                 <div class="space-y-3">
                     <div class="flex justify-between items-center">
@@ -140,8 +154,42 @@
         const selectedCount = document.getElementById('selected_count');
         const summaryCount = document.getElementById('summary_count');
         const summaryPrice = document.getElementById('summary_price');
+        const reservationDateSelect = document.getElementById('scheduled_reservation_date_id');
+        const noReservationDatesMessage = document.getElementById('no_reservation_dates_message');
 
         let searchTimeout;
+        let hasDates = false; // Traccia se ci sono date disponibili
+
+        // Load reservation dates on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadReservationDates();
+        });
+
+        // Load available reservation dates from the server
+        function loadReservationDates() {
+            fetch(`{{ route('student.book-reservations.reservation-dates') }}`)
+                .then(response => response.json())
+                .then(data => {
+                    reservationDateSelect.innerHTML = '<option value="">-- Seleziona data --</option>';
+                    hasDates = data.has_dates; // Traccia se ci sono date
+                    
+                    if (data.has_dates) {
+                        noReservationDatesMessage.classList.add('hidden');
+                        data.dates.forEach(date => {
+                            const option = document.createElement('option');
+                            option.value = date.id;
+                            option.textContent = date.label;
+                            reservationDateSelect.appendChild(option);
+                        });
+                    } else {
+                        noReservationDatesMessage.classList.remove('hidden');
+                        reservationDateSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading reservation dates:', error);
+                });
+        }
 
         // Ricerca libri
         bookSearchInput.addEventListener('input', function() {
@@ -359,6 +407,13 @@
                 return false;
             }
 
+            // Controlla se la data di ritiro è selezionata (se le date sono disponibili)
+            if (hasDates && !reservationDateSelect.value) {
+                availabilityErrorMessage.textContent = 'Seleziona una data di ritiro prima di prenotare.';
+                availabilityErrorDiv.classList.remove('hidden');
+                return false;
+            }
+
             // Raccogli gli IDs dei libri selezionati
             const bookListingIds = Array.from(selectedBooks.keys());
 
@@ -381,6 +436,9 @@
                     availabilityErrorDiv.classList.remove('hidden');
                     return false;
                 }
+
+                // Copia la data dal dropdown al hidden input
+                document.getElementById('scheduled_reservation_date_id_hidden').value = reservationDateSelect.value;
 
                 // Tutti i libri sono disponibili, sottometti il form
                 document.getElementById('reservation_form').submit();

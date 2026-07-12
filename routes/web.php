@@ -19,6 +19,7 @@ use App\Http\Controllers\Staff\BookController as StaffBookController;
 use App\Http\Controllers\Staff\DeliveryController as StaffDeliveryController;
 use App\Http\Controllers\Staff\SchoolDeliveryDateController as StaffSchoolDeliveryDateController;
 use App\Http\Controllers\Staff\SchoolWithdrawDateController as StaffSchoolWithdrawDateController;
+use App\Http\Controllers\Staff\SchoolReservationDateController as StaffSchoolReservationDateController;
 use App\Http\Controllers\Staff\AcquisitionController as StaffAcquisitionController;
 use App\Http\Controllers\Staff\SaleController as StaffSaleController;
 use App\Http\Controllers\Staff\ReclaimController as StaffReclaimController;
@@ -112,6 +113,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/book-reservations/status/confirmed', [StudentBookReservationController::class, 'byStatus'])->defaults('status', 'confirmed')->name('student.book-reservations.confirmed');
     Route::get('/book-reservations/status/cancelled', [StudentBookReservationController::class, 'byStatus'])->defaults('status', 'cancelled')->name('student.book-reservations.cancelled');
     Route::get('/book-reservations/create', [StudentBookReservationController::class, 'create'])->name('student.book-reservations.create');
+    Route::get('/book-reservations/reservation-dates', [StudentBookReservationController::class, 'getReservationDates'])->name('student.book-reservations.reservation-dates');
     Route::get('/book-reservations/search-acquisition-books', [StudentBookReservationController::class, 'searchAcquisitionBooks'])->name('student.book-reservations.search-acquisition-books');
     Route::post('/book-reservations/check-availability', [StudentBookReservationController::class, 'checkAvailability'])->name('student.book-reservations.check-availability');
     Route::post('/book-reservations', [StudentBookReservationController::class, 'store'])->name('student.book-reservations.store');
@@ -216,6 +218,15 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     Route::put('/withdraw-dates/{withdrawDate}', [StaffSchoolWithdrawDateController::class, 'update'])->name('staff.withdraw-dates.update');
     Route::delete('/withdraw-dates/{withdrawDate}', [StaffSchoolWithdrawDateController::class, 'destroy'])->name('staff.withdraw-dates.destroy');
     Route::patch('/withdraw-dates/{withdrawDate}/toggle', [StaffSchoolWithdrawDateController::class, 'toggle'])->name('staff.withdraw-dates.toggle');
+    
+    // Reservation Dates Management - Date di acquisto prenotazioni
+    Route::get('/reservation-dates', [StaffSchoolReservationDateController::class, 'index'])->name('staff.reservation-dates.index');
+    Route::get('/reservation-dates/create', [StaffSchoolReservationDateController::class, 'create'])->name('staff.reservation-dates.create');
+    Route::post('/reservation-dates', [StaffSchoolReservationDateController::class, 'store'])->name('staff.reservation-dates.store');
+    Route::get('/reservation-dates/{reservationDate}/edit', [StaffSchoolReservationDateController::class, 'edit'])->name('staff.reservation-dates.edit');
+    Route::put('/reservation-dates/{reservationDate}', [StaffSchoolReservationDateController::class, 'update'])->name('staff.reservation-dates.update');
+    Route::delete('/reservation-dates/{reservationDate}', [StaffSchoolReservationDateController::class, 'destroy'])->name('staff.reservation-dates.destroy');
+    Route::patch('/reservation-dates/{reservationDate}/toggle', [StaffSchoolReservationDateController::class, 'toggle'])->name('staff.reservation-dates.toggle');
     
     // Book Listings - Libri disponibili
     Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');

@@ -7,6 +7,7 @@ use App\Models\BookListing;
 use App\Models\BookReservationBatch;
 use App\Models\BookReservation;
 use App\Models\BookSale;
+use App\Models\SchoolReservationDate;
 use App\Services\NotificationService;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -169,6 +170,7 @@ class BookReservationController extends Controller
             'book_listing_ids' => 'required|array|min:1',
             'book_listing_ids.*' => 'required|exists:book_listings,id',
             'notes' => 'nullable|string|max:500',
+            'scheduled_reservation_date_id' => 'nullable|exists:school_reservation_dates,id',
         ]);
 
         // Verify all books are available and belong to the same school
@@ -183,6 +185,15 @@ class BookReservationController extends Controller
                 ->withErrors(['error' => 'Uno o più libri non sono più disponibili. Riprova.']);
         }
 
+        // Verify the reservation date belongs to the user's school if provided
+        if (!empty($validated['scheduled_reservation_date_id'])) {
+            $reservationDate = SchoolReservationDate::find($validated['scheduled_reservation_date_id']);
+            if (!$reservationDate || $reservationDate->school_id !== $user->school_id) {
+                return redirect()->back()
+                    ->withErrors(['error' => 'Data di ritiro non valida.']);
+            }
+        }
+
         // Create the batch
         $batch = BookReservationBatch::create([
             'user_id' => $user->id,
@@ -191,6 +202,7 @@ class BookReservationController extends Controller
             'total_items' => $bookListings->count(),
             'notes' => $validated['notes'] ?? null,
             'reserved_at' => now(),
+            'scheduled_reservation_date_id' => $validated['scheduled_reservation_date_id'] ?? null,
         ]);
 
         // Create individual reservations and mark books as reserved
@@ -259,5 +271,32 @@ class BookReservationController extends Controller
 
         return redirect()->route('student.book-reservations.index')
             ->with('success', 'Prenotazione cancellata con successo.');
+    }
+
+    /**
+     * Get available reservation dates for the user's school (JSON endpoint).
+     */
+    public function getReservationDates(): JsonResponse
+    {
+        $user = auth()->user();
+        $school = $user->school;
+
+        $dates = SchoolReservationDate::bySchool($school->id)
+            ->active()
+            ->future()
+            ->orderBy('scheduled_date')
+            ->get()
+            ->map(function ($date) {
+                return [
+                    'id' => $date->id,
+                    'scheduled_date' => $date->scheduled_date->format('Y-m-d'),
+                    'label' => $date->scheduled_date->format('d/m/Y'),
+                ];
+            });
+
+        return response()->json([
+            'dates' => $dates,
+            'has_dates' => $dates->count() > 0,
+        ]);
     }
 }

@@ -100,7 +100,8 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Studente</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">N. Libri</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Totale</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Prenotazione</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Richiesta</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Data Ritiro</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Stato</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Azioni</th>
                     </tr>
@@ -122,6 +123,13 @@
                             <td class="px-6 py-4 font-medium text-gray-900">€ {{ number_format($batch->total_price, 2) }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 {{ $batch->created_at->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="px-6 py-4 text-sm">
+                                @if($batch->scheduledReservationDate)
+                                    <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">{{ $batch->scheduledReservationDate->scheduled_date->format('d/m/Y') }}</span>
+                                @else
+                                    <span class="inline-block bg-gray-100 text-gray-500 px-3 py-1 rounded-full text-xs">Non impostata</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 text-sm">
                                 @if ($batch->status === 'pending')

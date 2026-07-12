@@ -11,6 +11,9 @@
             <a href="{{ route('staff.withdraw-dates.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition {{ request()->is('staff/withdraw-dates*') ? 'bg-blue-50 text-blue-700' : '' }}">
                 Date di ritiro
             </a>
+            <a href="{{ route('staff.reservation-dates.index') }}" class="block px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition {{ request()->is('staff/reservation-dates*') ? 'bg-blue-50 text-blue-700' : '' }}">
+                Date di acquisto prenotazioni
+            </a>
         </nav>
     </div>
 </div>

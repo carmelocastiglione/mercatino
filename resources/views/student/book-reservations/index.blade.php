@@ -112,25 +112,17 @@
                                 <p class="text-sm font-medium text-gray-900">{{ $batch->created_at->format('d/m/Y H:i') }}</p>
                             </div>
 
-                            <!-- Status -->
+                            <!-- Pickup Date -->
                             <div>
-                                <p class="text-xs text-gray-600 font-semibold uppercase">Stato</p>
+                                <p class="text-xs text-gray-600 font-semibold uppercase">Ritiro</p>
                                 <div class="mt-1">
-                                    @if ($batch->isPending())
-                                        <span class="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full">
-                                            In Attesa
+                                    @if ($batch->scheduledReservationDate)
+                                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">
+                                            {{ $batch->scheduledReservationDate->scheduled_date->format('d/m/Y') }}
                                         </span>
-                                    @elseif ($batch->isConfirmed())
-                                        <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
-                                            Valutata
-                                        </span>
-                                    @elseif ($batch->isRejected())
-                                        <span class="inline-block bg-red-100 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">
-                                            Rifiutata
-                                        </span>
-                                    @elseif ($batch->isCancelled())
+                                    @else
                                         <span class="inline-block bg-gray-100 text-gray-800 text-xs font-semibold px-3 py-1 rounded-full">
-                                            Cancellata
+                                            Non impostata
                                         </span>
                                     @endif
                                 </div>

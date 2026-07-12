@@ -41,8 +41,11 @@
                             <p class="text-xs text-gray-500 font-semibold uppercase mb-1">Data Consegna</p>
                             <p class="text-sm font-medium text-gray-900">{{ $batch->scheduledDeliveryDate->scheduled_date->format('d/m/Y') }}</p>
                         </div>
-                    @else
-                        <div></div>
+                    @elseif($batch->scheduledReservationDate)
+                        <div>
+                            <p class="text-xs text-gray-500 font-semibold uppercase mb-1">Data Ritiro</p>
+                            <p class="text-sm font-medium text-gray-900">{{ $batch->scheduledReservationDate->scheduled_date->format('d/m/Y') }}</p>
+                        </div>
                     @endif
                 </div>
             </div>
