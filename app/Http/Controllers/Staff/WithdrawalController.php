@@ -712,7 +712,7 @@ class WithdrawalController extends Controller
                 ]);
 
                 // Set status based on leave field
-                $newStatus = $listing->leave ? 'reclaim' : 'archived';
+                $newStatus = $listing->leave ? 'archived' : 'reclaim';
                 $listing->update(['status' => $newStatus]);
                 $archivedCount++;
             }

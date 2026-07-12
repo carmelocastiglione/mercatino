@@ -112,7 +112,7 @@
                                         {{ $book->price_sell ? '€' . number_format($book->price_sell, 2, ',', '.') : '-' }}
                                     </td>
                                     <td class="px-6 py-4 text-center text-sm">
-                                        <form action="{{ route('staff.withdrawals.withdraw-money', $book->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('staff.withdrawals.withdraw-money', $book->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Sei sicuro di voler ritirare i soldi di questo libro?');">
                                             @csrf
                                             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1 px-3 rounded transition-colors">
                                                 Ritira Soldi

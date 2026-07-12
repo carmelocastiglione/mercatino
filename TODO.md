@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-07-13: Fixato un bug nella pagina delle riscossioni dove si invertivano libri ritirati e archiviati. Adesso i libri ritirati e archiviati sono visualizzati correttamente nella pagina delle riscossioni. Aggiunta conferma per il ritiro dei soldi di un singolo libro. Adesso lo staff deve confermare prima di ritirare i soldi di un singolo libro, per evitare ritiri accidentali.
 - 2026-07-12: Fixato un bug nella pagina delle vendite dello studente, dove non venivano visualizzate le vendite effettuate. Adesso la pagina mostra correttamente tutte le vendite effettuate dallo studente.
 - 2026-07-12: Per le prenotazioni online, è possibile selezionare una data di ritiro.
 - 2026-07-12: Aggiunta la possibilità di eliminare un'acquisizione, con la condizione che i libri non siano stati ancora venduti, prenotati o ritirati dallo studente. In questi casi, non sarà possibile eliminare l'acquisizione e verrà mostrato un messaggio di errore.
