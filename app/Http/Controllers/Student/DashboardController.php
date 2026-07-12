@@ -17,10 +17,10 @@ class DashboardController extends Controller
         $totalDeliveries = $user->bookDeliveries()->count();
 
         $totalSales = $user->getTotalSalesAmount();
-        $totalSalesCount = $user->bookListings()->where('status', 'sold')->count();
+        $totalSalesCount = $user->bookListings()->whereIn('status', ['sold', 'withdrawn'])->count();
         $totalWithdrawn = $user->getTotalWithdrawnAmount();
         $totalPurchases = $user->purchases()->count();
-        $totalReclaims = $user->reclaims()->count();
+        $totalReclaims = $user->withdrawals()->count();
         $totalReservations = $user->bookReservationBatches()->count();
         $totalBookListings = $user->bookListings()->count();
 

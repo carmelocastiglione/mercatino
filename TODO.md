@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-07-12: Fixato un bug nella pagina delle vendite dello studente, dove non venivano visualizzate le vendite effettuate. Adesso la pagina mostra correttamente tutte le vendite effettuate dallo studente.
 - 2026-07-12: Per le prenotazioni online, è possibile selezionare una data di ritiro.
 - 2026-07-12: Aggiunta la possibilità di eliminare un'acquisizione, con la condizione che i libri non siano stati ancora venduti, prenotati o ritirati dallo studente. In questi casi, non sarà possibile eliminare l'acquisizione e verrà mostrato un messaggio di errore.
 - 2026-07-12: Aggiunta la possibilità di eliminare le transazioni di riscossione e ritiro libri non venduti. Adesso lo staff può eliminare una transazione di riscossione o ritiro libri non venduti.
@@ -77,7 +78,6 @@
 # TODO
 
 ## Studente
-- Aggiunta scelta giorno ritiro libri prenotati per la consegna (es. se la scuola ha più giorni di ritiro, lo studente può scegliere il giorno in cui ritirare i libri)
 - Controllare numero libri venduti dagli studenti nella pagina del suo riepilogo (forse c'è un bug)
 
 - Quando uno studente prenota un libro, nel caso ci sia una lunga lista di libri disponibili, cosa fare?
@@ -86,8 +86,6 @@
 ## Staff
 - Notificare lo staff se una prenotazione è stata cancellata (serve? attualmente è impossibile visto che una prenotazione cancellata viene eliminata direttamente dal database)
 - Creare pagina report (?) prenotazioni di acquisto per velocizzare la preparazione dei libri (non esiste già la lista delle prenotazioni?)
-- Nella pagina riscossini, aggiungere conferme sui bottoni di riscossione e ritiro libri non venduti (es. "Sei sicuro di voler riscossione i soldi per i libri non venduti?") per evitare errori
-- Prezzo fisso camice 8€ (come?)
 
 - Aggiungere consegna materiale scolastico (non libri): se una scuola vuole consegnare anche materiale scolastico (es. camici) dovrebbe essere possibile farlo tramite una prenotazione simile a quella dei libri. Chiedere se serve
 - Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
