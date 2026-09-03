@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\BookListing;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class BookListingController extends Controller
 {
@@ -51,5 +52,29 @@ class BookListingController extends Controller
             'totalSalesAmount' => $totalSalesAmount,
             'filterQuery' => $query,
         ]);
+    }
+
+    /**
+     * Delete a book listing.
+     */
+    public function destroy(BookListing $listing): RedirectResponse
+    {
+        $schoolId = auth()->user()->school_id;
+
+        // Verify listing belongs to staff's school
+        if ($listing->book->school_id !== $schoolId) {
+            abort(403, 'Non autorizzato');
+        }
+
+        // Get the acquisition and update its total_price
+        $acquisition = $listing->acquisition;
+        if ($acquisition) {
+            $acquisition->total_price -= $listing->price;
+            $acquisition->save();
+        }
+
+        $listing->delete();
+
+        return redirect()->route('staff.book-listings.index')->with('success', 'Libro eliminato correttamente!');
     }
 }

@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-09-03: Aggiunta la possibilità da parte dello staff di eliminare le acquisizioni.
 - 2026-09-03: Aggiunta la possibilità da parte dello studente nella sezione "I miei libri" di visualizzare i batch dei libri acquisiti e stampare la ricevuta
 - 2026-07-13: Fixato un bug nella pagina delle riscossioni dove si invertivano libri ritirati e archiviati. Adesso i libri ritirati e archiviati sono visualizzati correttamente nella pagina delle riscossioni. Aggiunta conferma per il ritiro dei soldi di un singolo libro. Adesso lo staff deve confermare prima di ritirare i soldi di un singolo libro, per evitare ritiri accidentali.
 - 2026-07-12: Fixato un bug nella pagina delle vendite dello studente, dove non venivano visualizzate le vendite effettuate. Adesso la pagina mostra correttamente tutte le vendite effettuate dallo studente.

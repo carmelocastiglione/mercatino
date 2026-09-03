@@ -233,6 +233,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     
     // Book Listings - Libri disponibili
     Route::get('/book-listings', [StaffBookListingController::class, 'index'])->name('staff.book-listings.index');
+    Route::delete('/book-listings/{listing}', [StaffBookListingController::class, 'destroy'])->name('staff.book-listings.destroy');
     
     // Acquisitions Management - Acquisizioni
     Route::get('/acquisitions', [StaffAcquisitionController::class, 'index'])->name('staff.acquisitions.index');

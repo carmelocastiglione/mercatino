@@ -26,21 +26,21 @@ class AcquisitionController extends Controller
     public function index(): View
     {
         $query = request()->input('q', '');
+        $schoolId = auth()->user()->school_id;
         
-        // Totals without filters
-        $totalAcquisitionsCount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+        // Totals without filters - All acquisitions from seller's school
+        $totalAcquisitionsCount = Acquisition::whereHas('seller', fn($q) => $q->where('school_id', $schoolId))
             ->count();
 
-        $totalBooksCount = BookListing::whereHas('acquisition.bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
-            ->whereHas('book', fn($q) => $q->bySchool(auth()->user()->school_id))
+        $totalBooksCount = BookListing::whereHas('acquisition.seller', fn($q) => $q->where('school_id', $schoolId))
             ->count();
 
-        $totalAcquisitionsAmount = Acquisition::whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+        $totalAcquisitionsAmount = Acquisition::whereHas('seller', fn($q) => $q->where('school_id', $schoolId))
             ->sum('total_price');
 
-        // Filtered acquisitions for table
+        // Filtered acquisitions for table - All acquisitions, including those with 0 books
         $acquisitions = Acquisition::with('staff', 'seller', 'bookListings.book')
-            ->whereHas('bookListings.book', fn($q) => $q->bySchool(auth()->user()->school_id))
+            ->whereHas('seller', fn($q) => $q->where('school_id', $schoolId))
             ->when($query, function ($q) use ($query) {
                 return $q->where('ean13', 'ilike', "%{$query}%")
                     ->orWhereHas('seller', function ($userQuery) use ($query) {

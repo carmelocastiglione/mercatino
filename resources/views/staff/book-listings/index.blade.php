@@ -55,6 +55,7 @@
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo Acq.</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prezzo Vend.</th>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Data Acquisizione</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Azioni</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -82,6 +83,14 @@
                             <td class="px-6 py-4 text-sm font-semibold text-gray-900">€ {{ number_format($listing->price, 2, ',', '.') }}</td>
                             <td class="px-6 py-4 text-sm font-semibold text-green-600">{{ $listing->price_sell ? '€ ' . number_format($listing->price_sell, 2, ',', '.') : '-' }}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $listing->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <button 
+                                    onclick="confirmDelete('{{ route('staff.book-listings.destroy', $listing) }}', '{{ $listing->book->title }}')"
+                                    class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition"
+                                >
+                                    Elimina
+                                </button>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -101,4 +110,34 @@
             {{ $listings->links() }}
         </div>
     @endif
+
+    <script>
+        function confirmDelete(url, bookTitle) {
+            if (confirm(`Sei sicuro di voler eliminare il libro "${bookTitle}"?`)) {
+                // Crea un form invisibile per inviare la DELETE request
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                form.style.display = 'none';
+                
+                // Aggiungi il CSRF token
+                const csrfToken = '{{ csrf_token() }}';
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                
+                // Aggiungi il metodo DELETE
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                
+                form.appendChild(csrfInput);
+                form.appendChild(methodInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
 @endsection
