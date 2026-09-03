@@ -1,4 +1,5 @@
 # CHANGELOG
+- 2026-09-03: Aggiunta la possibilità da parte dello studente nella sezione "I miei libri" di visualizzare i batch dei libri acquisiti e stampare la ricevuta
 - 2026-07-13: Fixato un bug nella pagina delle riscossioni dove si invertivano libri ritirati e archiviati. Adesso i libri ritirati e archiviati sono visualizzati correttamente nella pagina delle riscossioni. Aggiunta conferma per il ritiro dei soldi di un singolo libro. Adesso lo staff deve confermare prima di ritirare i soldi di un singolo libro, per evitare ritiri accidentali.
 - 2026-07-12: Fixato un bug nella pagina delle vendite dello studente, dove non venivano visualizzate le vendite effettuate. Adesso la pagina mostra correttamente tutte le vendite effettuate dallo studente.
 - 2026-07-12: Per le prenotazioni online, è possibile selezionare una data di ritiro.
@@ -80,14 +81,12 @@
 
 ## Studente
 - Controllare numero libri venduti dagli studenti nella pagina del suo riepilogo (forse c'è un bug)
-
 - Quando uno studente prenota un libro, nel caso ci sia una lunga lista di libri disponibili, cosa fare?
 - Controllare cosa succede se vendo un libro prenotato online, se viene tolto dalla vendita o se viene ritirato dallo studente
 
 ## Staff
 - Notificare lo staff se una prenotazione è stata cancellata (serve? attualmente è impossibile visto che una prenotazione cancellata viene eliminata direttamente dal database)
 - Creare pagina report (?) prenotazioni di acquisto per velocizzare la preparazione dei libri (non esiste già la lista delle prenotazioni?)
-
 - Aggiungere consegna materiale scolastico (non libri): se una scuola vuole consegnare anche materiale scolastico (es. camici) dovrebbe essere possibile farlo tramite una prenotazione simile a quella dei libri. Chiedere se serve
 - Quando si approva una prenotazione di vendita, se si esce dalla schermata di vendita il libro rimane come "riservato" mentre la prenotazione risulta approvata. Da risolvere (esempio: se si approva una prenotazione di vendita ma non si completa la vendita, il libro dovrebbe tornare disponibile)
 - Gestire il fatto che un libro può essere ritirato anche se prenotato per la vendita (esempio: se un libro è prenotato per la vendita ma non è stato ancora venduto, dovrebbe essere possibile ritirarlo)

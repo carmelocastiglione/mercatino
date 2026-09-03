@@ -19,6 +19,11 @@ class BookListingsController extends Controller
             ->latest('updated_at')
             ->paginate(15);
 
+        $acquisitions = $user->acquisitions()
+            ->with('bookListings.book')
+            ->latest('created_at')
+            ->get();
+
         $statusStats = [
             'available' => $user->bookListings()->where('status', 'available')->count(),
             'reserved' => $user->bookListings()->where('status', 'reserved')->count(),
@@ -27,6 +32,7 @@ class BookListingsController extends Controller
 
         return view('student.book-listings.index', [
             'listings' => $listings,
+            'acquisitions' => $acquisitions,
             'statusStats' => $statusStats,
         ]);
     }

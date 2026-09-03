@@ -10,6 +10,7 @@ use App\Http\Controllers\Staff\ProblemController as StaffProblemController;
 use App\Http\Controllers\Student\DeliveryController as StudentDeliveryController;
 use App\Http\Controllers\Student\SalesController as StudentSalesController;
 use App\Http\Controllers\Student\BookListingsController as StudentBookListingsController;
+use App\Http\Controllers\Student\AcquisitionController as StudentAcquisitionController;
 use App\Http\Controllers\Student\PurchasesController as StudentPurchasesController;
 use App\Http\Controllers\Student\WithdrawalsController as StudentWithdrawalsController;
 use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
@@ -95,6 +96,8 @@ Route::middleware(['auth', 'student'])->prefix('student')->group(function () {
     Route::get('/sales', [StudentSalesController::class, 'index'])->name('student.sales.index');
     
     Route::get('/book-listings', [StudentBookListingsController::class, 'index'])->name('student.book-listings.index');
+    
+    Route::get('/acquisitions/{acquisition}', [StudentAcquisitionController::class, 'show'])->name('student.acquisitions.show');
     
     Route::get('/purchases', [StudentPurchasesController::class, 'index'])->name('student.purchases.index');
     

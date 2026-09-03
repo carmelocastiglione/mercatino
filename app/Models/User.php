@@ -199,4 +199,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(BookReservationBatch::class);
     }
+
+    /**
+     * Get the acquisitions for this user (seller).
+     */
+    public function acquisitions(): HasMany
+    {
+        return $this->hasMany(Acquisition::class, 'seller_id');
+    }
 }
