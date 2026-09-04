@@ -44,6 +44,18 @@ class BookReservationController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
+        // Count incomplete (zombie) reservations: confirmed batch with confirmed reservations but listing still reserved
+        $incompleteCount = BookReservationBatch::where('status', 'confirmed')
+            ->bySchool(auth()->user()->school_id)
+            ->whereHas('bookReservations', function ($q) {
+                $q->where('status', 'confirmed')
+                  ->whereHas('bookListing', function ($bq) {
+                      $bq->where('status', 'reserved');
+                  });
+            })
+            ->distinct()
+            ->count();
+
         // All batches for table (no status filter)
         $batches = BookReservationBatch::with('user', 'bookReservations.bookListing.book')
             ->bySchool(auth()->user()->school_id)
@@ -66,6 +78,7 @@ class BookReservationController extends Controller
             'pendingCount' => $pendingCount,
             'confirmedCount' => $confirmedCount,
             'cancelledCount' => $cancelledCount,
+            'incompleteCount' => $incompleteCount,
             'filterQuery' => $query,
         ]);
     }
@@ -90,28 +103,67 @@ class BookReservationController extends Controller
             ->bySchool(auth()->user()->school_id)
             ->count();
 
-        // Batches filtered by status
-        $batches = BookReservationBatch::where('status', $status)
-            ->with('user', 'bookReservations.bookListing.book')
+        $incompleteCount = BookReservationBatch::where('status', 'confirmed')
             ->bySchool(auth()->user()->school_id)
-            ->when($query, function ($q) use ($query) {
-                return $q->where(function ($groupQuery) use ($query) {
-                    $groupQuery->where('ean13', 'ilike', "%{$query}%")
-                        ->orWhereHas('user', function ($userQuery) use ($query) {
-                            $userQuery->where('surname', 'ilike', "%{$query}%")
-                                ->orWhere('email', 'ilike', "%{$query}%")
-                                ->orWhere('code', 'ilike', "%{$query}%");
-                        });
-                });
+            ->whereHas('bookReservations', function ($q) {
+                $q->where('status', 'confirmed')
+                  ->whereHas('bookListing', function ($bq) {
+                      $bq->where('status', 'reserved');
+                  });
             })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+            ->distinct()
+            ->count();
+
+        // Batches filtered by status
+        if ($status === 'incompleted') {
+            // Special case: incomplete/zombie reservations
+            $batches = BookReservationBatch::where('status', 'confirmed')
+                ->with('user', 'bookReservations.bookListing.book')
+                ->bySchool(auth()->user()->school_id)
+                ->whereHas('bookReservations', function ($q) {
+                    $q->where('status', 'confirmed')
+                      ->whereHas('bookListing', function ($bq) {
+                          $bq->where('status', 'reserved');
+                      });
+                })
+                ->when($query, function ($q) use ($query) {
+                    return $q->where(function ($groupQuery) use ($query) {
+                        $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                            ->orWhereHas('user', function ($userQuery) use ($query) {
+                                $userQuery->where('surname', 'ilike', "%{$query}%")
+                                    ->orWhere('email', 'ilike', "%{$query}%")
+                                    ->orWhere('code', 'ilike', "%{$query}%");
+                            });
+                    });
+                })
+                ->distinct()
+                ->latest()
+                ->paginate(10)
+                ->withQueryString();
+        } else {
+            $batches = BookReservationBatch::where('status', $status)
+                ->with('user', 'bookReservations.bookListing.book')
+                ->bySchool(auth()->user()->school_id)
+                ->when($query, function ($q) use ($query) {
+                    return $q->where(function ($groupQuery) use ($query) {
+                        $groupQuery->where('ean13', 'ilike', "%{$query}%")
+                            ->orWhereHas('user', function ($userQuery) use ($query) {
+                                $userQuery->where('surname', 'ilike', "%{$query}%")
+                                    ->orWhere('email', 'ilike', "%{$query}%")
+                                    ->orWhere('code', 'ilike', "%{$query}%");
+                            });
+                    });
+                })
+                ->latest()
+                ->paginate(10)
+                ->withQueryString();
+        }
 
         $statusLabels = [
             'pending' => 'In Attesa',
             'confirmed' => 'Valutate',
             'cancelled' => 'Cancellate',
+            'incompleted' => 'Non Completate',
         ];
 
         return view('staff.book-reservations.index', [
@@ -119,6 +171,7 @@ class BookReservationController extends Controller
             'pendingCount' => $pendingCount,
             'confirmedCount' => $confirmedCount,
             'cancelledCount' => $cancelledCount,
+            'incompleteCount' => $incompleteCount,
             'statusFilter' => $status,
             'statusLabel' => $statusLabels[$status] ?? $status,
             'filterQuery' => $query,
@@ -151,29 +204,59 @@ class BookReservationController extends Controller
             ->latest()
             ->get();
 
-        // Calcola i prezzi per ogni reservazione con la fee di vendita sommata
-        $batches->each(function ($batch) use ($school) {
-            $batch->bookReservations->each(function ($reservation) use ($school) {
-                // Calcola marketplace_price (metà del prezzo originale)
-                $originalPrice = $reservation->bookListing->book->original_price;
-                $marketplacePrice = floor($originalPrice) / 2;
-                
-                // Fee di vendita (sommata, non sottratta)
-                $fee = $school->sales_fee ?? 0;
-                $total = $marketplacePrice + $fee;
+        // Get zombie batches (confirmed status but with confirmed reservations that have reserved listings)
+        $zombieBatches = BookReservationBatch::where('user_id', $studentId)
+            ->where('school_id', $staffSchoolId)
+            ->where('status', 'confirmed')
+            ->with(['bookReservations' => function ($query) {
+                $query->where('status', 'confirmed')
+                      ->whereHas('bookListing', function ($bq) {
+                          $bq->where('status', 'reserved');
+                      })
+                      ->with('bookListing.book', 'bookListing.seller.school');
+            }])
+            ->whereHas('bookReservations', function ($q) {
+                $q->where('status', 'confirmed')
+                  ->whereHas('bookListing', function ($bq) {
+                      $bq->where('status', 'reserved');
+                  });
+            })
+            ->latest()
+            ->get();
 
-                // Salva i dati nel modello per usarli nella blade
-                $reservation->price_data = [
-                    'original_price' => (float) $originalPrice,
-                    'marketplace_price' => (float) $marketplacePrice,
-                    'fee' => (float) $fee,
-                    'total' => (float) $total,
-                ];
+        // Helper function to calculate prices
+        $calculatePrices = function ($batches) use ($school) {
+            $batches->each(function ($batch) use ($school) {
+                $batch->bookReservations->each(function ($reservation) use ($school) {
+                    // Calcola marketplace_price (metà del prezzo originale)
+                    $originalPrice = $reservation->bookListing->book->original_price;
+                    $marketplacePrice = floor($originalPrice) / 2;
+                    
+                    // Fee di vendita (sommata, non sottratta)
+                    $fee = $school->sales_fee ?? 0;
+                    $total = $marketplacePrice + $fee;
+
+                    // Salva i dati nel modello per usarli nella blade
+                    $reservation->price_data = [
+                        'original_price' => (float) $originalPrice,
+                        'marketplace_price' => (float) $marketplacePrice,
+                        'fee' => (float) $fee,
+                        'total' => (float) $total,
+                    ];
+                });
             });
+        };
+
+        // Calcola i prezzi per entrambe le collezioni
+        $calculatePrices($batches);
+        $calculatePrices($zombieBatches);
+
+        // Count total pending and zombie reservations
+        $pendingCount = $batches->sum(function ($batch) {
+            return $batch->bookReservations->count();
         });
 
-        // Count total pending reservations across all batches
-        $pendingCount = $batches->sum(function ($batch) {
+        $zombieCount = $zombieBatches->sum(function ($batch) {
             return $batch->bookReservations->count();
         });
 
@@ -195,9 +278,11 @@ class BookReservationController extends Controller
         return view('staff.book-reservations.student', [
             'student' => $student,
             'batches' => $batches,
+            'zombieBatches' => $zombieBatches,
             'reservations' => $reservations,
             'batchesForJson' => $batchesForJson,
             'pendingCount' => $pendingCount,
+            'zombieCount' => $zombieCount,
         ]);
     }
 

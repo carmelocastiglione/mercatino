@@ -304,7 +304,7 @@ Route::middleware(['auth', 'staff'])->prefix('staff')->group(function () {
     // Book Reservations Management - Prenotazioni libri
     Route::get('/book-reservations', [StaffBookReservationController::class, 'index'])->name('staff.book-reservations.index');
     Route::get('/book-reservations/status/{status}', [StaffBookReservationController::class, 'byStatus'])
-        ->where('status', 'pending|confirmed|cancelled')
+        ->where('status', 'pending|confirmed|cancelled|incompleted')
         ->name('staff.book-reservations.byStatus');
     Route::get('/book-reservations/search-students', [StaffBookReservationController::class, 'searchStudents'])->name('staff.book-reservations.search-students');
     Route::get('/book-reservations/student/{studentId}', [StaffBookReservationController::class, 'studentReservations'])->name('staff.book-reservations.student');

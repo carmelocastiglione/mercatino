@@ -201,7 +201,166 @@
                 </a>
             </div>
         </div>
-    @else
+    @endif
+
+    @if($zombieCount > 0)
+        <div class="bg-white rounded-lg shadow-sm border border-orange-200 p-6 mb-8">
+            <x-info-box
+                type="warning"
+                title="Prenotazioni Non Completate"
+                message="Queste prenotazioni sono state approvate ma non è stata ancora generata una vendita. Completa il processo generando la vendita."
+            />
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-gray-900">Libri Non Completati</h2>
+                <span class="inline-block bg-orange-600 text-white text-xs font-bold rounded-full px-3 py-1">{{ $zombieCount }}</span>
+            </div>
+
+            <!-- Zombie Batches Loop -->
+            @foreach($zombieBatches as $batch)
+                <div class="border-2 border-orange-200 rounded-lg overflow-hidden mb-6 bg-gradient-to-br from-orange-50 to-amber-50">
+                    <!-- Batch Header -->
+                    <div class="bg-gradient-to-r from-orange-100 to-amber-100 px-6 py-4 border-b-2 border-orange-300 cursor-pointer hover:from-orange-200 hover:to-amber-200 transition batch-header" data-batch-id="{{ $batch->id }}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="grid grid-cols-4 gap-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-600 font-medium">Codice Transazione</p>
+                                        <p class="text-gray-900 font-mono text-lg">{{ $batch->ean13 }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600 font-medium">N. Libri</p>
+                                        <p class="text-gray-900 font-bold text-lg">{{ $batch->bookReservations->count() }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600 font-medium">Totale</p>
+                                        <p class="text-orange-600 font-bold text-lg">€ {{ number_format($batch->total_price, 2, ',', '.') }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600 font-medium">Data Richiesta</p>
+                                        <p class="text-gray-900 font-medium">{{ $batch->created_at->format('d/m/Y') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="batch-toggle ml-4 flex-shrink-0">
+                                <svg class="w-6 h-6 text-gray-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zombie Reservations in this batch -->
+                    <div class="batch-content divide-y divide-orange-200">
+                        @foreach($batch->bookReservations as $reservation)
+                            <div id="zombie_{{ $reservation->id }}" class="p-4 hover:bg-orange-100 transition" data-reservation-id="{{ $reservation->id }}" data-batch-id="{{ $batch->id }}">
+                                <div class="mb-3">
+                                    <!-- Book Information -->
+                                    <div>
+                                        <p class="font-medium text-gray-900">{{ $reservation->bookListing->book->title }}</p>
+                                        <p class="text-sm text-gray-600">{{ $reservation->bookListing->book->author ?? 'Autore sconosciuto' }}</p>
+                                        <p class="text-sm text-gray-600">ISBN: {{ $reservation->bookListing->book->isbn ?? 'N/A' }}</p>
+                                        <p class="text-sm text-gray-600 mt-2">
+                                            Condizione: <span class="font-semibold
+                                                @switch($reservation->bookListing->condition)
+                                                    @case('like-new')
+                                                        text-green-700
+                                                    @break
+                                                    @case('good')
+                                                        text-blue-700
+                                                    @break
+                                                    @case('fair')
+                                                        text-yellow-700
+                                                    @break
+                                                    @case('poor')
+                                                        text-red-700
+                                                    @break
+                                                @endswitch
+                                            ">
+                                                @switch($reservation->bookListing->condition)
+                                                    @case('like-new')
+                                                        Come Nuovo
+                                                    @break
+                                                    @case('good')
+                                                        Buona
+                                                    @break
+                                                    @case('fair')
+                                                        Discreta
+                                                    @break
+                                                    @case('poor')
+                                                        Scarsa
+                                                    @break
+                                                @endswitch
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Details Section -->
+                                <div class="reservation-details grid grid-cols-2 gap-4">
+                                    <!-- Left: Price Details -->
+                                    <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 border border-orange-300">
+                                        <div class="space-y-2 text-sm">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Prezzo copertina:</span>
+                                                <span class="font-medium">€{{ number_format($reservation->price_data['original_price'], 2) }}</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Prezzo mercatino:</span>
+                                                <span class="font-medium">€{{ number_format($reservation->price_data['marketplace_price'], 2) }}</span>
+                                            </div>
+                                            <div class="flex justify-between pt-2 border-t border-orange-300">
+                                                <span class="text-gray-600">Fee scuola:</span>
+                                                <span class="font-medium text-orange-600">+€{{ number_format($reservation->price_data['fee'], 2) }}</span>
+                                            </div>
+                                            <div class="flex justify-between pt-2 border-t-2 border-orange-400 mt-2">
+                                                <span class="font-bold text-gray-900">Totale:</span>
+                                                <span class="font-bold text-lg text-orange-600">€<span class="price-display">{{ number_format($reservation->price_data['total'], 2) }}</span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right: Seller & Status -->
+                                    <div class="flex flex-col gap-3">
+                                        <!-- Seller Information -->
+                                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-3 border border-amber-300">
+                                            <h4 class="font-semibold text-gray-900 text-sm mb-2">Venditore</h4>
+                                            <div class="space-y-1 text-sm">
+                                                <p class="text-gray-700">
+                                                    <span class="font-medium">{{ $reservation->bookListing->seller->name }}</span>
+                                                    <span>{{ $reservation->bookListing->seller->surname }}</span>
+                                                </p>
+                                                <p class="text-gray-600">
+                                                    <span class="text-xs">Codice: </span>
+                                                    <span class="font-mono bg-white px-1 py-0.5 rounded text-xs">{{ $reservation->bookListing->seller->code }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status Badge -->
+                                        <div class="bg-orange-100 border-2 border-orange-400 rounded-lg p-3">
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-5 h-5 text-orange-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="font-medium text-orange-700 text-sm">Non Completata</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+
+            <p class="text-sm text-gray-600 mb-4">💡 Clicca il bottone qui sotto per completare il processo di vendita per questi libri.</p>
+            <button type="button" onclick="completeSalesForZombies()" class="px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition">
+                → Completa le Vendite
+            </button>
+        </div>
+    @endif
+
+    @if($pendingCount == 0 && $zombieCount == 0)
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -219,6 +378,45 @@
     let studentName = '{{ $student->name }} {{ $student->surname }}';
     let reservationsData = {!! json_encode($reservations->map(fn($r) => ['id' => $r->id])->toArray()) !!};
     let batchesData = {!! json_encode($batchesForJson) !!};
+
+    /**
+     * Completa le vendite per le prenotazioni zombie (non completate)
+     * Raccoglie gli ID delle prenotazioni zombie e reindirizza alla pagina di preparazione vendite
+     */
+    function completeSalesForZombies() {
+        // Raccoglie tutti gli ID delle prenotazioni zombie
+        const zombieReservationIds = [];
+        document.querySelectorAll('[id^="zombie_"]').forEach(el => {
+            const id = el.id.replace('zombie_', '');
+            zombieReservationIds.push(parseInt(id));
+        });
+
+        if (zombieReservationIds.length === 0) {
+            showError('Nessuna prenotazione non completata trovata');
+            return;
+        }
+
+        // Salva gli ID in sessione e reindirizza
+        fetch(`{{ route('staff.book-reservations.store-session-approvals') }}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                approved_reservation_ids: zombieReservationIds,
+                student_id: studentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const url = '{{ route('staff.book-reservations.prepare-sales') }}' + '?student_id=' + studentId;
+            window.location.href = url;
+        })
+        .catch(error => {
+            showError('Errore nel passaggio alla pagina di vendita');
+        });
+    }
 
     function showToast(message, type = 'success') {
         const bgColor = type === 'error' ? 'bg-red-600' : 'bg-green-600';

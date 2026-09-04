@@ -21,12 +21,15 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
         <a href="{{ route('staff.book-reservations.byStatus', 'pending') }}" class="hover:shadow-md transition">
             <x-stats-card label="In Attesa" :value="$pendingCount" color="yellow" />
         </a>
         <a href="{{ route('staff.book-reservations.byStatus', 'confirmed') }}" class="hover:shadow-md transition">
             <x-stats-card label="Valutate" :value="$confirmedCount" color="green" />
+        </a>
+        <a href="{{ route('staff.book-reservations.byStatus', 'incompleted') }}" class="hover:shadow-md transition">
+            <x-stats-card label="Non Completate" :value="$incompleteCount" color="orange" />
         </a>
         <a href="{{ route('staff.book-reservations.byStatus', 'cancelled') }}" class="hover:shadow-md transition">
             <x-stats-card label="Cancellate" :value="$cancelledCount" color="red" />
@@ -175,6 +178,9 @@
                         @break
                         @case('confirmed')
                             Nessuna prenotazione valutata
+                        @break
+                        @case('incompleted')
+                            Nessuna prenotazione non completata
                         @break
                         @case('cancelled')
                             Nessuna prenotazione cancellata
