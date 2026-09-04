@@ -8,11 +8,13 @@ use App\Models\BookSaleBatch;
 use App\Models\BookListing;
 use App\Models\User;
 use App\Models\Reclaim;
+use App\Models\BookReservation;
 use App\Services\NotificationService;
 use App\Notifications\BookSaleCancelledNotification;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class SaleController extends Controller
 {
@@ -63,11 +65,39 @@ class SaleController extends Controller
     /**
      * Show the form for creating a new sale.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        // Check if there are approved reservations from session
-        $approvedReservations = session('approved_reservations', []);
-        $studentId = session('student_id', null);
+        // Leggi gli IDs dalla query string
+        $studentId = $request->input('student_id');
+        $reservationIdsString = $request->input('reservation_ids', '');
+        $approvedReservations = [];
+        
+        // Se ci sono IDs, carica i dati dal DB
+        if (!empty($reservationIdsString) && !empty($studentId)) {
+            $reservationIds = array_filter(array_map('intval', explode(',', $reservationIdsString)));
+            
+            if (!empty($reservationIds)) {
+                $reservations = BookReservation::whereIn('id', $reservationIds)
+                    ->where('status', 'confirmed')
+                    ->with('bookListing.book', 'bookListing.seller')
+                    ->get();
+                
+                $approvedReservations = $reservations->map(function ($reservation) {
+                    return [
+                        'book_listing_id' => $reservation->book_listing_id,
+                        'book_title' => $reservation->bookListing->book->title,
+                        'book_author' => $reservation->bookListing->book->author,
+                        'book_isbn' => $reservation->bookListing->book->isbn,
+                        'book_price' => $reservation->bookListing->price_sell ?? $reservation->bookListing->price,
+                        'book_condition' => $reservation->bookListing->condition,
+                        'seller_id' => $reservation->bookListing->seller_id,
+                        'seller_name' => $reservation->bookListing->seller->name ?? '',
+                        'seller_surname' => $reservation->bookListing->seller->surname ?? '',
+                        'seller_code' => $reservation->bookListing->seller->code ?? '',
+                    ];
+                })->toArray();
+            }
+        }
 
         return view('staff.sales.create', [
             'approvedReservations' => $approvedReservations,
@@ -242,9 +272,6 @@ class SaleController extends Controller
                     'password' => $validated['buyer_password'],
                 ]);
             }
-
-            // Clear session data after processing
-            session()->forget(['approved_reservations', 'student_id']);
 
             $redirectUrl = route('staff.sales.show', ['batch' => $batch->id]);
 

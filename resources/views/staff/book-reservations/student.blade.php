@@ -396,7 +396,7 @@
             return;
         }
 
-        // Salva gli ID in sessione e reindirizza
+        // Passa gli IDs via query string e reindirizza
         fetch(`{{ route('staff.book-reservations.store-session-approvals') }}`, {
             method: 'POST',
             headers: {
@@ -410,8 +410,11 @@
         })
         .then(response => response.json())
         .then(data => {
-            const url = '{{ route('staff.book-reservations.prepare-sales') }}' + '?student_id=' + studentId;
-            window.location.href = url;
+            if (data.success && data.redirect_url) {
+                window.location.href = data.redirect_url;
+            } else {
+                showError('Errore nel passaggio alla pagina di vendita');
+            }
         })
         .catch(error => {
             showError('Errore nel passaggio alla pagina di vendita');
@@ -695,9 +698,16 @@
                                 student_id: studentId
                             })
                         })
-                        .then(() => {
-                            const url = '{{ route('staff.book-reservations.prepare-sales') }}' + '?student_id=' + studentId;
-                            window.location.href = url;
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                showError('Errore nel passaggio alla pagina di vendita');
+                            }
+                        })
+                        .catch(error => {
+                            showError('Errore nel passaggio alla pagina di vendita');
                         });
                     } else {
                         // All rejected, go back to index

@@ -525,6 +525,7 @@ class BookReservationController extends Controller
 
     /**
      * Store approved reservation IDs in session before redirecting to sales
+     * Passa gli IDs tramite query string per evitare limitazioni sui cookie
      */
     public function storeSessionApprovals(Request $request): JsonResponse
     {
@@ -535,39 +536,42 @@ class BookReservationController extends Controller
             return response()->json(['success' => false, 'message' => 'Nessuna prenotazione'], 400);
         }
 
-        // Store in session
-        session()->put([
-            'approved_reservation_ids' => $approvedIds,
-            'student_id' => $studentId
+        // Costruisci query string con gli IDs (molto leggero)
+        $idsString = implode(',', $approvedIds);
+        
+        return response()->json([
+            'success' => true,
+            'redirect_url' => route('staff.book-reservations.prepare-sales') . "?student_id={$studentId}&reservation_ids={$idsString}"
         ]);
-
-        return response()->json(['success' => true]);
     }
 
     /**
      * Prepare sales from approved reservations and redirect to sales.create
+     * Ora carica i dati dal DB usando gli IDs passati in query string
      */
     public function prepareSales(Request $request): RedirectResponse
     {
         try {
             $studentId = $request->input('student_id');
+            $idsString = $request->input('reservation_ids', '');
+            
             $student = User::findOrFail($studentId);
 
             if ($student->school_id !== auth()->user()->school_id) {
                 abort(403, 'Non autorizzato');
             }
 
-            // Get approved reservation IDs from session (set by storeSessionApprovals)
-            $approvedIds = session()->get('approved_reservation_ids', []);
+            // Parsa gli IDs dalla query string
+            $approvedIds = array_filter(array_map('intval', explode(',', $idsString)));
 
             if (empty($approvedIds)) {
-                return redirect()->back()->withErrors(['error' => 'Nessuna prenotazione approvata in questa sessione']);
+                return redirect()->back()->withErrors(['error' => 'Nessuna prenotazione specificata']);
             }
 
-            // Get ONLY the confirmed reservations that were approved in this session
+            // Carica i dati dal DB usando gli IDs
             $confirmedReservations = BookReservation::whereIn('id', $approvedIds)
                 ->where('status', 'confirmed')
-                ->with('batch', 'bookListing.book')
+                ->with('batch', 'bookListing.book', 'bookListing.seller')
                 ->get();
 
             if ($confirmedReservations->isEmpty()) {
@@ -599,13 +603,12 @@ class BookReservationController extends Controller
                 ]);
             }
 
-            // Store in session using put() instead of with() to persist data
-            session()->put([
-                'approved_reservations' => $approvedReservations,
-                'student_id' => $studentId
+            // Passa gli IDs via query string (leggero) anziché salvare i dati in sessione
+            $reservationIds = $confirmedReservations->pluck('id')->implode(',');
+            return redirect()->route('staff.sales.create', [
+                'student_id' => $studentId,
+                'reservation_ids' => $reservationIds
             ]);
-
-            return redirect()->route('staff.sales.create');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => 'Errore nella preparazione delle vendite']);
         }
